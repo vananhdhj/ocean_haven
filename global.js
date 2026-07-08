@@ -1,4 +1,4 @@
-// Main shared JS logic for Ocean Haven Hotel
+// Main shared JS logic for Hotel website
 
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize navigation behavior
@@ -67,7 +67,13 @@ function initNavbar() {
       btn.classList.remove("active");
     }
   });
+
+  let lastKnownScrollPosition = 0;
+  let ticking = false;
 }
+
+
+
 
 // ─── Search Bar Helper ──────────────────────────────────────────────────────
 function initSearchBar(containerSelector, onSearch) {

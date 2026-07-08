@@ -3,6 +3,7 @@
 */
 @import url("./font/dffdin.css");
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:opsz,wdth,wght@18..144,87.5,800&display=swap&text=0123456789.,$%');
 
 :root {
   /* Color Palette (Deep Ocean Navy & Sky Accent) */
@@ -40,6 +41,7 @@
 
   --font-display: 'Crimson Pro', Georgia, serif;
   --font-body: 'DINPro', system-ui, sans-serif;
+  --font-price-tag: 'Merriweather', 'DINPro', sans-serif;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -300,7 +302,7 @@ textarea {
 
 /* Navigation Bar */
 .navbar {
-  position: fixed;
+  position: sticky;
   width: 100%;
   top: 0;
   z-index: 40;
@@ -308,7 +310,7 @@ textarea {
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   height: 4rem;
-  display:-webkit-flex;
+  display: flex;
   align-items: center;
   box-shadow: var(--shadow-sm);
 }
@@ -956,6 +958,7 @@ textarea {
 }
 
 .room-card-price {
+  font-family: var(--font-price-tag);
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--foreground);
@@ -2145,6 +2148,7 @@ dialog[open] {
 }
 
 .booking-widget-price-row {
+  font-family: var(--font-price-tag);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -2237,14 +2241,20 @@ dialog[open] {
 }
 
 .mobile-sticky-footer-price {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-price-tag);
+  size: 2rem;
+  font-size: 1.7rem;
+  font-weight: 800;
 }
 
 .mobile-sticky-footer-price span {
   font-size: 0.75rem;
   color: var(--muted-foreground);
   font-weight: 400;
+}
+
+#widget-book-btn {
+  font-family: var(--font-price-tag);
 }
 
 /* Responsive Overrides */
