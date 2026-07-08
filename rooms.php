@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Rooms — Ocean Haven Hotel</title>
+  <title>All Available Rooms</title>
   <meta name="description"
     content="Browse our 22 beautifully appointed rooms. Filter by room type, view, floor, price, or capacity to find your perfect stay in Da Nang, Vietnam.">
   <link rel="stylesheet" href="global.css">
@@ -91,7 +91,7 @@
 
       <!-- Catalog Header Row -->
       <div class="results-header-row">
-        <h1 class="text-2xl font-bold">All Rooms
+        <h1 class="text-2xl font-bold">All Available Rooms
           <span class="font-normal text-muted-foreground text-lg" id="rooms-count-badge">(22)</span>
         </h1>
 

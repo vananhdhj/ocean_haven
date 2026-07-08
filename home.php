@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ocean Haven Hotel - Da Nang</title>
+  <title>Hotel Booking Site</title>
   <meta name="description"
     content="22 beautifully appointed rooms across 3 floors, steps from the sea. Ocean Haven is where families make memories that last a lifetime in Da Nang, Vietnam.">
   <link rel="stylesheet" href="global.css">
@@ -87,29 +87,15 @@
         alt="Ocean Haven Hotel — patio with sea view" class="hero-bg">
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-tag">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-map-pin-icon lucide-map-pin">
-            <path
-              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          <span>Da Nang, Vietnam</span>
-        </div>
         <h1>
-          Where the Ocean Meets<br>
-          <span class="italic">Your Dream Stay</span>
-        </h1>
-        <p class="hero-desc">22 beautifully appointed rooms across 3 floors, steps from the sea. Ocean Haven is where
-          families make memories that last a lifetime.</p>
-
-        <!-- Interactive Search Bar Component -->
-        <div id="hero-search-bar-container"></div>
+          Hotel Listing and Booking Website
+        </h1> 
+        <!-- Interactive Search Bar Component 
+        <div id="hero-search-bar-container"></div>-->
       </div>
     </section>
 
-    <!-- Stats Bar -->
+    <!-- Stats Bar 
     <section class="stats-bar">
       <div class="container">
         <div class="stats-grid">
@@ -131,7 +117,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section>-->
 
     <!-- Featured Rooms -->
     <section class="feature-rooms">
@@ -155,57 +141,6 @@
         <!-- Featured Rooms Grid -->
         <div class="room-grid" id="featured-rooms-grid">
           <!-- Room cards will be rendered dynamically here -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Why Choose Us / Features -->
-    <section class="why-us">
-      <div class="container">
-        <div class="text-title">
-          <p>
-            Why Ocean Haven</p>
-          <h2>A Place Apart</h2>
-        </div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-waves-horizontal-icon lucide-waves-horizontal">
-                <path d="M2 12q2.5 2 5 0t5 0 5 0 5 0" />
-                <path d="M2 19q2.5 2 5 0t5 0 5 0 5 0" />
-                <path d="M2 5q2.5 2 5 0t5 0 5 0 5 0" />
-              </svg>
-            </div>
-            <h3>Seafront Location</h3>
-            <p>Just 50 metres from the beach. Fall asleep to the sound of waves, wake to morning light on the water.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-heart-icon lucide-heart">
-                <path
-                  d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
-              </svg>
-            </div>
-            <h3>Family First</h3>
-            <p>From connecting suites to children's amenities and family kitchens — every room is designed with families
-              in mind.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-shield-icon lucide-shield">
-                <path
-                  d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-              </svg>
-            </div>
-            <h3>Simple Booking</h3>
-            <p>Book in three steps, pay securely via MoMo, and receive instant confirmation. No hidden fees, ever.</p>
-          </div>
         </div>
       </div>
     </section>

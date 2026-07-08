@@ -80,7 +80,7 @@ function initSearchBar(containerSelector, onSearch) {
   container.innerHTML = `
     <div class="search-bar-container">
       <div class="search-bar-grid">
-        <!-- Location -->
+        <!-- Location 
         <div class="search-field">
           <div class="search-field-with-icon">
             <svg
@@ -103,7 +103,7 @@ function initSearchBar(containerSelector, onSearch) {
               <p class="search-field-text">Ocean Haven Hotel, Da Nang</p>
             </div>
           </div>
-        </div>
+        </div>-->
         <!-- Check-in -->
         <div class="search-field flex-1">
           <label for="check-in-input">Check-in</label>
