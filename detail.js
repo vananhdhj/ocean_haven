@@ -4,13 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const roomId = urlParams.get("id");
 
   if (!roomId) {
-    window.location.href = "rooms.html";
+    window.location.href = "rooms.php";
     return;
   }
 
   const room = window.HotelDb.getRoomById(roomId);
   if (!room) {
-    window.location.href = "rooms.html";
+    window.location.href = "rooms.php";
     return;
   }
 
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = `
           <!-- Header Actions Row -->
           <div class="detail-header-actions">
-            <a href="rooms.html" class="btn-back-link">
+            <a href="rooms.php" class="btn-back-link">
               <svg
                 xmlns="http://w3.org"
                 width="18"

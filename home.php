@@ -14,10 +14,10 @@
 <body>
   <!-- Navigation -->
   <header>
-    <nav class="navbar" id="navbar fixed-top">
+    <nav class="navbar" id="navbar">
       <div class="container">
         <!-- Logo -->
-        <a href="home.html" class="logo">
+        <a href="home.php" class="logo">
           <div class="logo-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -35,8 +35,8 @@
 
         <!-- Desktop Menu Links -->
         <div class="nav-links">
-          <a href="home.html" class="nav-btn active">Home</a>
-          <a href="rooms.html" class="nav-btn">Rooms</a>
+          <a href="home.php" class="nav-btn active">Home</a>
+          <a href="rooms.php" class="nav-btn">Rooms</a>
           <a href="#footer" class="nav-btn">Contact</a>
         </div>
 
@@ -65,8 +65,8 @@
 
     <!-- Mobile Navigation Drawer -->
     <div class="mobile-nav" id="mobile-nav">
-      <a href="home.html" class="mobile-nav-btn active">Home</a>
-      <a href="rooms.html" class="mobile-nav-btn">Rooms</a>
+      <a href="home.php" class="mobile-nav-btn active">Home</a>
+      <a href="rooms.php" class="mobile-nav-btn">Rooms</a>
       <a href="#footer" class="mobile-nav-btn">Contact</a>
       <button type="button" class="mobile-nav-btn" id="mobile-profile-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -127,7 +127,7 @@
             <p>Curated for You</p>
             <h2 class="section-title">Featured Rooms</h2>
           </div>
-          <a href="rooms.html" class="section-link">
+          <a href="rooms.php" class="section-link">
             <span>View all 22 rooms</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -151,7 +151,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="./home.html">
+          <a href="./home.php">
             <div class="logo mb-4">
               <div class="logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"

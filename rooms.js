@@ -328,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return `
-              <div class="room-card" onclick="window.location.href='detail.html?id=${room.id}'" style="cursor: pointer;">
+              <div class="room-card" onclick="window.location.href='detail.php?id=${room.id}'" style="cursor: pointer;">
                 <div class="room-card-img-wrapper">
                   <img src="${room.image}" alt="${room.name}" class="room-card-img">
                   <div class="room-card-badges">

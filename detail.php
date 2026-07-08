@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Room Details</title>
+  <title>Room Details — Ocean Haven Hotel</title>
   <meta name="description"
     content="View specific room amenities, photos, size, guest limits, pricing, and book your stay online with Ocean Haven Hotel.">
   <link rel="stylesheet" href="global.css">
@@ -18,7 +18,7 @@
     <nav class="navbar" id="navbar">
       <div class="container">
         <!-- Logo -->
-        <a href="home.html" class="logo">
+        <a href="home.php" class="logo">
           <div class="logo-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -36,8 +36,8 @@
 
         <!-- Desktop Menu Links -->
         <div class="nav-links">
-          <a href="home.html" class="nav-btn active">Home</a>
-          <a href="rooms.html" class="nav-btn">Rooms</a>
+          <a href="home.php" class="nav-btn active">Home</a>
+          <a href="rooms.php" class="nav-btn">Rooms</a>
           <a href="#footer" class="nav-btn">Contact</a>
         </div>
 
@@ -66,8 +66,8 @@
 
     <!-- Mobile Navigation Drawer -->
     <div class="mobile-nav" id="mobile-nav">
-      <a href="home.html" class="mobile-nav-btn active">Home</a>
-      <a href="rooms.html" class="mobile-nav-btn">Rooms</a>
+      <a href="home.php" class="mobile-nav-btn active">Home</a>
+      <a href="rooms.php" class="mobile-nav-btn">Rooms</a>
       <a href="#footer" class="mobile-nav-btn">Contact</a>
       <button type="button" class="mobile-nav-btn" id="mobile-profile-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -106,7 +106,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="./home.html">
+          <a href="./home.php">
             <div class="logo mb-4">
               <div class="logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"

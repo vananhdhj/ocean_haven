@@ -61,7 +61,7 @@ function initNavbar() {
   const navBtns = document.querySelectorAll(".nav-btn, .mobile-nav-btn");
   navBtns.forEach(btn => {
     const href = btn.getAttribute("href");
-    if (href && (currentPath.endsWith(href) || (currentPath === "/" && href === "index.html"))) {
+    if (href && (currentPath.endsWith(href) || (currentPath === "/" && href === "index.php"))) {
       btn.classList.add("active");
     } else {
       btn.classList.remove("active");
@@ -332,7 +332,7 @@ function initSearchBar(containerSelector, onSearch) {
     if (onSearch) {
       onSearch(searchData);
     } else {
-      window.location.href = "rooms.html";
+      window.location.href = "rooms.php";
     }
   });
 }

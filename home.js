@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Search Bar
   initSearchBar("#hero-search-bar-container", (searchData) => {
     // Search callback
-    window.location.href = "rooms.html";
+    window.location.href = "rooms.php";
   });
 
   // Render Featured Rooms
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       return `
-            <div class="room-card" onclick="window.location.href='detail.html?id=${room.id}'">
+            <div class="room-card" onclick="window.location.href='detail.php?id=${room.id}'">
               <div class="room-card-img-wrapper">
                 <img src="${room.image}" alt="${room.name}" class="room-card-img">
                 <div class="room-card-badges">
