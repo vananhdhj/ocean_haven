@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Room Details — Ocean Haven Hotel</title>
+  <title>Room Details</title>
   <meta name="description"
     content="View specific room amenities, photos, size, guest limits, pricing, and book your stay online with Ocean Haven Hotel.">
   <link rel="stylesheet" href="global.css">

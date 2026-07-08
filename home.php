@@ -14,7 +14,7 @@
 <body>
   <!-- Navigation -->
   <header>
-    <nav class="navbar" id="navbar">
+    <nav class="navbar" id="navbar fixed-top">
       <div class="container">
         <!-- Logo -->
         <a href="home.html" class="logo">
@@ -88,7 +88,7 @@
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <h1>
-          Hotel Listing and Booking Website
+          Hotel Listing & Booking Website
         </h1> 
         <!-- Interactive Search Bar Component 
         <div id="hero-search-bar-container"></div>-->
