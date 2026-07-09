@@ -86,30 +86,6 @@ function initSearchBar(containerSelector, onSearch) {
   container.innerHTML = `
     <div class="search-bar-container">
       <div class="search-bar-grid">
-        <!-- Location 
-        <div class="search-field">
-          <div class="search-field-with-icon">
-            <svg
-              xmlns="http://w3.org"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-map-pin text-primary shrink-0"
-            >
-              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.74a1 1 0 0 1-1.202 0C9.54 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <div class="min-w-0">
-              <span class="field-label">Location</span>
-              <p class="search-field-text">Ocean Haven Hotel, Da Nang</p>
-            </div>
-          </div>
-        </div>-->
         <!-- Check-in -->
         <div class="search-field flex-1">
           <label for="check-in-input">Check-in</label>
@@ -212,25 +188,6 @@ function initSearchBar(containerSelector, onSearch) {
             <button type="button" class="guests-done-btn" id="guests-done-btn">Done</button>
           </div>
         </div>
-        <!-- Search Button -->
-        <button type="button" class="search-submit-btn" id="search-btn">
-          <svg 
-            xmlns="http://w3.org" 
-            width="18" 
-            height="18" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            stroke-width="2" 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            class="lucide lucide-search"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          <span>Search</span>
-        </button>
       </div>
     </div>
   `;
@@ -249,8 +206,7 @@ function initSearchBar(containerSelector, onSearch) {
   const kidsMinus = container.querySelector("#kids-minus");
   const kidsPlus = container.querySelector("#kids-plus");
   const guestsDisplayText = container.querySelector("#guests-display-text");
-  const searchBtn = container.querySelector("#search-btn");
-
+  
   let localAdults = searchState.adults;
   let localKids = searchState.kids;
 
@@ -323,22 +279,6 @@ function initSearchBar(containerSelector, onSearch) {
     if (localKids < 6) {
       localKids++;
       updateGuestsDisplay();
-    }
-  });
-
-  // Trigger search action
-  searchBtn.addEventListener("click", () => {
-    const searchData = {
-      checkIn: checkInInput.value,
-      checkOut: checkOutInput.value,
-      adults: localAdults,
-      kids: localKids
-    };
-    window.HotelDb.saveSearchState(searchData);
-    if (onSearch) {
-      onSearch(searchData);
-    } else {
-      window.location.href = "rooms.php";
     }
   });
 }

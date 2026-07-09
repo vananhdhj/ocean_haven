@@ -106,23 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
               </svg>
               <span>Back to rooms</span>
             </a>
-            <button type="button" class="btn-like-toggle ${isLiked ? 'liked' : ''}" id="like-toggle-btn">
-              <svg
-                xmlns="http://w3.org"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-heart ${isLiked ? 'fill-red-500' : ''}"
-              >
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              </svg>
-              <span>${isLiked ? 'Saved' : 'Save'}</span>
-            </button>
           </div>
 
           <!-- Detail Layout Columns -->
@@ -341,30 +324,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join("")}
                 </div>
               </div>
-
-              <!-- Green availability notice -->
-              <div class="notice-box-green" style="margin-top: 1.5rem;">
-                <svg 
-                  xmlns="http://w3.org" 
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  stroke-width="2" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round" 
-                  class="lucide lucide-check-circle"
-                >
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <path d="m9 11 3 3L22 4" />
-                </svg>
-                <div>
-                  <p>Available for your dates</p>
-                  <p>Instant confirmation — no waiting required.</p>
-                </div>
-              </div>
-
             </div>
 
             <!-- Right Column Sticky Widget -->
@@ -476,24 +435,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
     if (window.lucide) window.lucide.createIcons();
-
-    // Bind interactive events
-    const likeToggleBtn = container.querySelector("#like-toggle-btn");
-    likeToggleBtn.addEventListener("click", () => {
-      isLiked = !isLiked;
-      const heartIcon = likeToggleBtn.querySelector("i");
-      const textSpan = likeToggleBtn.querySelector("span");
-
-      if (isLiked) {
-        likeToggleBtn.classList.add("liked");
-        heartIcon.classList.add("fill-red-500");
-        textSpan.textContent = "Saved";
-      } else {
-        likeToggleBtn.classList.remove("liked");
-        heartIcon.classList.remove("fill-red-500");
-        textSpan.textContent = "Save";
-      }
-    });
 
     // Gallery chevrons
     if (room.images.length > 1) {
