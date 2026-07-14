@@ -54,23 +54,62 @@
       setStorage("oh_profile", updated);
       return updated;
     },
-    getBookings() {
-      return getStorage("oh_bookings", []);
+    async getBookings() {
+      const profile = this.getProfile();
+      if (!profile || !profile.email) {
+        return [];
+      }
+      try {
+        const response = await fetch(`./api/get_bookings.php?email=${encodeURIComponent(profile.email)}`);
+        if (!response.ok) throw new Error("Failed to fetch bookings");
+        const dbBookings = await response.json();
+        
+        const formatDate = (dateStr) => {
+          if (!dateStr) return "";
+          return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+        };
+
+        return dbBookings.map(b => {
+          const checkInFriendly = formatDate(b.check_in);
+          const checkOutFriendly = formatDate(b.check_out);
+          return {
+            id: b.booking_code, // Friendly code to display as Booking ID
+            room: b.room,
+            dates: `${checkInFriendly} → ${checkOutFriendly}`,
+            guests: b.guests,
+            status: b.status,
+            bookedOn: formatDate(b.bookedOn),
+            total: b.total
+          };
+        });
+      } catch (err) {
+        console.error("Fetch bookings failed:", err);
+        return [];
+      }
     },
     addBooking(booking) {
-      const bookings = this.getBookings();
+      const bookings = getStorage("oh_bookings", []);
       bookings.unshift(booking);
       setStorage("oh_bookings", bookings);
       return bookings;
     },
-    cancelBooking(id) {
-      const bookings = this.getBookings();
-      const idx = bookings.findIndex(b => b.id === id);
-      if (idx !== -1) {
-        bookings[idx].status = "Cancelled";
-        setStorage("oh_bookings", bookings);
+    async cancelBooking(id) {
+      try {
+        const response = await fetch("./api/cancel_booking.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ booking_id: id })
+        });
+        const result = await response.json();
+        if (!result.success) {
+          alert(result.message || "Failed to cancel booking.");
+        }
+        return result.success;
+      } catch (err) {
+        console.error("Cancel booking error:", err);
+        alert("Lỗi kết nối mạng khi hủy đặt phòng.");
+        return false;
       }
-      return bookings;
     },
     getSearchState() {
       const today = new Date().toISOString().split("T")[0];

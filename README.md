@@ -195,3 +195,199 @@ MoMo sends JSON payload (in background, not visible to user):
     IMPORTANT
 
     The IPN is the source of truth. The return page just shows a UI — it reads from the DB that IPN already updated. Never update DB status based only on return page params.
+
+---
+---
+---
+# MoMo Payment Integration — Ocean Haven Hotel
+
+Integrate MoMo sandbox payment into the existing PHP hotel booking project. The project already has partial scaffolding (`config/momo-config.php`, and MoMo logic inside `api/create_booking.php`), but several files are **missing** or **broken**, including:
+- Wrong field names in `momo-config.php` (`notifyUrl`/`returnUrl` instead of `ipnUrl`/`redirectUrl`)
+- Missing IPN (callback) handler: `api/momo_ipn.php`  
+- Missing return page (redirect after payment): `momo_return.php`
+- No frontend integration with the booking flow
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> **ngrok for IPN URL**: MoMo's sandbox IPN callback requires a **publicly accessible URL**. On localhost, you must expose your server via **ngrok** (or similar tunneling). Do you have ngrok installed and set up? If not, I'll provide setup instructions.
+
+> [!NOTE]
+> The sandbox credentials in `config/momo-config.php` are already the **official MoMo sandbox test credentials** from the GitHub repo:
+> - `partnerCode`: `MOMOBKUN20180529`
+> - `accessKey`: `klm05TvNBzhg7h7j`
+> - `secretKey`: `at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa`
+
+---
+
+## Proposed Changes
+
+### Config Layer
+
+#### [MODIFY] [momo-config.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/config/momo-config.php)
+- Fix key names: rename `returnUrl` → `redirectUrl` and `notifyUrl` → `ipnUrl`
+- These must match exactly what `create_booking.php` references
+
+---
+
+### API Layer
+
+#### [MODIFY] [create_booking.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/api/create_booking.php)
+- Fix the `$rawHash` string: it currently reads `$momoConfig['notifyUrl']` and `$momoConfig['returnUrl']` (wrong keys)
+- Replace with correct keys: `$momoConfig['ipnUrl']` and `$momoConfig['redirectUrl']`
+
+#### [NEW] `api/momo_ipn.php`
+MoMo's **Instant Payment Notification** (IPN) endpoint — MoMo calls this URL server-to-server after payment:
+1. Receive the JSON payload from MoMo
+2. Verify HMAC-SHA256 signature to prevent spoofing
+3. If signature valid & result code = 0 → mark booking `Confirmed`, payment `Completed`
+4. If result code ≠ 0 → mark booking `Cancelled`, payment `Failed`
+5. Log history in `HISTORY_BOOKING`
+6. Return HTTP 200 (always, even on failure — MoMo requires this)
+
+---
+
+### Frontend / Return Page
+
+#### [NEW] `momo_return.php`
+User is redirected here after paying (or canceling) in the MoMo app/portal:
+1. Read query params from MoMo: `orderId`, `resultCode`, `message`, `transId`, `amount`, `signature`
+2. Verify the signature (HMAC-SHA256)
+3. Show **success or failure UI** (premium card with booking details)
+4. Provide CTA to go back home or view booking
+
+---
+
+### Frontend Booking Integration (rooms.php / detail.php)
+
+The frontend already calls `api/create_booking.php` (assumed). The JS must:
+- Receive `payUrl` from the API response
+- Redirect `window.location.href = payUrl` to open MoMo payment page
+
+---
+
+## Verification Plan
+
+### Manual Sandbox Test Flow
+1. Fill in booking form → submit
+2. Confirm redirect to MoMo sandbox payment page (test.momo.vn)
+3. Use test credentials to pay
+4. Confirm redirect to `momo_return.php` with success
+5. Check DB: `BOOKINGS.status = 'Confirmed'`, `PAYMENTS.status = 'Completed'`
+6. Check IPN: `HISTORY_BOOKING` should have a `PAYMENT_CONFIRMED` log
+
+### MoMo Sandbox Test Credentials (for payment):
+| Phone | Password | OTP |
+|-------|----------|-----|
+| `0000000001` to `0000000009` | `000000000` | `000000` |
+
+---
+---
+---
+
+# MoMo Payment Integration — Walkthrough
+
+## Files Changed / Created
+
+| File | Action | Description |
+|------|--------|-------------|
+| [config/momo-config.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/config/momo-config.php) | ✅ Already correct | Keys `ipnUrl` / `redirectUrl` were already right |
+| [api/create_booking.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/api/create_booking.php) | 🔧 Fixed | Was using `notifyUrl`/`returnUrl` (wrong) → fixed to `ipnUrl`/`redirectUrl` |
+| [api/momo_ipn.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/api/momo_ipn.php) | 🆕 Created | Server-to-server IPN callback handler |
+| [momo_return.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/momo_return.php) | 🆕 Created | Post-payment redirect page (success/fail UI) |
+| [assets/js/booking-modal.js](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/assets/js/booking-modal.js) | 🔧 Updated | Replaced fake QR mock → real MoMo API call + redirect |
+| [api/get_bookings.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/api/get_bookings.php) | 🆕 Created | Endpoint to retrieve user bookings from MySQL by email |
+| [api/cancel_booking.php](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/api/cancel_booking.php) | 🆕 Created | Endpoint to mark a booking as Cancelled in MySQL and log history |
+| [assets/js/global.js](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/assets/js/global.js) | 🔧 Updated | Converted window.HotelDb to fetch/cancel using PHP backend API rather than mock localStorage |
+| [assets/js/profile-modal.js](file:///Applications/XAMPP/xamppfiles/htdocs/final_assigment/assets/js/profile-modal.js) | 🔧 Updated | Adjusted profile modals to asynchronously fetch bookings and cancel reservations |
+
+---
+
+## Payment Flow
+
+```
+User fills booking form
+        ↓
+[booking-modal.js] POSTs to api/create_booking.php
+        ↓
+[create_booking.php]  → Creates BOOKING (Pending) + PAYMENT (Pending) in DB
+                      → Calls MoMo sandbox API → gets payUrl
+                      → Returns { success: true, payUrl: "https://..." }
+        ↓
+[booking-modal.js] → window.location.href = payUrl
+        ↓
+User pays on MoMo's sandbox page
+        ↓ (two parallel calls from MoMo)
+┌────────────────────────────┐   ┌──────────────────────────────────────┐
+│ MoMo calls momo_ipn.php    │   │ MoMo redirects user to momo_return.php│
+│ (server-to-server)         │   │ (browser redirect)                   │
+│ → Verifies HMAC signature  │   │ → Verifies HMAC signature            │
+│ → Updates DB status        │   │ → Shows success/failure card         │
+└────────────────────────────┘   └──────────────────────────────────────┘
+```
+
+---
+
+## ⚠️ Required: Set up ngrok for IPN
+
+MoMo's sandbox cannot reach `localhost`. You must expose your server publicly.
+
+### Step 1 — Install ngrok
+```bash
+brew install ngrok
+# or download from: https://ngrok.com/download
+```
+
+### Step 2 — Start your XAMPP server, then run ngrok
+```bash
+ngrok http 80
+```
+
+You'll get a URL like: `https://abc123.ngrok-free.app`
+
+### Step 3 — Update `config/momo-config.php`
+```php
+'ipnUrl' => "https://abc123.ngrok-free.app/final_assigment/api/momo_ipn.php"
+```
+
+> [!IMPORTANT]
+> The `redirectUrl` (return page) can stay as `http://localhost/...` because **you** are the browser being redirected. Only the `ipnUrl` needs to be public because **MoMo's servers** call it directly.
+
+---
+
+## Testing the Sandbox
+
+### MoMo Sandbox Test Credentials
+When you arrive at the MoMo payment page, use:
+
+| Field | Value |
+|-------|-------|
+| Phone number | `0000000001` to `0000000009` |
+| Password | `000000000` |
+| OTP | `000000` |
+
+### Verify it worked
+Check the DB after a successful test:
+```sql
+SELECT b.status, p.status, p.transaction_id
+FROM BOOKINGS b
+JOIN PAYMENTS p ON p.booking_id = b.id
+ORDER BY b.create_at DESC
+LIMIT 1;
+```
+Expected: `b.status = 'Confirmed'`, `p.status = 'Completed'`
+
+---
+
+## Key Implementation Details
+
+### Signature Algorithm (HMAC-SHA256)
+All fields in the raw hash string **must be alphabetically sorted** and **must match exactly** what MoMo sends — this is critical. Both `create_booking.php` and `momo_ipn.php` use `hash_equals()` for timing-safe comparison.
+
+### Idempotency in IPN
+`momo_ipn.php` checks `payment.status !== 'Pending'` before processing, so duplicate IPN callbacks (MoMo retries) are safely ignored.
+
+### Pending Booking Expiry
+Bookings set to `Pending` hold the room for 15 minutes (`hold_expires_at`). If payment fails/is abandoned, the DB comment includes a cron query to auto-cancel expired holds.

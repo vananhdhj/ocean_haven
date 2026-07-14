@@ -1,5 +1,4 @@
 <?php
-// /config/momo-config.php
 return [
   'endpoint' => "https://test-payment.momo.vn/v2/gateway/api/create",
   'partnerCode' => "MOMOBKUN20180529",
@@ -13,5 +12,5 @@ return [
   // https://unlightened-botanically-alpha.ngrok-free.dev/...
   //         ↓  tunneled to
   // http://localhost/final_assigment/api/momo_ipn.php
-  'ipnUrl' => "https://YOUR-NGROK-URL.ngrok-free.app/final_assigment/api/momo_ipn.php"
+  'ipnUrl' => "https://unlightened-botanically-alpha.ngrok-free.dev/final_assigment/api/momo_ipn.php"
 ];

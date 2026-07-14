@@ -1,6 +1,6 @@
 let activeProfileTab = "profile";
 
-function openProfileModal() {
+async function openProfileModal() {
   // Check if dialog exists, else create it
   let dialog = document.getElementById("profile-modal");
   if (!dialog) {
@@ -9,7 +9,7 @@ function openProfileModal() {
     document.body.appendChild(dialog);
   }
 
-  renderProfileModalContent(dialog);
+  await renderProfileModalContent(dialog);
   dialog.showModal();
 
   // Setup click outside to close
@@ -23,9 +23,9 @@ function openProfileModal() {
   });
 }
 
-function renderProfileModalContent(dialog) {
+async function renderProfileModalContent(dialog) {
   const profile = window.HotelDb.getProfile();
-  const bookings = window.HotelDb.getBookings();
+  const bookings = await window.HotelDb.getBookings();
 
   const isImage = profile.avatar && (profile.avatar.startsWith("data:") || profile.avatar.startsWith("http"));
   const avatarInnerHtml = isImage 
@@ -160,13 +160,13 @@ function renderProfileModalContent(dialog) {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = () => {
+          reader.onload = async () => {
             const updatedProfile = {
               ...profile,
               avatar: reader.result
             };
             window.HotelDb.updateProfile(updatedProfile);
-            renderProfileModalContent(dialog);
+            await renderProfileModalContent(dialog);
           };
           reader.readAsDataURL(file);
         }
@@ -177,7 +177,7 @@ function renderProfileModalContent(dialog) {
 
   // Profile Form submit
   const profileForm = dialog.querySelector("#profile-form");
-  profileForm.addEventListener("submit", (e) => {
+  profileForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const formData = new FormData(profileForm);
     const currentProfile = window.HotelDb.getProfile();
@@ -195,7 +195,7 @@ function renderProfileModalContent(dialog) {
     if (navAvatarSpan) navAvatarSpan.textContent = updatedProfile.avatar;
 
     alert("Profile saved successfully!");
-    renderProfileModalContent(dialog);
+    await renderProfileModalContent(dialog);
   });
 
   // Sign out click
@@ -208,11 +208,13 @@ function renderProfileModalContent(dialog) {
   // Cancel Booking action
   const cancelBtns = dialog.querySelectorAll(".cancel-booking-link-btn");
   cancelBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const bookingId = btn.getAttribute("data-booking-id");
       if (confirm(`Are you sure you want to cancel booking ${bookingId}?`)) {
-        window.HotelDb.cancelBooking(bookingId);
-        renderProfileModalContent(dialog);
+        const success = await window.HotelDb.cancelBooking(bookingId);
+        if (success) {
+          await renderProfileModalContent(dialog);
+        }
       }
     });
   });
