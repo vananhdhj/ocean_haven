@@ -69,91 +69,91 @@ INSERT INTO ROOMS
 VALUES
 ('room-001', 'rt-standard', 'vt-sea',    1, 'Ocean Breeze Standard', 4.7, 124, 28, 2, 'bt-queen',  1,
  'Wake up to the gentle sound of waves in this beautifully appointed standard room. Floor-to-ceiling windows frame a captivating sea panorama, while warm tones create a serene sanctuary. Each morning begins with golden light spilling across the ocean surface, visible from your bed.',
- 89, TRUE),
+ 2225000, TRUE),
  
 ('room-002', 'rt-standard', 'vt-garden', 1, 'Garden Serenity Standard', 4.5, 89, 26, 2, 'bt-double', 1,
  'A tranquil retreat overlooking our lush tropical garden. The soft rustling of palms and fragrant blooms create a natural backdrop for your perfect getaway. Cool breezes drift through the jalousie windows every evening.',
- 79, TRUE),
+ 1975000, TRUE),
  
 ('room-003', 'rt-standard', 'vt-city',   1, 'Twin Comfort Standard', 4.3, 67, 26, 2, 'bt-twin', 2,
  'Perfect for colleagues or friends, this twin room offers two comfortable beds and city views. Clean, modern, and thoughtfully designed for the practical traveler who values space and quality.',
- 75, TRUE),
+ 1875000, TRUE),
  
 ('room-004', 'rt-family', 'vt-sea',    1, 'Coastal Family Suite', 4.9, 201, 58, 5, 'bt-king', 2,
  'The ultimate family retreat. A spacious suite with a master bedroom, separate children''s area with bunk beds, and a generous living space. Step onto your private balcony for breathtaking ocean views. Children love it; parents never want to leave.',
- 189, TRUE),
+ 4725000, TRUE),
  
 ('room-005', 'rt-family', 'vt-garden', 1, 'Garden Family Room', 4.7, 145, 52, 4, 'bt-queen', 2,
  'Nestled beside our tropical garden, this family suite offers generous space for up to four guests. Children will love watching exotic birds from the private patio each morning.',
- 169, TRUE),
+ 4225000, TRUE),
  
 ('room-006', 'rt-standard', 'vt-garden', 1, 'Palm Grove Standard', 4.4, 78, 28, 2, 'bt-queen', 1,
  'Cozy and comfortable, this garden-facing standard room offers a peaceful retreat with a private seating area among the palms. The perfect room for guests who value quiet above all else.',
- 82, TRUE),
+ 2050000, TRUE),
  
 ('room-007', 'rt-connect', 'vt-sea',    1, 'Seaside Connecting Suite', 4.6, 93, 48, 4, 'bt-king', 2,
  'Two connected rooms, one key. Perfect for multigenerational families, the Seaside Connecting gives adults and children their own space while staying close.',
- 159, TRUE),
+ 3975000, TRUE),
  
 ('room-008', 'rt-standard', 'vt-city',   1, 'City View Standard', 4.2, 55, 24, 2, 'bt-double', 1,
  'A practical and comfortable standard room with city views. Ideal for the solo traveler or business couple seeking good value in a prime location.',
- 72, TRUE),
+ 1800000, TRUE),
  
 ('room-009', 'rt-deluxe', 'vt-sea',    2, 'Horizon Deluxe', 4.8, 187, 36, 2, 'bt-king', 1,
  'Elevated living with panoramic sea views from the second floor. The Horizon Deluxe features a spa-style bathroom with freestanding tub, premium linens, and curated local artwork. A sanctuary for those who appreciate thoughtful luxury.',
- 129, TRUE),
+ 3225000, TRUE),
  
 ('room-010', 'rt-deluxe', 'vt-sea',    2, 'Terrace Deluxe', 4.8, 162, 40, 3, 'bt-king', 1,
  'Your private terrace awaits. Sip morning coffee as the sun rises over the ocean, then spend evenings watching the horizon glow in amber and violet. The terrace has a daybed and outdoor shower.',
- 139, TRUE),
+ 3475000, TRUE),
  
 ('room-011', 'rt-deluxe', 'vt-garden', 2, 'Garden Deluxe', 4.6, 103, 34, 2, 'bt-king', 1,
  'A romantic garden-view deluxe room offering elevated tranquility. The second-floor position catches the gentle sea breeze while overlooking our manicured tropical grounds.',
- 119, TRUE),
+ 2975000, TRUE),
  
 ('room-012', 'rt-deluxe', 'vt-city',   2, 'Twin Deluxe', 4.5, 88, 32, 2, 'bt-twin', 2,
  'Upgraded twin beds meet deluxe finishes. Perfect for friends traveling together who want to share the experience without compromising on individual comfort.',
- 112, TRUE),
+ 2800000, TRUE),
  
 ('room-013', 'rt-deluxe', 'vt-sea',    2, 'Sea Breeze Deluxe', 4.9, 211, 38, 2, 'bt-king', 1,
  'The most sought-after room on the second floor. Every corner of this deluxe room frames the sea, from the bed to the marble bathroom vanity. Guests consistently rate it the most beautiful in the hotel.',
- 135, TRUE),
+ 3375000, TRUE),
  
 ('room-014', 'rt-connect', 'vt-garden', 2, 'Deluxe Garden Connecting', 4.6, 74, 50, 4, 'bt-king', 2,
  'Two deluxe rooms connected by a private hallway, each with garden views. Ideal for families who want the intimacy of a suite with the flexibility of separate rooms.',
- 169, TRUE),
+ 4225000, TRUE),
  
 ('room-015', 'rt-deluxe', 'vt-sea',    2, 'Panorama Deluxe', 4.7, 139, 40, 2, 'bt-king', 1,
  'Floor-to-ceiling panoramic windows wrap around this corner deluxe room, giving an unobstructed 180-degree view of the open sea. The Jacuzzi tub faces the view, a decision you will appreciate.',
- 145, TRUE),
+ 3625000, TRUE),
  
 ('room-016', 'rt-family', 'vt-sea',    3, 'Ocean Haven Suite', 5.0, 87, 72, 6, 'bt-king', 3,
  'Our signature suite occupies the entire northeast corner of the third floor. A king master bedroom, two twin rooms, a panoramic sea terrace, and a full kitchen make this the ultimate family sanctuary above the ocean.',
- 249, TRUE),
+ 6225000, TRUE),
  
 ('room-017', 'rt-deluxe', 'vt-sea',    3, 'Penthouse Deluxe', 4.9, 156, 48, 2, 'bt-king', 1,
  'The highest deluxe in the hotel. On the third floor, the Penthouse Deluxe offers an elevated sea view unlike any other, with ceiling-height windows and a private lounging terrace.',
- 189, TRUE),
+ 4725000, TRUE),
  
 ('room-018', 'rt-family', 'vt-garden', 3, 'Sky Garden Suite', 4.8, 112, 65, 5, 'bt-king', 2,
  'Treetop living on the third floor. The Sky Garden Suite overlooks an expanse of tropical canopy with a rooftop-style terrace where children can play safely while parents unwind below the palms.',
- 219, TRUE),
+ 5475000, TRUE),
  
 ('room-019', 'rt-connect', 'vt-sea',    3, 'Rooftop Connecting', 4.8, 98, 68, 6, 'bt-king', 3,
  'Three top-floor rooms united. The Rooftop Connecting configuration offers unrivaled flexibility, perfect for large family groups who want to stay together yet enjoy private space.',
- 229, TRUE),
+ 5725000, TRUE),
  
 ('room-020', 'rt-deluxe', 'vt-sea',    3, 'Sunset Deluxe', 4.8, 143, 42, 2, 'bt-king', 1,
  'Named for the spectacular sunsets visible from its west-facing balcony. Watch the sky ignite in color while soaking in the private bathtub, the most romantic room in the hotel.',
- 175, TRUE),
+ 4375000, TRUE),
  
 ('room-021', 'rt-standard', 'vt-garden', 3, 'Treetop Standard', 4.4, 61, 28, 2, 'bt-queen', 1,
  'Perched on the third floor, this standard room surprises with sweeping garden-to-sea glimpses. Unpretentious and honest, it rewards guests who know that the best views don''t always require the biggest budget.',
- 95, TRUE),
+ 2375000, TRUE),
  
 ('room-022', 'rt-family', 'vt-sea',    3, 'Sunrise Suite', 4.9, 177, 68, 5, 'bt-king', 2,
  'Every morning begins with the ocean waking you gently. The Sunrise Suite faces east, capturing the first light across the sea. A spacious living area, generous king bedroom, and separate twin room make family mornings feel leisurely.',
- 235, TRUE);
+ 5875000, TRUE);
  
  
 -- 6. ROOM_IMAGES

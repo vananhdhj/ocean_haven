@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                   
                   <div class="room-card-footer">
                     <div>
-                      <span class="room-card-price">$${room.price}</span>
+                      <span class="room-card-price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}</span>
                       <span class="room-card-price-period">/ night</span>
                     </div>
                     <button type="button" class="btn-primary-sm">View Room</button>

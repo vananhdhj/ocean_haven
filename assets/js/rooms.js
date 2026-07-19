@@ -10,8 +10,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     types: [],
     floors: [],
     views: [],
-    priceMin: 70,
-    priceMax: 300,
+    priceMin: 1500000,
+    priceMax: 7500000,
     guests: 0
   };
 
@@ -79,8 +79,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       types: [],
       floors: [],
       views: [],
-      priceMin: 70,
-      priceMax: 300,
+      priceMin: 1500000,
+      priceMax: 7500000,
       guests: 0
     };
     keyword = "";
@@ -147,15 +147,15 @@ document.addEventListener("DOMContentLoaded", async () => {
               <div class="price-range-inputs">
                 <div class="price-input-box">
                   <p>Min</p>
-                  <p>$${filters.priceMin}</p>
+                  <p>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(filters.priceMin)}</p>
                 </div>
                 <span style="color: var(--muted-foreground);">—</span>
                 <div class="price-input-box">
                   <p>Max</p>
-                  <p>$${filters.priceMax}</p>
+                  <p>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(filters.priceMax)}</p>
                 </div>
               </div>
-              <input type="range" min="70" max="300" value="${filters.priceMax}" class="price-range-slider" id="price-slider-${isMobile ? 'm' : 'd'}">
+              <input type="range" min="1500000" max="7500000" step="250000" value="${filters.priceMax}" class="price-range-slider" id="price-slider-${isMobile ? 'm' : 'd'}">
             </div>
 
             <!-- Guests Capacity -->
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Re-render only price texts to optimize performance
       const priceBoxes = target.querySelectorAll(".price-input-box");
       if (priceBoxes.length >= 2) {
-        priceBoxes[1].querySelector("p:last-child").textContent = `$${filters.priceMax}`;
+        priceBoxes[1].querySelector("p:last-child").textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(filters.priceMax);
       }
     });
 
@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       filters.types.length +
       filters.floors.length +
       filters.views.length +
-      (filters.priceMax < 300 ? 1 : 0) +
+      (filters.priceMax < 7500000 ? 1 : 0) +
       (filters.guests > 0 ? 1 : 0);
 
     if (activeCount > 0) {
@@ -372,7 +372,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                   
                   <div class="room-card-footer">
                     <div>
-                      <span class="room-card-price">$${room.price}</span>
+                      <span class="room-card-price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}</span>
                       <span class="room-card-price-period">/ night</span>
                     </div>
                     <button type="button" class="btn-primary-sm">View Room</button>

@@ -1,15 +1,20 @@
-function openBookingModal(roomId) {
+async function openBookingModal(roomId) {
   const room = window.HotelDb.getRoomById(roomId);
   if (!room) return;
 
-  let dialog = document.getElementById("booking-modal");
-  if (!dialog) {
-    dialog = document.createElement("dialog");
-    dialog.id = "booking-modal";
-    document.body.appendChild(dialog);
+  // Require login before booking
+  const profile = await window.HotelDb.getProfile();
+  if (!profile) {
+    window.HotelDb.redirectToLogin(window.location.href);
+    return;
   }
 
-  const profile = window.HotelDb.getProfile();
+  let dialog = document.getElementById('booking-modal');
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialog.id = 'booking-modal';
+    document.body.appendChild(dialog);
+  }
 
   // Booking review dates default to null (empty), nights default to 0
   let checkInVal = null;
@@ -43,8 +48,6 @@ function openBookingModal(roomId) {
   };
 
   recalculatePrices();
-
-  const confirmId = `OH-2025-${String(Math.floor(Math.random() * 9000) + 1000)}`;
 
   let currentStep = "summary";
   let formValues = {
@@ -128,20 +131,20 @@ function openBookingModal(roomId) {
               <div class="price-breakdown">
                 <h3>Price Breakdown</h3>
                 <div class="price-breakdown-row">
-                  <span class="text-muted-foreground" id="breakdown-nights-label">$${room.price} × ${nights} nights</span>
-                  <span class="font-medium" id="breakdown-subtotal-val">$${subtotal}</span>
+                  <span class="text-muted-foreground" id="breakdown-nights-label">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)} × ${nights} nights</span>
+                  <span class="font-medium" id="breakdown-subtotal-val">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</span>
                 </div>
                 <div class="price-breakdown-row">
                   <span class="text-muted-foreground">Taxes & fees (10%)</span>
-                  <span class="font-medium" id="breakdown-taxes-val">$${taxes}</span>
+                  <span class="font-medium" id="breakdown-taxes-val">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(taxes)}</span>
                 </div>
                 <div class="price-breakdown-total price-breakdown-row">
                   <span>Total</span>
-                  <span id="breakdown-total-val">$${total}</span>
+                  <span id="breakdown-total-val">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</span>
                 </div>
               </div>
 
-              <button type="submit" class="btn-block btn-primary" id="modal-submit-btn">Proceed to Payment — $${total}</button>
+              <button type="submit" class="btn-block btn-primary" id="modal-submit-btn">Proceed to Payment — ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</button>
             </form>
           </div>
         </div>
@@ -167,11 +170,11 @@ function openBookingModal(roomId) {
       const updateModalPrices = () => {
         recalculatePrices();
         modalNightsVal.textContent = nights;
-        breakdownNightsLabel.textContent = `$${room.price} × ${nights} night${nights !== 1 ? "s" : ""}`;
-        breakdownSubtotalVal.textContent = `$${subtotal}`;
-        breakdownTaxesVal.textContent = `$${taxes}`;
-        breakdownTotalVal.textContent = `$${total}`;
-        modalSubmitBtn.textContent = `Proceed to Payment — $${total}`;
+        breakdownNightsLabel.textContent = `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)} × ${nights} night${nights !== 1 ? "s" : ""}`;
+        breakdownSubtotalVal.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal);
+        breakdownTaxesVal.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(taxes);
+        breakdownTotalVal.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
+        modalSubmitBtn.textContent = `Proceed to Payment — ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}`;
       };
 
       modalCheckInInput.addEventListener("change", (e) => {
@@ -242,8 +245,7 @@ function openBookingModal(roomId) {
 
             <div class="price-input-box" style="padding: 0.75rem 1rem; border-radius: var(--radius-lg); background-color: var(--secondary);">
               <p class="text-xs text-muted-foreground mb-1">Tổng tiền thanh toán</p>
-              <p class="text-3xl font-bold text-foreground">$${total} <span class="text-sm font-normal text-muted-foreground">USD</span></p>
-              <p class="text-xs text-muted-foreground mt-1">≈ ${(total * 25000).toLocaleString("vi-VN")} VNĐ</p>
+              <p class="text-3xl font-bold text-foreground">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</p>
             </div>
 
             <div class="booking-confirm-card" style="font-size: 0.85rem;">
@@ -340,58 +342,62 @@ function openBookingModal(roomId) {
       });
 
       dialog.querySelector("#close-booking-btn").addEventListener("click", () => dialog.close());
-    } else if (currentStep === "success") {
-      dialog.innerHTML = `
-        <div class="modal-header">
-          <h2 style="text-align: center; width: 100%;">Booking Confirmed!</h2>
-        </div>
-        <div class="modal-body text-center">
-          <div class="space-y-5 py-4">
-            <div class="success-icon-box">
-              <i data-lucide="check-circle" style="width: 44px; height: 44px;"></i>
-            </div>
-            <div>
-              <h3 class="text-2xl font-bold text-foreground mb-2">All Set!</h3>
-              <p class="text-muted-foreground text-sm">Your reservation at Ocean Haven Hotel is confirmed.</p>
-            </div>
-
-            <div class="booking-confirm-card">
-              <div class="booking-confirm-row">
-                <span class="text-xs text-muted-foreground font-semibold uppercase">Booking ID</span>
-                <span class="font-mono font-bold text-primary">${confirmId}</span>
-              </div>
-              <div class="booking-confirm-row">
-                <span class="text-muted-foreground text-sm">Room</span>
-                <span class="font-semibold text-foreground text-sm">${room.name}</span>
-              </div>
-              <div class="booking-confirm-row">
-                <span class="text-muted-foreground text-sm">Dates</span>
-                <span class="font-semibold text-foreground text-sm">${checkinLabel} → ${checkoutLabel}</span>
-              </div>
-              <div class="booking-confirm-row">
-                <span class="text-muted-foreground text-sm">Guests</span>
-                <span class="font-semibold text-foreground text-sm">${room.maxGuests} guest${room.maxGuests !== 1 ? "s" : ""}</span>
-              </div>
-              <div class="booking-confirm-row" style="border-top: 1px solid var(--border); padding-top: 0.625rem; font-weight: 700;">
-                <span>Total Paid</span>
-                <span class="text-primary">$${total}</span>
-              </div>
-            </div>
-
-            <p class="text-xs text-muted-foreground">A confirmation email has been sent to <span class="text-foreground font-bold">${formValues.email}</span></p>
-
-            <button type="button" class="btn-block btn-primary" id="success-done-btn">Back to Hotel</button>
-          </div>
-        </div>
-      `;
-
-      if (window.lucide) window.lucide.createIcons();
-
-      dialog.querySelector("#success-done-btn").addEventListener("click", () => {
-        dialog.close();
-        window.location.reload();
-      });
+      // "success" step is now handled by momo_return.php after MoMo redirects back
     }
+
+    // Để lại coi chơi thôi
+    // else if (currentStep === "success") {
+    //   dialog.innerHTML = `
+    //     <div class="modal-header">
+    //       <h2 style="text-align: center; width: 100%;">Booking Confirmed!</h2>
+    //     </div>
+    //     <div class="modal-body text-center">
+    //       <div class="space-y-5 py-4">
+    //         <div class="success-icon-box">
+    //           <i data-lucide="check-circle" style="width: 44px; height: 44px;"></i>
+    //         </div>
+    //         <div>
+    //           <h3 class="text-2xl font-bold text-foreground mb-2">All Set!</h3>
+    //           <p class="text-muted-foreground text-sm">Your reservation at Ocean Haven Hotel is confirmed.</p>
+    //         </div>
+
+    //         <div class="booking-confirm-card">
+    //           <div class="booking-confirm-row">
+    //             <span class="text-xs text-muted-foreground font-semibold uppercase">Booking ID</span>
+    //             <span class="font-mono font-bold text-primary">${confirmId}</span>
+    //           </div>
+    //           <div class="booking-confirm-row">
+    //             <span class="text-muted-foreground text-sm">Room</span>
+    //             <span class="font-semibold text-foreground text-sm">${room.name}</span>
+    //           </div>
+    //           <div class="booking-confirm-row">
+    //             <span class="text-muted-foreground text-sm">Dates</span>
+    //             <span class="font-semibold text-foreground text-sm">${checkinLabel} → ${checkoutLabel}</span>
+    //           </div>
+    //           <div class="booking-confirm-row">
+    //             <span class="text-muted-foreground text-sm">Guests</span>
+    //             <span class="font-semibold text-foreground text-sm">${room.maxGuests} guest${room.maxGuests !== 1 ? "s" : ""}</span>
+    //           </div>
+    //           <div class="booking-confirm-row" style="border-top: 1px solid var(--border); padding-top: 0.625rem; font-weight: 700;">
+    //             <span>Total Paid</span>
+    //             <span class="text-primary">$${total}</span>
+    //           </div>
+    //         </div>
+
+    //         <p class="text-xs text-muted-foreground">A confirmation email has been sent to <span class="text-foreground font-bold">${formValues.email}</span></p>
+
+    //         <button type="button" class="btn-block btn-primary" id="success-done-btn">Back to Hotel</button>
+    //       </div>
+    //     </div>
+    //   `;
+
+    //   if (window.lucide) window.lucide.createIcons();
+
+    //   dialog.querySelector("#success-done-btn").addEventListener("click", () => {
+    //     dialog.close();
+    //     window.location.reload();
+    //   });
+    // }
   };
 
   renderContent();

@@ -49,6 +49,7 @@
     <script src="<?php echo $pageScript; ?>"></script>
   <?php endif; ?>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script>if (window.lucide) window.lucide.createIcons();</script>
 
 </body>
 

@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div>
             <div class="booking-widget-card">
               <div class="booking-widget-price-row">
-                <span style="font-size: 1.875rem; font-weight: 700; color: var(--foreground);">$${room.price}</span>
+                <span style="font-size: 1.875rem; font-weight: 700; color: var(--foreground);">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}</span>
                 <span style="color: var(--muted-foreground); font-size: 0.875rem;">/ night</span>
               </div>
               
@@ -232,7 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </div>
 
               <button type="button" class="btn-block btn-primary" id="widget-book-btn" style="padding: 1rem;">
-                Book Now — $${room.price}/night
+                Book Now — ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}/night
               </button>
 
               <div class="booking-widget-terms">

@@ -1,5 +1,4 @@
 <?php
-// /api/momo_ipn.php
 // MoMo gọi endpoint này (server-to-server) sau khi khách thanh toán xong.
 // KHÔNG được redirect, KHÔNG output HTML - chỉ trả HTTP 200 + JSON nhỏ.
 

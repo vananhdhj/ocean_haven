@@ -1,8 +1,18 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../auth/session.php';
 require_once __DIR__ . '/../config/db-connection.php';
 // Gọi file cấu hình MoMo bằng __DIR__ để không bị set cứng
 $momoConfig = require_once __DIR__ . '/../config/momo-config.php';
+
+// Must be logged in to create a booking
+if (!isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Please log in to make a booking.']);
+    exit;
+}
+
+$session_user_id = $_SESSION['user_id'];
 
 // Get POST data
 $input = json_decode(file_get_contents('php://input'), true);
@@ -86,11 +96,13 @@ $booking_code = 'OH-' . date('Y') . '-' . strtoupper(bin2hex(random_bytes(3)));
 $status = 'Pending';
 $hold_expires_at = date('Y-m-d H:i:s', strtotime('+15 minutes')); // Hết hạn sau 15p
 
-$insert_booking = "INSERT INTO BOOKINGS 
-                    (id, booking_code, user_id, room_id, check_in, check_out, guest_count, 
-                     guest_name, guest_email, guest_phone, special_requests, total_price, status, hold_expires_at) 
-                   VALUES 
-                    ('$booking_id', '$booking_code', NULL, '$room_id', '$check_in', '$check_out', {$room['max_guests']}, 
+$user_id_esc = mysqli_real_escape_string($conn, $session_user_id);
+
+$insert_booking = "INSERT INTO BOOKINGS
+                    (id, booking_code, user_id, room_id, check_in, check_out, guest_count,
+                     guest_name, guest_email, guest_phone, special_requests, total_price, status, hold_expires_at)
+                   VALUES
+                    ('$booking_id', '$booking_code', '$user_id_esc', '$room_id', '$check_in', '$check_out', {$room['max_guests']},
                      '$guest_name', '$guest_email', '$guest_phone', '$special_requests', $total_price, '$status', '$hold_expires_at')";
 
 if (!mysqli_query($conn, $insert_booking)) {

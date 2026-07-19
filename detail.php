@@ -1,7 +1,7 @@
 <?php
 $pageTitle = "Room Details — Ocean Haven Hotel";
 $pageDescription = "View specific room amenities, photos, size, guest limits, pricing, and book your stay online with Ocean Haven Hotel.";
-include 'template/header.php';
+include 'template/header/index.php';
 ?>
 
   <main>
