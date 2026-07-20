@@ -262,11 +262,16 @@ INSERT INTO ROOM_AMENITIES (room_id, amenity_id) VALUES
 -- 8. USERS
 -- password_hash là PLACEHOLDER (chuỗi bcrypt giả) -- thay bằng hash thật
 -- ---------------------------------------------------------------------
-INSERT INTO USERS (id, name, email, password_hash, phone, avatar_url, create_at) VALUES
-('user-001', 'Nguyen Van An', 'vanan@gmail.com',
- '$2y$10$PLACEHOLDER_HASH_REPLACE_ME_00000000000000000000',
- '0901234567', NULL, '2023-01-01 00:00:00');
- 
+INSERT INTO USERS (id, name, email, role, password_hash, phone, create_at) 
+VALUES
+('user-001', 'Nguyen Van An', 'vanan@gmail.com', 'user',
+ '$2y$10$HmX3wp.L83brCWdUXzJemurvehGrjHfDhtDbYY00vGtw/bhz3UOMi', -- dmPass
+ '0901234567', '2024-01-01 00:00:00'),
+
+('usr-admin-00000001', 'Hotel Admin', 'adminSieuCute@gmail.com', 'admin',
+ '$2y$10$F11l0GTuGJ5LUjDFPhoZsevIlzK2BgOtAdyqN8A.dfA8Vls7QvWFS', -- bietLamGi
+ '0900000001', '2023-01-01 00:00:00');
+
 -- 9. BOOKINGS
 INSERT INTO BOOKINGS
 (id, booking_code, user_id, room_id, check_in, check_out, guest_count,
@@ -287,17 +292,17 @@ VALUES
  
 -- 10. PAYMENTS
 INSERT INTO PAYMENTS
-(id, booking_id, payment_method, transaction_id, momo_order_id, amount, status, paid_at)
+(id, booking_id, payment_method, transaction_id, vnpay_order_id, amount, status, paid_at)
 VALUES
-('payment-001', 'booking-001', 'MoMo',        'TXN-OH-2025-0234', 'MOMO-ORDER-0234', 945, 'Completed', '2025-05-02 00:05:00'),
+('payment-001', 'booking-001', 'VNPAY',        'TXN-OH-2025-0234', 'VNPAY-ORDER-0234', 945, 'Completed', '2025-05-02 00:05:00'),
 ('payment-002', 'booking-002', 'Credit Card', 'TXN-OH-2024-0891', NULL,               387, 'Completed', '2025-03-10 00:05:00'),
 ('payment-003', 'booking-003', 'Credit Card', 'TXN-OH-2024-0612', NULL,               178, 'Completed', '2024-12-18 00:05:00'),
-('payment-004', 'booking-004', 'MoMo',        'TXN-OH-2023-1104', 'MOMO-ORDER-1104', 158, 'Refunded',  '2023-10-25 00:05:00');
+('payment-004', 'booking-004', 'VNPAY',        'TXN-OH-2023-1104', 'VNPAY-ORDER-1104', 158, 'Refunded',  '2023-10-25 00:05:00');
  
  
 -- 11. HISTORY_BOOKING
 INSERT INTO HISTORY_BOOKING (id, booking_id, action, note, created_at) VALUES
 ('history-001', 'booking-001', 'CREATED',   'Booking created by guest', '2025-05-02 00:00:00'),
-('history-002', 'booking-001', 'PAID',      'Payment completed via MoMo', '2025-05-02 00:05:00'),
+('history-002', 'booking-001', 'PAID',      'Payment completed via VNPAY', '2025-05-02 00:05:00'),
 ('history-003', 'booking-004', 'CREATED',   'Booking created by guest', '2023-10-25 00:00:00'),
 ('history-004', 'booking-004', 'CANCELLED', 'Guest requested cancellation, refund issued', '2023-10-27 00:00:00');

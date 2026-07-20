@@ -62,7 +62,7 @@ foreach ($users as $u) {
         'email'    => $u['email'],
         'password' => $u['password'],
         'role'     => $u['role'],
-        'status'   => $ok ? 'inserted ✅' : ('FAILED ❌ — ' . mysqli_error($conn)),
+        'status'   => $ok ? 'inserted' : ('FAILED — ' . mysqli_error($conn)),
         'ok'       => $ok,
     ];
 }

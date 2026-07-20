@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   initNavbar();
   initAuthModals();
+
+  // Restore saved avatar from localStorage on every page load
+  const saved = localStorage.getItem('ocean_haven_avatar');
+  if (saved) updateNavbarAvatar(saved);
 });
 
 function initNavbar() {
@@ -212,3 +216,18 @@ function initAuthModals() {
     window.history.replaceState({}, document.title, cleanUrl);
   }
 }
+
+// ── Live navbar avatar update ──
+function updateNavbarAvatar(avatarUrl) {
+  const profileBtn = document.getElementById('profile-btn');
+  if (!profileBtn) return;
+
+  if (avatarUrl) {
+    profileBtn.innerHTML = `
+      <img src="${avatarUrl}" alt="Avatar"
+           style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"
+           onerror="this.style.display='none'">`;
+  }
+}
+
+window.updateNavbarAvatar = updateNavbarAvatar;

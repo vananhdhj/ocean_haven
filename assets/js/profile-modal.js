@@ -60,9 +60,26 @@ async function renderProfileModalContent(dialog) {
       <!-- Profile Tab -->
       <div id="profile-tab-content" class="${activeProfileTab === 'profile' ? '' : 'hidden'}">
         <div class="profile-avatar-row">
-          <div class="avatar-large" style="position:relative;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar-large avatar-upload-trigger" id="avatar-upload-area"
+               tabindex="0" role="button" aria-label="Change profile picture"
+               style="position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;">
             ${avatarHtml}
+            <div id="avatar-upload-overlay" style="
+              position:absolute;inset:0;
+              background:rgba(0,0,0,0.50);
+              display:flex;flex-direction:column;align-items:center;justify-content:center;
+              opacity:0;transition:opacity 0.2s ease;
+              border-radius:50%;
+              color:#fff;font-size:0.65rem;font-weight:600;gap:3px;
+              pointer-events:none;
+            ">
+              <i data-lucide="camera" style="width:18px;height:18px;"></i>
+              <span>Change</span>
+            </div>
           </div>
+          <input type="file" id="avatar-file-input"
+                 accept="image/jpeg,image/png,image/gif,image/webp"
+                 style="display:none;">
           <div>
             <h3 class="font-bold text-foreground text-lg">${profile.name}</h3>
             <p class="text-sm text-muted-foreground">Member since ${profile.joined || new Date().getFullYear()}</p>
@@ -209,6 +226,70 @@ async function renderProfileModalContent(dialog) {
       }
     });
   });
+
+  // ── Avatar upload ────────────────────────────────────────────────────
+  const avatarArea = dialog.querySelector('#avatar-upload-area');
+  const avatarOverlay = dialog.querySelector('#avatar-upload-overlay');
+  const avatarInput = dialog.querySelector('#avatar-file-input');
+
+  if (avatarArea && avatarInput) {
+    // Hover: reveal camera overlay
+    avatarArea.addEventListener('mouseenter', () => { avatarOverlay.style.opacity = '1'; });
+    avatarArea.addEventListener('mouseleave', () => { avatarOverlay.style.opacity = '0'; });
+
+    // Click / keyboard: open file picker
+    avatarArea.addEventListener('click', () => avatarInput.click());
+    avatarArea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); avatarInput.click(); }
+    });
+
+    // File selected: resize via canvas → save to localStorage → update UI
+    avatarInput.addEventListener('change', () => {
+      const file = avatarInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const tempImg = new Image();
+        tempImg.onload = () => {
+          // Crop to square and resize to 200×200 to keep localStorage small
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 200;
+          const ctx = canvas.getContext('2d');
+          const size = Math.min(tempImg.width, tempImg.height);
+          ctx.drawImage(tempImg,
+            (tempImg.width - size) / 2, (tempImg.height - size) / 2,
+            size, size, 0, 0, 200, 200);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          // Persist in browser
+          localStorage.setItem('ocean_haven_avatar', dataUrl);
+
+          // Update avatar circle in modal immediately
+          let avatarImg = avatarArea.querySelector('img');
+          const initSpan = avatarArea.querySelector('span:not(#avatar-upload-overlay span)');
+          const initIcon = avatarArea.querySelector('i:not(#avatar-upload-overlay i)'); // if using default icon
+
+          if (!avatarImg) {
+            avatarImg = document.createElement('img');
+            avatarImg.alt = 'Avatar';
+            avatarImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+            if (initSpan) initSpan.replaceWith(avatarImg);
+            else if (initIcon) initIcon.replaceWith(avatarImg);
+            else avatarArea.insertBefore(avatarImg, avatarOverlay);
+          }
+          avatarImg.src = dataUrl;
+
+          // Update navbar button live
+          if (typeof window.updateNavbarAvatar === 'function') {
+            window.updateNavbarAvatar(dataUrl);
+          }
+        };
+        tempImg.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 }
 
 window.openProfileModal = openProfileModal;

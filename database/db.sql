@@ -6,7 +6,7 @@
 -- Với lại tên bảng với mấy thành phần bên trong, e cũng đặt tên cho nó dễ để viết lệnh truy xuất r á
 
 -- =====================================================================
---   1. Tích hợp thanh toán MoMo (PAYMENTS.momo_order_id)
+--   1. Tích hợp thanh toán VNPAY (PAYMENTS.vnpay_order_id)
 --   2. Log lịch sử booking (HISTORY_BOOKING)
 --   3. Chống đặt trùng ngày cho cùng 1 phòng (index + CHECK constraint)
 --   4. Tự động giải phóng phòng bị "giữ chỗ" quá lâu (BOOKINGS.hold_expires_at)
@@ -17,9 +17,9 @@ CREATE TABLE USERS (
   id VARCHAR(36) PRIMARY KEY,
   name VARCHAR(255),
   email VARCHAR(255) UNIQUE NOT NULL,
+  role ENUM('user', 'admin') DEFAULT 'user',
   password_hash VARCHAR(255) NOT NULL,
   phone VARCHAR(20) UNIQUE NOT NULL,
-  avatar_url VARCHAR(255),
   create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -133,7 +133,7 @@ CREATE TABLE PAYMENTS (
   booking_id VARCHAR(36) UNIQUE,
   payment_method VARCHAR(50),
   transaction_id VARCHAR(255) UNIQUE,
-  momo_order_id VARCHAR(150) UNIQUE, -- orderId gửi lên MoMo, dùng để đối chiếu khi nhận IPN
+  vnpay_order_id VARCHAR(150) UNIQUE,  -- vnp_TxnRef 
   amount DECIMAL(15,2),
   status ENUM('Pending', 'Completed', 'Failed', 'Refunded') DEFAULT 'Pending',
   paid_at TIMESTAMP NULL DEFAULT NULL,
@@ -150,8 +150,7 @@ CREATE TABLE HISTORY_BOOKING (
   INDEX idx_booking_created (booking_id, created_at)
 );
 
-ALTER TABLE USERS 
-ADD COLUMN role ENUM('user', 'admin') DEFAULT 'user' AFTER email;
+
 
 -- =====================================================================
 -- GHI CHÚ: TÌM PHÒNG TRỐNG THEO NGÀY (không lưu cứng)

@@ -14,7 +14,7 @@ $user_id = $_SESSION['user_id'];
 $id_esc  = mysqli_real_escape_string($conn, $user_id);
 
 $row = mysqli_fetch_assoc(
-    mysqli_query($conn, "SELECT id, name, email, phone, role, avatar_url, create_at
+    mysqli_query($conn, "SELECT id, name, email, phone, role, create_at
                          FROM USERS WHERE id = '$id_esc' LIMIT 1")
 );
 
@@ -30,6 +30,5 @@ echo json_encode([
     'email'      => $row['email'],
     'phone'      => $row['phone'],
     'role'       => $row['role'],
-    'avatar_url' => $row['avatar_url'],
     'joined'     => date('Y', strtotime($row['create_at'])),
 ]);
