@@ -1,10 +1,20 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initNavbar();
   initAuthModals();
 
-  // Restore saved avatar from localStorage on every page load
-  const saved = localStorage.getItem('ocean_haven_avatar');
-  if (saved) updateNavbarAvatar(saved);
+  // Restore saved avatar from localStorage for the active user
+  if (window.HotelDb) {
+    const profile = await window.HotelDb.getProfile();
+    if (profile && profile.email) {
+      const saved = localStorage.getItem('ocean_haven_avatar_' + profile.email);
+      if (saved) {
+        updateNavbarAvatar(saved);
+      } else {
+        const initial = (profile.name || 'U').charAt(0).toUpperCase();
+        updateNavbarAvatar(null, initial);
+      }
+    }
+  }
 });
 
 function initNavbar() {
@@ -218,7 +228,7 @@ function initAuthModals() {
 }
 
 // ── Live navbar avatar update ──
-function updateNavbarAvatar(avatarUrl) {
+function updateNavbarAvatar(avatarUrl, initial) {
   const profileBtn = document.getElementById('profile-btn');
   if (!profileBtn) return;
 
@@ -227,6 +237,8 @@ function updateNavbarAvatar(avatarUrl) {
       <img src="${avatarUrl}" alt="Avatar"
            style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"
            onerror="this.style.display='none'">`;
+  } else if (initial) {
+    profileBtn.innerHTML = `<span style="font-size:0.8125rem;font-weight:700;letter-spacing:0.02em;">${initial}</span>`;
   }
 }
 

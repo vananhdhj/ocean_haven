@@ -33,9 +33,11 @@ async function renderProfileModalContent(dialog) {
     return;
   }
 
+  const userSavedAvatar = profile.email ? localStorage.getItem('ocean_haven_avatar_' + profile.email) : null;
+  const currentAvatarUrl = profile.avatar_url || userSavedAvatar;
   const initial = (profile.name || 'U').charAt(0).toUpperCase();
-  const avatarHtml = profile.avatar_url
-    ? `<img src="${profile.avatar_url}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+  const avatarHtml = currentAvatarUrl
+    ? `<img src="${currentAvatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
     : `<span>${initial}</span>`;
 
   const isAdmin = profile.role === 'admin';
@@ -77,6 +79,7 @@ async function renderProfileModalContent(dialog) {
               <span>Change</span>
             </div>
           </div>
+          
           <input type="file" id="avatar-file-input"
                  accept="image/jpeg,image/png,image/gif,image/webp"
                  style="display:none;">
@@ -262,8 +265,10 @@ async function renderProfileModalContent(dialog) {
             size, size, 0, 0, 200, 200);
           const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-          // Persist in browser
-          localStorage.setItem('ocean_haven_avatar', dataUrl);
+          // Persist in browser per user email
+          if (profile.email) {
+            localStorage.setItem('ocean_haven_avatar_' + profile.email, dataUrl);
+          }
 
           // Update avatar circle in modal immediately
           let avatarImg = avatarArea.querySelector('img');

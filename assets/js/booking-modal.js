@@ -237,20 +237,20 @@ async function openBookingModal(roomId) {
         </div>
         <div class="modal-body">
           <div class="space-y-6">
-            <div class="momo-banner">
-              <div class="momo-logo">M</div>
-              <h3 class="font-bold text-foreground text-lg mb-1">Thanh toán qua MoMo</h3>
-              <p class="text-muted-foreground text-sm">Bạn sẽ được chuyển đến trang thanh toán MoMo</p>
+            <div class="vnpay-banner">
+              <div class="vnpay-logo">VNPAY</div>
+              <h3 class="font-bold text-foreground text-lg mb-1">Pay via VNPAY</h3>
+              <p class="text-muted-foreground text-sm">You will be redirected to the VNPAY payment page.</p>
             </div>
 
             <div class="price-input-box" style="padding: 0.75rem 1rem; border-radius: var(--radius-lg); background-color: var(--secondary);">
-              <p class="text-xs text-muted-foreground mb-1">Tổng tiền thanh toán</p>
+              <p class="text-xs text-muted-foreground mb-1">Total payment</p>
               <p class="text-3xl font-bold text-foreground">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</p>
             </div>
 
             <div class="booking-confirm-card" style="font-size: 0.85rem;">
               <div class="booking-confirm-row">
-                <span class="text-muted-foreground">Phòng</span>
+                <span class="text-muted-foreground">Room</span>
                 <span class="font-semibold">${room.name}</span>
               </div>
               <div class="booking-confirm-row">
@@ -262,25 +262,25 @@ async function openBookingModal(roomId) {
                 <span class="font-semibold">${checkoutLabel}</span>
               </div>
               <div class="booking-confirm-row">
-                <span class="text-muted-foreground">Số đêm</span>
+                <span class="text-muted-foreground">Number of nights</span>
                 <span class="font-semibold">${nights} đêm</span>
               </div>
               <div class="booking-confirm-row">
-                <span class="text-muted-foreground">Khách</span>
+                <span class="text-muted-foreground">Guest</span>
                 <span class="font-semibold">${formValues.name}</span>
               </div>
             </div>
 
-            <div id="momo-api-error" style="display:none; color: #e53e3e; font-size: 0.85rem; text-align:center; background: #fff5f5; border-radius: 8px; padding: 0.6rem 1rem;"></div>
+            <div id="vnpay-api-error" style="display:none; color: #e53e3e; font-size: 0.85rem; text-align:center; background: #fff5f5; border-radius: 8px; padding: 0.6rem 1rem;"></div>
 
             <div class="space-y-2">
-              <button type="button" class="btn-block momo-color-btn" id="momo-pay-btn">
-                <span id="momo-btn-text">Thanh toán với MoMo →</span>
-                <span id="momo-btn-spinner" style="display:none;">Đang xử lý…</span>
+              <button type="button" class="btn-block btn-primary" id="vnpay-pay-btn">
+                <span id="vnpay-btn-text">Pay via VNPAY →</span>
+                <span id="vnpay-btn-spinner" style="display:none;">Processing…</span>
               </button>
             </div>
 
-            <p class="text-center text-xs text-muted-foreground">Bạn sẽ được chuyển hướng đến trang thanh toán bảo mật của MoMo.</p>
+            <p class="text-center text-xs text-muted-foreground">You will be redirected to VNPAY secure payment page.</p>
           </div>
         </div>
       `;
@@ -292,11 +292,11 @@ async function openBookingModal(roomId) {
         renderContent();
       });
 
-      dialog.querySelector("#momo-pay-btn").addEventListener("click", async () => {
-        const btn = dialog.querySelector("#momo-pay-btn");
-        const btnText = dialog.querySelector("#momo-btn-text");
-        const btnSpinner = dialog.querySelector("#momo-btn-spinner");
-        const errorBox = dialog.querySelector("#momo-api-error");
+      dialog.querySelector("#vnpay-pay-btn").addEventListener("click", async () => {
+        const btn = dialog.querySelector("#vnpay-pay-btn");
+        const btnText = dialog.querySelector("#vnpay-btn-text");
+        const btnSpinner = dialog.querySelector("#vnpay-btn-spinner");
+        const errorBox = dialog.querySelector("#vnpay-api-error");
 
         btn.disabled = true;
         btnText.style.display = "none";
@@ -312,7 +312,7 @@ async function openBookingModal(roomId) {
             guest_email: formValues.email,
             guest_phone: formValues.phone,
             special_requests: formValues.requests,
-            payment_method: "MoMo"
+            payment_method: "VNPAY"
           };
 
           const response = await fetch("./api/create_booking.php", {
@@ -326,14 +326,14 @@ async function openBookingModal(roomId) {
           if (data.success && data.payUrl) {
             window.location.href = data.payUrl;
           } else {
-            errorBox.textContent = data.message || "Không thể kết nối MoMo. Vui lòng thử lại.";
+            errorBox.textContent = data.message || "Failed to connect to VNPAY. Please try again.";
             errorBox.style.display = "block";
             btn.disabled = false;
             btnText.style.display = "inline";
             btnSpinner.style.display = "none";
           }
         } catch (err) {
-          errorBox.textContent = "Lỗi kết nối mạng. Vui lòng kiểm tra lại.";
+          errorBox.textContent = "Network connection error. Please try again.";
           errorBox.style.display = "block";
           btn.disabled = false;
           btnText.style.display = "inline";
@@ -342,62 +342,8 @@ async function openBookingModal(roomId) {
       });
 
       dialog.querySelector("#close-booking-btn").addEventListener("click", () => dialog.close());
-      // "success" step is now handled by momo_return.php after MoMo redirects back
+      // "success" step is now handled by vnpay_return.php after VNPAY redirects back
     }
-
-    // Để lại coi chơi thôi
-    // else if (currentStep === "success") {
-    //   dialog.innerHTML = `
-    //     <div class="modal-header">
-    //       <h2 style="text-align: center; width: 100%;">Booking Confirmed!</h2>
-    //     </div>
-    //     <div class="modal-body text-center">
-    //       <div class="space-y-5 py-4">
-    //         <div class="success-icon-box">
-    //           <i data-lucide="check-circle" style="width: 44px; height: 44px;"></i>
-    //         </div>
-    //         <div>
-    //           <h3 class="text-2xl font-bold text-foreground mb-2">All Set!</h3>
-    //           <p class="text-muted-foreground text-sm">Your reservation at Ocean Haven Hotel is confirmed.</p>
-    //         </div>
-
-    //         <div class="booking-confirm-card">
-    //           <div class="booking-confirm-row">
-    //             <span class="text-xs text-muted-foreground font-semibold uppercase">Booking ID</span>
-    //             <span class="font-mono font-bold text-primary">${confirmId}</span>
-    //           </div>
-    //           <div class="booking-confirm-row">
-    //             <span class="text-muted-foreground text-sm">Room</span>
-    //             <span class="font-semibold text-foreground text-sm">${room.name}</span>
-    //           </div>
-    //           <div class="booking-confirm-row">
-    //             <span class="text-muted-foreground text-sm">Dates</span>
-    //             <span class="font-semibold text-foreground text-sm">${checkinLabel} → ${checkoutLabel}</span>
-    //           </div>
-    //           <div class="booking-confirm-row">
-    //             <span class="text-muted-foreground text-sm">Guests</span>
-    //             <span class="font-semibold text-foreground text-sm">${room.maxGuests} guest${room.maxGuests !== 1 ? "s" : ""}</span>
-    //           </div>
-    //           <div class="booking-confirm-row" style="border-top: 1px solid var(--border); padding-top: 0.625rem; font-weight: 700;">
-    //             <span>Total Paid</span>
-    //             <span class="text-primary">$${total}</span>
-    //           </div>
-    //         </div>
-
-    //         <p class="text-xs text-muted-foreground">A confirmation email has been sent to <span class="text-foreground font-bold">${formValues.email}</span></p>
-
-    //         <button type="button" class="btn-block btn-primary" id="success-done-btn">Back to Hotel</button>
-    //       </div>
-    //     </div>
-    //   `;
-
-    //   if (window.lucide) window.lucide.createIcons();
-
-    //   dialog.querySelector("#success-done-btn").addEventListener("click", () => {
-    //     dialog.close();
-    //     window.location.reload();
-    //   });
-    // }
   };
 
   renderContent();

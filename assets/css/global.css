@@ -13,10 +13,10 @@
   --card: #ffffff;
   --card-foreground: #0f172a;
 
-  --primary: #355cc6d6;
+  --primary: #3d64b0;
   --primary-btn-bg: #0ea5e9;
   /* Deep Navy */
-  --primary-light: #2563eb;
+  --primary-light: #0c266dd7;
   --primary-foreground: #ffffff;
 
   --secondary: #f1f5f9;
@@ -379,7 +379,7 @@ textarea {
   height: 2.25rem;
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, rgba(30, 58, 138, 0.15), rgba(14, 165, 233, 0.15));
-  border: 1px solid rgba(30, 58, 138, 0.15);
+  border: 1px solid black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -387,7 +387,7 @@ textarea {
 }
 
 .user-profile-btn:hover {
-  border-color: rgba(30, 58, 138, 0.4);
+  border-color: rgba(39, 55, 104, 0.418);
 }
 
 .menu-toggle-btn {
@@ -790,9 +790,6 @@ textarea {
   border-radius: var(--radius-md);
 }
 
-
-
-
 /* Footer styling */
 .main-footer {
   background-color: #0f172a;
@@ -809,7 +806,7 @@ textarea {
 
 @media (min-width: 768px) {
   .footer-grid {
-    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-columns: 1.2fr 1fr;
   }
 }
 
@@ -1366,20 +1363,20 @@ dialog[open] {
   background-color: var(--primary-light);
 }
 
-/* Payment Modal styles (MoMo) */
-.momo-banner {
+/* Payment Modal styles (VNPAY) */
+.vnpay-banner {
   text-align: center;
-  background: linear-gradient(135deg, #fff0f6, #f3e8ff);
-  border: 1px solid #fbcfe8;
+  background: #c6e2f0a5;
+  border: 1px solid #23649c;
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
 }
 
-.momo-logo {
-  width: 3.5rem;
+.vnpay-logo {
+  width: 7rem;
   height: 3.5rem;
-  background: linear-gradient(135deg, #d53f8c, #7e3af2);
+  background: linear-gradient(135deg, #1b397bde, #4274bad5);
   border-radius: var(--radius-lg);
   margin: 0 auto 0.75rem;
   display: flex;
@@ -1405,23 +1402,14 @@ dialog[open] {
   display: inline-flex;
 }
 
-.momo-color-btn {
-  background: linear-gradient(to right, #d53f8c, #7e3af2);
-  color: white;
-}
-
-.momo-color-btn:hover {
-  opacity: 0.9;
-}
-
-.momo-outline-btn {
-  border: 2px solid #d8b4fe;
-  color: #6b21a8;
+.vnpay-outline-btn {
+  border: 2px solid #b4c8fe;
+  color: #415ab5;
   font-weight: 600;
   margin-top: 0.5rem;
 }
 
-.momo-outline-btn:hover {
+.vnpay-outline-btn:hover {
   background-color: #faf5ff;
 }
 
@@ -1459,6 +1447,25 @@ dialog[open] {
 .booking-confirm-row:not(:last-child) {
   border-bottom: 1px solid rgba(226, 232, 240, 0.5);
   margin-bottom: 0.625rem;
+}
+
+.table-responsive {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.response-info {
+  background-color: #ecf2f6;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  border: 1px solid rgb(101, 107, 121);
+}
+
+.margin-t-b {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
 }
 
 /* Profile Modal tab styles */

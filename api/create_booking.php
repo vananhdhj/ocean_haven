@@ -161,12 +161,12 @@ $hashData = "";
 $i = 0;
 foreach ($inputData as $key => $value) {
   if ($i == 1) {
-    $hashData .= '&' . rawurlencode($key) . "=" . rawurlencode($value);
+    $hashData .= '&' . urlencode($key) . "=" . urlencode($value);
   } else {
-    $hashData .= rawurlencode($key) . "=" . rawurlencode($value);
+    $hashData .= urlencode($key) . "=" . urlencode($value);
     $i = 1;
   }
-  $query .= rawurlencode($key) . "=" . rawurlencode($value) . '&';
+  $query .= urlencode($key) . "=" . urlencode($value) . '&';
 }
  
 // Mã hóa hashData bằng thuật toán SHA512 với mã bí mật vnp_HashSecret

@@ -14,14 +14,15 @@ foreach ($_GET as $key => $value) {
 // ---------- 2. Xác thực tính toàn vẹn của chữ ký số VNPAY ----------
 $vnp_SecureHash = $_GET['vnp_SecureHash'] ?? ''; // Chữ ký số do VNPAY cấp
 unset($inputData['vnp_SecureHash']); // Xóa chữ ký này ra khỏi mảng dữ liệu đầu vào để chuẩn bị hash lại
+unset($inputData['vnp_SecureHashType']);
 ksort($inputData); // Sắp xếp các tham số trong mảng theo thứ tự chữ cái từ A-Z (theo quy định của VNPAY)
 $i = 0;
 $hashData = "";
 foreach ($inputData as $key => $value) {
     if ($i == 1) {
-        $hashData = $hashData . '&' . rawurlencode($key) . "=" . rawurlencode($value); // Dùng rawurlencode chống lỗi dấu cách
+        $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
     } else {
-        $hashData = $hashData . rawurlencode($key) . "=" . rawurlencode($value);
+        $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
         $i = 1;
     }
 }
@@ -53,6 +54,26 @@ if ($orderId) {
     }
 }
 
+// Cập nhật trạng thái trong Cơ sở dữ liệu khi chữ ký hợp lệ
+if ($sigValid && $booking) {
+    $vnp_TransactionNo = mysqli_real_escape_string($conn, $_GET['vnp_TransactionNo'] ?? '');
+    $bookingId_esc = mysqli_real_escape_string($conn, $booking['booking_id']);
+
+    if ($isSuccess) {
+        if ($booking['booking_status'] === 'Pending') {
+            mysqli_query($conn, "UPDATE BOOKINGS SET status = 'Confirmed' WHERE id = '$bookingId_esc'");
+            mysqli_query($conn, "UPDATE PAYMENTS SET status = 'Completed', transaction_id = '$vnp_TransactionNo' WHERE vnpay_order_id = '$orderId_esc'");
+            $booking['booking_status'] = 'Confirmed';
+        }
+    } else {
+        if ($booking['booking_status'] === 'Pending') {
+            mysqli_query($conn, "UPDATE BOOKINGS SET status = 'Cancelled' WHERE id = '$bookingId_esc'");
+            mysqli_query($conn, "UPDATE PAYMENTS SET status = 'Failed' WHERE vnpay_order_id = '$orderId_esc'");
+            $booking['booking_status'] = 'Cancelled';
+        }
+    }
+}
+
 $vnp_Amount     = isset($_GET['vnp_Amount']) ? ($_GET['vnp_Amount'] / 100) : 0; // VNPAY trả về số tiền nhân 100
 // Định dạng tiền tệ hiển thị VNĐ trực quan
 $amountNum = (int)($booking['total_price'] ?? $vnp_Amount);
@@ -67,75 +88,81 @@ $pageTitle = $isSuccess ? "Booking Confirmed — Ocean Haven Hotel" : "Payment F
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?php echo $pageTitle; ?></title>
-        <!-- Bootstrap core CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="assets/css/global.css">
     </head>
     <body>
         <div class="container">
-            <div class="header clearfix">
-                <h3 class="text-muted">VNPAY RESPONSE</h3>
-            </div>
-            
-            <div class="table-responsive">
-                <!-- Hiển thị Trạng thái đồ họa trực quan -->
-                <div class="alert <?php echo $isSuccess ? 'alert-success' : 'alert-danger'; ?>" role="alert">
-                    <h4>
-                        <?php
-                        if ($sigValid) {
-                            if ($isSuccess) {
-                                echo "Giao dịch thành công!";
-                            } else {
-                                echo "Giao dịch thất bại / Có lỗi xảy ra.";
-                            }
-                        } else {
-                            echo "Chữ ký không hợp lệ (Dữ liệu bị can thiệp)!";
-                        }
-                        ?>
-                    </h4>
+            <div class="table-responsive margin-t-b flex-col">
+                <div class="header">
+                    <h3 class="text-3xl margin-t-b">VNPAY RESPONSE</h3>
                 </div>
-
-                <!-- Khối hiển thị thông tin hóa đơn chi tiết khách hàng -->
-                <?php if ($booking): ?>
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><b>Thông tin đặt phòng (<?php echo htmlspecialchars($booking['booking_code'] ?? ''); ?>)</b></div>
-                        <div class="panel-body">
-                            <p><b>Khách hàng:</b> <?php echo htmlspecialchars($booking['guest_name'] ?? ''); ?></p>
-                            <p><b>Phòng:</b> <?php echo htmlspecialchars($booking['room_name'] ?? ''); ?></p>
-                            <p><b>Thời gian:</b> <?php echo htmlspecialchars($booking['check_in'] ?? ''); ?> đến <?php echo htmlspecialchars($booking['check_out'] ?? ''); ?></p>
-                        </div>
+                
+                <div class="response-info">
+                    <div class="alert <?php echo $isSuccess ? 'alert-success' : 'alert-danger'; ?>" role="alert">
+                        <h4>
+                            <?php
+                            if ($sigValid) {
+                                if ($isSuccess) {
+                                    echo "Giao dịch thành công!";
+                                } else {
+                                    echo "Giao dịch thất bại / Có lỗi xảy ra.";
+                                }
+                            } else {
+                                echo "Chữ ký không hợp lệ (Dữ liệu bị can thiệp)!";
+                            }
+                            ?>
+                        </h4>
+                        <hr><br>
                     </div>
-                <?php endif; ?>
-
-                <div class="form-group">
-                    <label>Mã đơn hàng:</label>
-                    <label><?php echo htmlspecialchars($orderId); ?></label>
-                </div>    
-                <div class="form-group">
-                    <label>Số tiền:</label>
-                    <label><?php echo $amountVnd; ?> VNĐ</label>
-                </div>  
-                <div class="form-group">
-                    <label>Nội dung thanh toán:</label>
-                    <label><?php echo htmlspecialchars($_GET['vnp_OrderInfo'] ?? ''); ?></label>
-                </div> 
-                <div class="form-group">
-                    <label>Mã phản hồi (vnp_ResponseCode):</label>
-                    <label><?php echo htmlspecialchars($_GET['vnp_ResponseCode'] ?? ''); ?></label>
-                </div> 
-                <div class="form-group">
-                    <label>Mã GD Tại VNPAY:</label>
-                    <label><?php echo htmlspecialchars($_GET['vnp_TransactionNo'] ?? ''); ?></label>
-                </div> 
-                <div class="form-group">
-                    <label>Mã Ngân hàng:</label>
-                    <label><?php echo htmlspecialchars($_GET['vnp_BankCode'] ?? ''); ?></label>
-                </div> 
-                <div class="form-group">
-                    <label>Thời gian thanh toán:</label>
-                    <label><?php echo htmlspecialchars($_GET['vnp_PayDate'] ?? ''); ?></label>
-                </div> 
+    
+                    <!-- Khối hiển thị thông tin hóa đơn chi tiết khách hàng -->
+                    <?php if ($booking): ?>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>Thông tin đặt phòng (<?php echo htmlspecialchars($booking['booking_code'] ?? ''); ?>)</b></div>
+                            <div class="panel-body">
+                                <p><b>Khách hàng:</b> <?php echo htmlspecialchars($booking['guest_name'] ?? ''); ?></p>
+                                <p><b>Phòng:</b> <?php echo htmlspecialchars($booking['room_name'] ?? ''); ?></p>
+                                <p><b>Thời gian:</b> <?php echo htmlspecialchars($booking['check_in'] ?? ''); ?> đến <?php echo htmlspecialchars($booking['check_out'] ?? ''); ?></p>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+    
+                    <div class="form-group">
+                        <label>Mã đơn hàng:</label>
+                        <label><?php echo htmlspecialchars($orderId); ?></label>
+                    </div>    
+                    <div class="form-group">
+                        <label>Số tiền:</label>
+                        <label><?php echo $amountVnd; ?> VNĐ</label>
+                    </div>  
+                    <div class="form-group">
+                        <label>Nội dung thanh toán:</label>
+                        <label><?php echo htmlspecialchars($_GET['vnp_OrderInfo'] ?? ''); ?></label>
+                    </div> 
+                    <div class="form-group">
+                        <label>Mã phản hồi (vnp_ResponseCode):</label>
+                        <label><?php echo htmlspecialchars($_GET['vnp_ResponseCode'] ?? ''); ?></label>
+                    </div> 
+                    <div class="form-group">
+                        <label>Mã GD Tại VNPAY:</label>
+                        <label><?php echo htmlspecialchars($_GET['vnp_TransactionNo'] ?? ''); ?></label>
+                    </div> 
+                    <div class="form-group">
+                        <label>Mã Ngân hàng:</label>
+                        <label><?php echo htmlspecialchars($_GET['vnp_BankCode'] ?? ''); ?></label>
+                    </div> 
+                    <div class="form-group">
+                        <label>Thời gian thanh toán:</label>
+                        <label><?php echo htmlspecialchars($_GET['vnp_PayDate'] ?? ''); ?></label>
+                    </div> 
+                </div>
+                <br>
+                <a href="home.php">
+                    <button class="btn-block btn-primary">return to home page</button>
+                </a>
+                <br>
             </div>
-            
+
             <footer class="footer">
                    <p>&copy; Ocean Haven Hotel <?php echo date('Y')?></p>
             </footer>

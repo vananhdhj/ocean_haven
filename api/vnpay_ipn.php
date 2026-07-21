@@ -15,14 +15,15 @@ foreach ($_GET as $key => $value) {
 
 $vnp_SecureHash = $inputData['vnp_SecureHash']; // Chữ ký số do VNPAY cấp
 unset($inputData['vnp_SecureHash']); // Xóa chữ ký này ra khỏi mảng dữ liệu đầu vào để chuẩn bị hash lại
+unset($inputData['vnp_SecureHashType']);
 ksort($inputData); // Sắp xếp các tham số trong mảng theo thứ tự chữ cái từ A-Z (theo quy định của VNPAY)
 $i = 0;
 $hashData = "";
 foreach ($inputData as $key => $value) {
     if ($i == 1) {
-        $hashData = $hashData . '&' . rawurlencode($key) . "=" . rawurlencode($value);
+        $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
     } else {
-        $hashData = $hashData . rawurlencode($key) . "=" . rawurlencode($value);
+        $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
         $i = 1;
     }
 }
@@ -62,13 +63,10 @@ try {
                         $Status = 'Failed'; // Trạng thái thanh toán thất bại / lỗi
                         $updateBookingSql = "UPDATE BOOKINGS SET status = 'Cancelled' WHERE id = '" . mysqli_real_escape_string($conn, $order['booking_id']) . "'";
                     }
-                    //Cài đặt Code cập nhật kết quả thanh toán, tình trạng đơn hàng vào DB
-                    $updateResult = mysqli_query($conn, $updateBookingSql);
-                    if (!$updateResult) {
-                        throw new Exception("Database update failed: " . mysqli_error($conn));
-                    }
-                    // Cập nhật trạng thái Booking
-                    mysqli_query($conn, $updateBookingSql);                
+                    $updatePaymentSql = "UPDATE PAYMENTS SET status = '$Status', transaction_id = '$vnp_TransactionNo' WHERE id = '" . mysqli_real_escape_string($conn, $order['id']) . "'";
+
+                    mysqli_query($conn, $updateBookingSql);
+                    mysqli_query($conn, $updatePaymentSql);                
                     //Trả kết quả về cho VNPAY: Website/APP TMĐT ghi nhận yêu cầu thành công                
                     $returnData['RspCode'] = '00';
                     $returnData['Message'] = 'Confirm Success';

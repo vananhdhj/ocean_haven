@@ -41,7 +41,7 @@ $checkins_res = mysqli_query($conn,
      FROM BOOKINGS b
      LEFT JOIN ROOMS r ON b.room_id = r.id
      LEFT JOIN USERS u ON b.user_id = u.id
-     ORDER BY b.check_in ASC"
+     ORDER BY b.check_in DESC" // mới nhất -> cũ nhất
 );
 $checkins_by_date = [];
 while ($row = mysqli_fetch_assoc($checkins_res)) {
@@ -213,7 +213,7 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
                   if ($c['status'] === 'Cancelled') $pill = 'pill-cancelled';
                   if ($c['status'] === 'Completed') $pill = 'pill-completed';
                 ?>
-                <tr>
+                <tr class="checkin-row">
                   <td style="font-weight: 600; color: var(--primary-light);"><?= htmlspecialchars($c['check_in']) ?></td>
                   <td><span class="font-mono font-bold" style="font-size:0.8125rem;"><?= htmlspecialchars($c['booking_code']) ?></span></td>
                   <td>
@@ -231,11 +231,55 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
           </tbody>
         </table>
       </div>
+
+      <!-- See More Button Container -->
+      <div id="checkins-see-more-container" style="text-align: center; margin-top: 1.5rem; margin-bottom: 0.5rem; display: none;">
+        <button type="button" id="checkins-see-more-btn" class="btn-outline-primary" style="padding: 0.75rem 2.5rem; font-weight: 600; cursor: pointer; border-radius: var(--radius-full); border: 1.5px solid var(--primary); background: transparent; color: var(--primary); transition: all 0.2s;">
+          See More
+        </button>
+      </div>
     </div>
 
   </main>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const rows = document.querySelectorAll('.checkin-row');
+  const seeMoreContainer = document.getElementById('checkins-see-more-container');
+  const seeMoreBtn = document.getElementById('checkins-see-more-btn');
+  const batchSize = 10;
+  let visibleCount = batchSize;
+
+  function updateCheckinRows() {
+    rows.forEach((row, index) => {
+      if (index < visibleCount) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    if (seeMoreContainer) {
+      if (rows.length > visibleCount) {
+        seeMoreContainer.style.display = 'block';
+      } else {
+        seeMoreContainer.style.display = 'none';
+      }
+    }
+  }
+
+  if (seeMoreBtn) {
+    seeMoreBtn.addEventListener('click', () => {
+      visibleCount += batchSize;
+      updateCheckinRows();
+    });
+  }
+
+  updateCheckinRows();
+});
+</script>
 
 </body>
 </html>

@@ -268,8 +268,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  let visibleCount = 9;
+
   // Filter and Render Logic
-  function applyFiltersAndRender() {
+  function applyFiltersAndRender(resetPagination = true) {
+    if (resetPagination) {
+      visibleCount = 9;
+    }
+
     const filtered = rooms.filter(r => {
       // Room types filter
       if (filters.types.length > 0 && !filters.types.includes(r.type)) return false;
@@ -321,11 +327,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (filtered.length === 0) {
       roomsGrid.classList.add("hidden");
       emptyState.classList.remove("hidden");
+      let seeMoreContainer = document.getElementById("see-more-container");
+      if (seeMoreContainer) seeMoreContainer.style.display = "none";
     } else {
       emptyState.classList.add("hidden");
       roomsGrid.classList.remove("hidden");
 
-      roomsGrid.innerHTML = filtered.map(room => {
+      const displayList = filtered.slice(0, visibleCount);
+
+      roomsGrid.innerHTML = displayList.map(room => {
         const viewVariant = room.view === "Sea View" ? "sea" : room.view === "Garden View" ? "garden" : "city";
 
         // Stars Rating Generation
@@ -383,6 +393,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       }).join("");
 
       if (window.lucide) window.lucide.createIcons();
+
+      // Manage See More button
+      let seeMoreContainer = document.getElementById("see-more-container");
+      if (!seeMoreContainer) {
+        seeMoreContainer = document.createElement("div");
+        seeMoreContainer.id = "see-more-container";
+        seeMoreContainer.style.cssText = "text-align: center; margin-top: 2.5rem; margin-bottom: 1.5rem;";
+        seeMoreContainer.innerHTML = `
+          <button type="button" id="see-more-btn" class="btn-outline-primary" style="padding: 0.75rem 2.5rem; font-weight: 600; cursor: pointer; border-radius: var(--radius-full); border: 1.5px solid var(--primary); background: transparent; color: var(--primary); transition: all 0.2s;">
+            See More
+          </button>
+        `;
+        roomsGrid.after(seeMoreContainer);
+
+        const seeMoreBtn = seeMoreContainer.querySelector("#see-more-btn");
+        seeMoreBtn.addEventListener("click", () => {
+          visibleCount += 9;
+          applyFiltersAndRender(false);
+        });
+      }
+
+      if (filtered.length > visibleCount) {
+        seeMoreContainer.style.display = "block";
+      } else {
+        seeMoreContainer.style.display = "none";
+      }
     }
 
     // Show room apply counts on mobile modal footer
