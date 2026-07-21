@@ -11,7 +11,19 @@ $user         = currentUser(); // null if not logged in
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo isset($pageTitle) ? $pageTitle : 'Ocean Haven Hotel'; ?></title>
   <meta name="description" content="<?php echo isset($pageDescription) ? $pageDescription : '22 beautifully appointed rooms across 3 floors, steps from the sea. Ocean Haven is where families make memories that last a lifetime in Da Nang, Vietnam.'; ?>">
+  
+  <!-- Core Styles -->
   <link rel="stylesheet" href="./assets/css/global.css">
+  <link rel="stylesheet" href="./assets/css/components/navbar.css">
+  <link rel="stylesheet" href="./assets/css/components/footer.css">
+  <link rel="stylesheet" href="./assets/css/components/modals.css">
+  
+  <!-- Page-specific Styles -->
+  <?php if (isset($pageStyles) && is_array($pageStyles)): ?>
+    <?php foreach ($pageStyles as $style): ?>
+      <link rel="stylesheet" href="<?php echo $style; ?>">
+    <?php endforeach; ?>
+  <?php endif; ?>
 </head>
 
 <body>

@@ -1,3 +1,4 @@
+// ** Home page ** //
 document.addEventListener("DOMContentLoaded", async () => {
   // Initialize Search Bar
   initSearchBar("#hero-search-bar-container", (searchData) => {

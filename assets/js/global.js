@@ -1,3 +1,4 @@
+// ** HotelDb API layer ** //
 // global.js — Shared JS for Ocean Haven Hotel
 // Profile data and auth state come from the real PHP session via API calls.
 // All localStorage mock data has been removed.
@@ -5,7 +6,7 @@
 (function () {
 
   // ── In-memory cache for the current page lifetime ──────────────
-  let _profileCache  = null;
+  let _profileCache = null;
   let _profileFetched = false;
 
   let roomsCache = [];
@@ -44,7 +45,7 @@
     getRoomById(id) {
       let targetId = id;
       if (id !== null && id !== undefined && !isNaN(id)) {
-        const num    = parseInt(id);
+        const num = parseInt(id);
         const padded = num.toString().padStart(3, '0');
         targetId = `room-${padded}`;
       }
@@ -58,11 +59,11 @@
         const res = await fetch('./api/get_profile.php');
         if (res.status === 401) {
           // Not logged in
-          _profileCache  = null;
+          _profileCache = null;
           _profileFetched = true;
           return null;
         }
-        _profileCache   = await res.json();
+        _profileCache = await res.json();
         _profileFetched = true;
         return _profileCache;
       } catch (err) {
@@ -74,15 +75,15 @@
     async updateProfile(profileData) {
       try {
         const res = await fetch('./api/update_profile.php', {
-          method:  'POST',
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(profileData),
+          body: JSON.stringify(profileData),
         });
         const result = await res.json();
         if (result.success) {
           // Invalidate cache so next call re-fetches
           _profileFetched = false;
-          _profileCache   = null;
+          _profileCache = null;
         }
         return result;
       } catch (err) {
@@ -108,13 +109,13 @@
         };
 
         return dbBookings.map(b => ({
-          id:       b.booking_code,   // Friendly code shown as Booking ID
-          room:     b.room,
-          dates:    `${formatDate(b.check_in)} → ${formatDate(b.check_out)}`,
-          guests:   b.guests,
-          status:   b.status,
+          id: b.booking_code,   // Friendly code shown as Booking ID
+          room: b.room,
+          dates: `${formatDate(b.check_in)} → ${formatDate(b.check_out)}`,
+          guests: b.guests,
+          status: b.status,
           bookedOn: formatDate(b.bookedOn),
-          total:    b.total,
+          total: b.total,
         }));
       } catch (err) {
         console.error('Fetch bookings failed:', err);
@@ -125,9 +126,9 @@
     async cancelBooking(bookingCode) {
       try {
         const response = await fetch('./api/cancel_booking.php', {
-          method:  'POST',
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ booking_id: bookingCode }),
+          body: JSON.stringify({ booking_id: bookingCode }),
         });
         const result = await response.json();
         if (!result.success) {
@@ -143,7 +144,7 @@
 
     // ── Search state (non-sensitive, kept in sessionStorage) ──────
     getSearchState() {
-      const today    = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split('T')[0];
       const tomorrow = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
       return getStorage('oh_search', { checkIn: today, checkOut: tomorrow });
     },

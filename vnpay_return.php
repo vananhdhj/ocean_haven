@@ -89,6 +89,7 @@ $pageTitle = $isSuccess ? "Booking Confirmed — Ocean Haven Hotel" : "Payment F
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?php echo $pageTitle; ?></title>
         <link rel="stylesheet" href="assets/css/global.css">
+        <link rel="stylesheet" href="assets/css/components/modals.css">
     </head>
     <body>
         <div class="container">

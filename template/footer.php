@@ -43,9 +43,22 @@
   <script src="./assets/js/global.js"></script>
   <script src="./assets/js/navbar.js"></script>
   <script src="./assets/js/search-bar.js"></script>
-  <script src="./assets/js/profile-modal.js"></script>
-  <script src="./assets/js/booking-modal.js"></script>
-  <?php if (isset($pageScript)): ?>
+
+  <!-- Profile module (templates + avatar before controller) -->
+  <script src="./assets/js/profile/avatar-upload.js"></script>
+  <script src="./assets/js/profile/profile-modal.templates.js"></script>
+  <script src="./assets/js/profile/profile-modal.js"></script>
+
+  <!-- Booking module (templates before controller) -->
+  <script src="./assets/js/booking/booking-modal.templates.js"></script>
+  <script src="./assets/js/booking/booking-modal.js"></script>
+  
+  <!-- Page-specific scripts (loaded in order) -->
+  <?php if (isset($pageScripts) && is_array($pageScripts)): ?>
+    <?php foreach ($pageScripts as $script): ?>
+      <script src="<?php echo $script; ?>"></script>
+    <?php endforeach; ?>
+  <?php elseif (isset($pageScript)): ?>
     <script src="<?php echo $pageScript; ?>"></script>
   <?php endif; ?>
   <script src="https://unpkg.com/lucide@latest"></script>

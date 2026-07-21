@@ -1,3 +1,4 @@
+// ** Navbar + auth modals + avatar ** //
 document.addEventListener("DOMContentLoaded", async () => {
   initNavbar();
   initAuthModals();

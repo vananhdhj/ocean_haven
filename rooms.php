@@ -1,6 +1,11 @@
 <?php
 $pageTitle = "All Available Rooms";
 $pageDescription = "Browse our 22 beautifully appointed rooms. Filter by room type, view, floor, price, or capacity to find your perfect stay in Da Nang, Vietnam.";
+$pageStyles = [
+  "./assets/css/pages/rooms.css",
+  "./assets/css/components/search-bar.css",
+  "./assets/css/components/room-card.css"
+];
 include 'template/header/index.php';
 ?>
 
@@ -94,6 +99,9 @@ include 'template/header/index.php';
   </dialog>
 
 <?php
-$pageScript = "./assets/js/rooms.js";
+$pageScripts = [
+  "./assets/js/rooms/rooms.templates.js",
+  "./assets/js/rooms/rooms.js",
+];
 include 'template/footer.php';
 ?>

@@ -1,6 +1,10 @@
 <?php
 $pageTitle = "Hotel Booking Site";
 $pageDescription = "22 beautifully appointed rooms across 3 floors, steps from the sea. Ocean Haven is where families make memories that last a lifetime in Da Nang, Vietnam.";
+$pageStyles = [
+  "./assets/css/pages/home.css",
+  "./assets/css/components/room-card.css"
+];
 include 'template/header/index.php';
 ?>
 

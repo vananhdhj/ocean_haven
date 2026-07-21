@@ -1,6 +1,9 @@
 <?php
 $pageTitle = "Room Details — Ocean Haven Hotel";
 $pageDescription = "View specific room amenities, photos, size, guest limits, pricing, and book your stay online with Ocean Haven Hotel.";
+$pageStyles = [
+  "./assets/css/pages/detail.css"
+];
 include 'template/header/index.php';
 ?>
 
@@ -16,6 +19,9 @@ include 'template/header/index.php';
   </main>
 
 <?php
-$pageScript = "./assets/js/detail.js";
+$pageScripts = [
+  "./assets/js/detail/detail.templates.js",
+  "./assets/js/detail/detail.js",
+];
 include 'template/footer.php';
 ?>

@@ -1,3 +1,4 @@
+// ** Search bar component ** //
 function initSearchBar(containerSelector, onSearch) {
   const container = document.querySelector(containerSelector);
   if (!container) return;
