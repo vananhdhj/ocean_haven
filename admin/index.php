@@ -125,7 +125,7 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
       </p>
       <form method="GET" action="index.php" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <input type="text" name="phone_search" placeholder="Enter guest phone number..." 
-               class="form-control" style="max-width: 350px; background-color: #fff; border: 1.5px solid var(--border);"
+               class="form-control" style="width: 350px; background-color: #fff; border: 1.5px solid var(--border);"
                value="<?= htmlspecialchars($phone_search) ?>" required>
         <button type="submit" class="btn-primary" style="padding: 0.625rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; font-family: var(--font-body); border: none; cursor: pointer;">
           Search
@@ -232,12 +232,8 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
         </table>
       </div>
 
-      <!-- See More Button Container -->
-      <div id="checkins-see-more-container" style="text-align: center; margin-top: 1.5rem; margin-bottom: 0.5rem; display: none;">
-        <button type="button" id="checkins-see-more-btn" class="btn-outline-primary" style="padding: 0.75rem 2.5rem; font-weight: 600; cursor: pointer; border-radius: var(--radius-full); border: 1.5px solid var(--primary); background: transparent; color: var(--primary); transition: all 0.2s;">
-          See More
-        </button>
-      </div>
+      <!-- Pagination Container -->
+      <div id="checkins-pagination-container" class="pagination-container" style="display: none;"></div>
     </div>
 
   </main>
@@ -247,34 +243,74 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const rows = document.querySelectorAll('.checkin-row');
-  const seeMoreContainer = document.getElementById('checkins-see-more-container');
-  const seeMoreBtn = document.getElementById('checkins-see-more-btn');
-  const batchSize = 10;
-  let visibleCount = batchSize;
+  const paginationContainer = document.getElementById('checkins-pagination-container');
+  const itemsPerPage = 10;
+  let currentPage = 1;
+  const totalPages = Math.ceil(rows.length / itemsPerPage);
+
+  function renderPagination() {
+    if (totalPages <= 1) {
+      if (paginationContainer) paginationContainer.style.display = 'none';
+      return;
+    }
+    
+    if (paginationContainer) paginationContainer.style.display = 'flex';
+    
+    let html = '';
+    html += `<button type="button" class="btn-pagination prev-page" ${currentPage === 1 ? 'disabled' : ''}>Prev</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = i === currentPage ? 'active' : '';
+        html += `<button type="button" class="btn-pagination page-num ${activeClass}" data-page="${i}">${i}</button>`;
+    }
+    html += `<button type="button" class="btn-pagination next-page" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>`;
+    
+    if (paginationContainer) {
+      paginationContainer.innerHTML = html;
+      
+      const prevBtn = paginationContainer.querySelector('.prev-page');
+      const nextBtn = paginationContainer.querySelector('.next-page');
+      const pageBtns = paginationContainer.querySelectorAll('.page-num');
+
+      if (prevBtn) {
+          prevBtn.addEventListener('click', () => {
+              if (currentPage > 1) {
+                  currentPage--;
+                  updateCheckinRows();
+              }
+          });
+      }
+
+      if (nextBtn) {
+          nextBtn.addEventListener('click', () => {
+              if (currentPage < totalPages) {
+                  currentPage++;
+                  updateCheckinRows();
+              }
+          });
+      }
+
+      pageBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+              currentPage = parseInt(btn.getAttribute('data-page'));
+              updateCheckinRows();
+          });
+      });
+    }
+  }
 
   function updateCheckinRows() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
     rows.forEach((row, index) => {
-      if (index < visibleCount) {
+      if (index >= startIndex && index < endIndex) {
         row.style.display = '';
       } else {
         row.style.display = 'none';
       }
     });
 
-    if (seeMoreContainer) {
-      if (rows.length > visibleCount) {
-        seeMoreContainer.style.display = 'block';
-      } else {
-        seeMoreContainer.style.display = 'none';
-      }
-    }
-  }
-
-  if (seeMoreBtn) {
-    seeMoreBtn.addEventListener('click', () => {
-      visibleCount += batchSize;
-      updateCheckinRows();
-    });
+    renderPagination();
   }
 
   updateCheckinRows();

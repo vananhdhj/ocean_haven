@@ -198,12 +198,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    let visibleCount = 9;
+    let currentPage = 1;
+    const itemsPerPage = 9;
 
     // Filter and Render Logic
     function applyFiltersAndRender(resetPagination = true) {
         if (resetPagination) {
-            visibleCount = 9;
+            currentPage = 1;
         }
 
         const filtered = rooms.filter(r => {
@@ -263,32 +264,60 @@ document.addEventListener("DOMContentLoaded", async () => {
             emptyState.classList.add("hidden");
             roomsGrid.classList.remove("hidden");
 
-            const displayList = filtered.slice(0, visibleCount);
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const displayList = filtered.slice(startIndex, startIndex + itemsPerPage);
 
             roomsGrid.innerHTML = displayList.map(room => window.RoomsTemplates.renderRoomCardHtml(room)).join("");
 
             if (window.lucide) window.lucide.createIcons();
 
-            // Manage See More button
-            let seeMoreContainer = document.getElementById("see-more-container");
-            if (!seeMoreContainer) {
-                seeMoreContainer = document.createElement("div");
-                seeMoreContainer.id = "see-more-container";
-                seeMoreContainer.style.cssText = "text-align: center; margin-top: 2.5rem; margin-bottom: 1.5rem;";
-                seeMoreContainer.innerHTML = window.RoomsTemplates.renderSeeMoreContainerHtml();
-                roomsGrid.after(seeMoreContainer);
-
-                const seeMoreBtn = seeMoreContainer.querySelector("#see-more-btn");
-                seeMoreBtn.addEventListener("click", () => {
-                    visibleCount += 9;
-                    applyFiltersAndRender(false);
-                });
+            // Manage Pagination
+            let paginationContainer = document.getElementById("rooms-pagination-container");
+            if (!paginationContainer) {
+                paginationContainer = document.createElement("div");
+                paginationContainer.id = "rooms-pagination-container";
+                roomsGrid.after(paginationContainer);
             }
 
-            if (filtered.length > visibleCount) {
-                seeMoreContainer.style.display = "block";
+            if (totalPages > 1) {
+                paginationContainer.style.display = "block";
+                paginationContainer.innerHTML = window.RoomsTemplates.renderPaginationHtml(currentPage, totalPages);
+
+                // Attach events
+                const prevBtn = paginationContainer.querySelector('.prev-page');
+                const nextBtn = paginationContainer.querySelector('.next-page');
+                const pageBtns = paginationContainer.querySelectorAll('.page-num');
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            applyFiltersAndRender(false);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        if (currentPage < totalPages) {
+                            currentPage++;
+                            applyFiltersAndRender(false);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    });
+                }
+
+                pageBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        currentPage = parseInt(btn.getAttribute('data-page'));
+                        applyFiltersAndRender(false);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
             } else {
-                seeMoreContainer.style.display = "none";
+                paginationContainer.style.display = "none";
             }
         }
 

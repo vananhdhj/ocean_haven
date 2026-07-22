@@ -139,16 +139,26 @@ function renderRoomCardHtml(room) {
   `;
 }
 
-function renderSeeMoreContainerHtml() {
-    return `
-    <button type="button" id="see-more-btn" class="btn-outline-primary" style="padding: 0.75rem 2.5rem; font-weight: 600; cursor: pointer; border-radius: var(--radius-full); border: 1.5px solid var(--primary); background: transparent; color: var(--primary); transition: all 0.2s;">
-      See More
-    </button>
-  `;
+function renderPaginationHtml(currentPage, totalPages) {
+    if (totalPages <= 1) return '';
+
+    let html = `<div class="pagination-container">`;
+
+    html += `<button type="button" class="btn-pagination prev-page" ${currentPage === 1 ? 'disabled' : ''}>Prev</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = i === currentPage ? 'active' : '';
+        html += `<button type="button" class="btn-pagination page-num ${activeClass}" data-page="${i}">${i}</button>`;
+    }
+
+    html += `<button type="button" class="btn-pagination next-page" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>`;
+    html += `</div>`;
+    
+    return html;
 }
 
 window.RoomsTemplates = {
     renderFilterPanelHtml,
     renderRoomCardHtml,
-    renderSeeMoreContainerHtml,
+    renderPaginationHtml,
 };
