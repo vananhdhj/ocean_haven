@@ -1,16 +1,16 @@
 // ** Booking modal controller ** //
-// Main controller for the booking modal: state, price calc, event binding.
-// Depends on window.BookingModalTemplates (booking-modal.templates.js) being loaded first.
+import { HotelDb } from '../global.js';
+import { BookingModalTemplates } from './booking-modal.templates.js';
 
 const fmtVNDBooking = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
-async function openBookingModal(roomId) {
-    const room = window.HotelDb.getRoomById(roomId);
+export async function openBookingModal(roomId) {
+    const room = HotelDb.getRoomById(roomId);
     if (!room) return;
 
-    const profile = await window.HotelDb.getProfile();
+    const profile = await HotelDb.getProfile();
     if (!profile) {
-        window.HotelDb.redirectToLogin(window.location.href);
+        HotelDb.redirectToLogin(window.location.href);
         return;
     }
 
@@ -63,7 +63,7 @@ async function openBookingModal(roomId) {
 
     const renderContent = () => {
         if (currentStep === "summary") {
-            dialog.innerHTML = window.BookingModalTemplates.renderBookingSummaryStep({
+            dialog.innerHTML = BookingModalTemplates.renderBookingSummaryStep({
                 room, checkInVal, checkOutVal, nights, subtotal, taxes, total, formValues
             });
 
@@ -138,7 +138,7 @@ async function openBookingModal(roomId) {
 
             dialog.querySelector("#close-booking-btn").addEventListener("click", () => dialog.close());
         } else if (currentStep === "payment") {
-            dialog.innerHTML = window.BookingModalTemplates.renderBookingPaymentStep({
+            dialog.innerHTML = BookingModalTemplates.renderBookingPaymentStep({
                 room, checkinLabel, checkoutLabel, nights, formValues, total
             });
 
@@ -199,7 +199,6 @@ async function openBookingModal(roomId) {
             });
 
             dialog.querySelector("#close-booking-btn").addEventListener("click", () => dialog.close());
-            // "success" step is now handled by vnpay_return.php after VNPAY redirects back
         }
     };
 
@@ -208,3 +207,4 @@ async function openBookingModal(roomId) {
 }
 
 window.openBookingModal = openBookingModal;
+export default openBookingModal;

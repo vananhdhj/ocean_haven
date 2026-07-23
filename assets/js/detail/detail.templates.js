@@ -34,7 +34,7 @@ const AMENITY_ICON_MAP = {
   "Laundry": "sparkles"
 };
 
-function renderStarsHtml(rating, sizePx = 14) {
+export function renderStarsHtml(rating, sizePx = 14) {
   let starsHtml = "";
   for (let i = 1; i <= 5; i++) {
     const isFilled = i <= Math.round(rating);
@@ -43,7 +43,7 @@ function renderStarsHtml(rating, sizePx = 14) {
   return starsHtml;
 }
 
-function renderGalleryHtml(room, activeImgIdx) {
+export function renderGalleryHtml(room, activeImgIdx) {
   const hasMultiple = room.images.length > 1;
 
   return `
@@ -79,7 +79,7 @@ function renderGalleryHtml(room, activeImgIdx) {
   `;
 }
 
-function renderTitleSectionHtml(room, viewVariant, starsHtml) {
+export function renderTitleSectionHtml(room, viewVariant, starsHtml) {
   return `
     <div class="detail-title-section">
       <div class="flex flex-wrap gap-2" style="margin-bottom: 0.5rem;">
@@ -97,7 +97,7 @@ function renderTitleSectionHtml(room, viewVariant, starsHtml) {
   `;
 }
 
-function renderSpecsGridHtml(room) {
+export function renderSpecsGridHtml(room) {
   return `
     <div class="detail-specs-grid">
       <div class="detail-spec-card">
@@ -132,7 +132,7 @@ function renderSpecsGridHtml(room) {
   `;
 }
 
-function renderAmenitiesGridHtml(room) {
+export function renderAmenitiesGridHtml(room) {
   return `
     <div class="detail-description-section">
       <h2>Amenities</h2>
@@ -151,7 +151,7 @@ function renderAmenitiesGridHtml(room) {
   `;
 }
 
-function renderBookingWidgetHtml(room) {
+export function renderBookingWidgetHtml(room) {
   return `
     <div class="booking-widget-card">
       <div class="booking-widget-price-row">
@@ -203,8 +203,7 @@ function renderBookingWidgetHtml(room) {
   `;
 }
 
-/** Builds the full detail page innerHTML. */
-function renderDetailPageHtml(room, activeImgIdx) {
+export function renderDetailPageHtml(room, activeImgIdx) {
   const viewVariant = room.view === "Sea View" ? "sea" : room.view === "Garden View" ? "garden" : "city";
   const starsHtml = renderStarsHtml(room.rating, 14);
 
@@ -237,6 +236,15 @@ function renderDetailPageHtml(room, activeImgIdx) {
   `;
 }
 
-window.DetailTemplates = {
+export const DetailTemplates = {
   renderDetailPageHtml,
+  renderStarsHtml,
+  renderGalleryHtml,
+  renderTitleSectionHtml,
+  renderSpecsGridHtml,
+  renderAmenitiesGridHtml,
+  renderBookingWidgetHtml,
 };
+
+window.DetailTemplates = DetailTemplates;
+export default DetailTemplates;

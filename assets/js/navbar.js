@@ -1,24 +1,7 @@
 // ** Navbar + auth modals + avatar ** //
-document.addEventListener("DOMContentLoaded", async () => {
-  initNavbar();
-  initAuthModals();
+import { openProfileModal } from './profile/profile-modal.js';
 
-  // Restore saved avatar from localStorage for the active user
-  if (window.HotelDb) {
-    const profile = await window.HotelDb.getProfile();
-    if (profile && profile.email) {
-      const saved = localStorage.getItem('ocean_haven_avatar_' + profile.email);
-      if (saved) {
-        updateNavbarAvatar(saved);
-      } else {
-        const initial = (profile.name || 'U').charAt(0).toUpperCase();
-        updateNavbarAvatar(null, initial);
-      }
-    }
-  }
-});
-
-function initNavbar() {
+export function initNavbar() {
   const profileBtn = document.getElementById("profile-btn");
   if (profileBtn) {
     profileBtn.addEventListener("click", (e) => {
@@ -44,7 +27,6 @@ function initNavbar() {
     });
   }
 
-  // Hook up profile button on mobile menu
   const mobileProfileBtn = document.getElementById("mobile-profile-btn");
   if (mobileProfileBtn) {
     mobileProfileBtn.addEventListener("click", (e) => {
@@ -54,7 +36,6 @@ function initNavbar() {
     });
   }
 
-  // Close mobile nav when clicking any link inside it
   if (mobileNav) {
     mobileNav.addEventListener("click", (e) => {
       if (e.target.tagName === "A" || e.target.closest("a")) {
@@ -69,7 +50,7 @@ function initNavbar() {
   }
 }
 
-function initAuthModals() {
+export function initAuthModals() {
   const loginModal = document.getElementById("login-modal");
   const registerModal = document.getElementById("register-modal");
   if (!loginModal || !registerModal) return;
@@ -90,7 +71,6 @@ function initAuthModals() {
   const loginErrorMsg = document.getElementById("login-error-msg");
   const registerErrorMsg = document.getElementById("register-error-msg");
 
-  // Open Login Modal
   if (navSigninBtn) {
     navSigninBtn.addEventListener("click", () => {
       loginModal.showModal();
@@ -104,7 +84,6 @@ function initAuthModals() {
     });
   }
 
-  // Open Register Modal
   if (mobileRegisterBtn) {
     mobileRegisterBtn.addEventListener("click", () => {
       const mobileNav = document.getElementById("mobile-nav");
@@ -113,7 +92,6 @@ function initAuthModals() {
     });
   }
 
-  // Close Modals
   if (closeLoginBtn) {
     closeLoginBtn.addEventListener("click", () => loginModal.close());
   }
@@ -121,7 +99,6 @@ function initAuthModals() {
     closeRegisterBtn.addEventListener("click", () => registerModal.close());
   }
 
-  // Switch Between Modals
   if (switchToRegister) {
     switchToRegister.addEventListener("click", () => {
       loginModal.close();
@@ -135,7 +112,6 @@ function initAuthModals() {
     });
   }
 
-  // Close Modals on backdrop click
   [loginModal, registerModal].forEach(modal => {
     modal.addEventListener("click", (e) => {
       const rect = modal.getBoundingClientRect();
@@ -149,7 +125,6 @@ function initAuthModals() {
     });
   });
 
-  // Handle AJAX Login
   if (ajaxLoginForm) {
     ajaxLoginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -182,7 +157,6 @@ function initAuthModals() {
     });
   }
 
-  // Handle AJAX Register
   if (ajaxRegisterForm) {
     ajaxRegisterForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -215,7 +189,6 @@ function initAuthModals() {
     });
   }
 
-  // Automatically show modals from URL query parameters (for redirect fallback cases)
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has("showLogin")) {
     loginModal.showModal();
@@ -228,8 +201,7 @@ function initAuthModals() {
   }
 }
 
-// ── Live navbar avatar update ──
-function updateNavbarAvatar(avatarUrl, initial) {
+export function updateNavbarAvatar(avatarUrl, initial) {
   const profileBtn = document.getElementById('profile-btn');
   if (!profileBtn) return;
 

@@ -1,14 +1,12 @@
 // ** Detail page controller ** //
-// Main controller for the room detail page: fetch room, render, gallery + booking events.
-// Depends on window.DetailTemplates (detail.templates.js) being loaded first.
+import { DetailTemplates } from './detail.templates.js';
+import { openBookingModal } from '../booking/booking-modal.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Parse Query Parameters
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("id");
 
   if (!roomId) {
-    // window.location.href = "rooms.php";
     return;
   }
 
@@ -23,34 +21,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const room = rooms.find(r => r.id == targetId || r.id == roomId);
     if (!room) {
-      // window.location.href = "rooms.php";
       return;
     }
     initDetailPage(room);
   } catch (err) {
     console.error("Error loading room details:", err);
-    // window.location.href = "rooms.php";
   }
 
   function initDetailPage(room) {
-    // Set Document Title Dynamically
     document.title = `${room.name} — Ocean Haven Hotel`;
 
-    // Gallery Active Image Index State
     let activeImgIdx = 0;
 
     const container = document.getElementById("detail-page-container");
     const loadingBox = document.getElementById("detail-loading-box");
 
-    // Load Layout
     loadingBox.classList.add("hidden");
 
     const renderPage = () => {
-      container.innerHTML = window.DetailTemplates.renderDetailPageHtml(room, activeImgIdx);
+      container.innerHTML = DetailTemplates.renderDetailPageHtml(room, activeImgIdx);
 
       if (window.lucide) window.lucide.createIcons();
 
-      // Gallery chevrons
       if (room.images.length > 1) {
         const mainDisplay = container.querySelector("#gallery-main-display");
         const counterText = container.querySelector("#gallery-count-text");
@@ -91,14 +83,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       }
 
-      // Hook Booking triggers
       const widgetBookBtn = container.querySelector("#widget-book-btn");
       widgetBookBtn.addEventListener("click", () => {
-        window.openBookingModal(room.id);
+        openBookingModal(room.id);
       });
     };
 
-    // Initial Render
     renderPage();
   }
 });

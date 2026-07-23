@@ -19,9 +19,6 @@ include 'template/header/index.php';
   </main>
 
 <?php
-$pageScripts = [
-  "./assets/js/detail/detail.templates.js",
-  "./assets/js/detail/detail.js",
-];
+$pageScript = "./assets/js/detail/detail.js";
 include 'template/footer.php';
 ?>

@@ -39,27 +39,16 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script src="./assets/js/global.js"></script>
-  <script src="./assets/js/navbar.js"></script>
-  <script src="./assets/js/search-bar.js"></script>
+  <!-- ES6 Modules -->
+  <script type="module" src="./assets/js/main.js"></script>
 
-  <!-- Profile module (templates + avatar before controller) -->
-  <script src="./assets/js/profile/avatar-upload.js"></script>
-  <script src="./assets/js/profile/profile-modal.templates.js"></script>
-  <script src="./assets/js/profile/profile-modal.js"></script>
-
-  <!-- Booking module (templates before controller) -->
-  <script src="./assets/js/booking/booking-modal.templates.js"></script>
-  <script src="./assets/js/booking/booking-modal.js"></script>
-  
-  <!-- Page-specific scripts (loaded in order) -->
+  <!-- Page-specific modules -->
   <?php if (isset($pageScripts) && is_array($pageScripts)): ?>
     <?php foreach ($pageScripts as $script): ?>
-      <script src="<?php echo $script; ?>"></script>
+      <script type="module" src="<?php echo $script; ?>"></script>
     <?php endforeach; ?>
   <?php elseif (isset($pageScript)): ?>
-    <script src="<?php echo $pageScript; ?>"></script>
+    <script type="module" src="<?php echo $pageScript; ?>"></script>
   <?php endif; ?>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>if (window.lucide) window.lucide.createIcons();</script>

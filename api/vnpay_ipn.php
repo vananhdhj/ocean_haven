@@ -31,11 +31,7 @@ foreach ($inputData as $key => $value) {
 // Mã hóa hashData bằng thuật toán SHA512 với mã bí mật vnp_HashSecret
 $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
 
-$vnpTranId = $inputData['vnp_TransactionNo']; //Mã giao dịch tại VNPAY
-$vnp_BankCode = $inputData['vnp_BankCode']; //Ngân hàng thanh toán
 $vnp_Amount = $inputData['vnp_Amount'] / 100; // Số tiền thanh toán VNPAY phản hồi
-
-$Status = 0; // 0 (Chưa thanh toán)
 $orderId = $inputData['vnp_TxnRef'];
 
 try {
@@ -54,7 +50,6 @@ try {
                 // Chưa thanh toán thì mới xử lý tiếp
                 if ($order["status"] != NULL && $order["status"] == 'Pending') {
                     $vnp_TransactionNo = mysqli_real_escape_string($conn, $inputData['vnp_TransactionNo']);
-                    $current_time = date('Y-m-d H:i:s');
 
                     if ($inputData['vnp_ResponseCode'] == '00' && $inputData['vnp_TransactionStatus'] == '00') {
                         $Status = 'Completed'; // Trạng thái thanh toán thành công

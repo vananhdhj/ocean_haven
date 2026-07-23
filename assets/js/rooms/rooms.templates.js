@@ -4,7 +4,7 @@
 
 const fmtVNDRooms = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
-function renderFilterPanelHtml(filters, isMobile) {
+export function renderFilterPanelHtml(filters, isMobile) {
     const allTypes = ["Standard", "Deluxe", "Family Suite", "Connecting Room"];
     const allFloors = [1, 2, 3];
     const allViews = ["Sea View", "City View", "Garden View"];
@@ -83,7 +83,7 @@ function renderFilterPanelHtml(filters, isMobile) {
   `;
 }
 
-function renderRoomCardHtml(room) {
+export function renderRoomCardHtml(room) {
     const viewVariant = room.view === "Sea View" ? "sea" : room.view === "Garden View" ? "garden" : "city";
 
     let starsHtml = "";
@@ -139,7 +139,7 @@ function renderRoomCardHtml(room) {
   `;
 }
 
-function renderPaginationHtml(currentPage, totalPages) {
+export function renderPaginationHtml(currentPage, totalPages) {
     if (totalPages <= 1) return '';
 
     let html = `<div class="pagination-container">`;
@@ -157,8 +157,11 @@ function renderPaginationHtml(currentPage, totalPages) {
     return html;
 }
 
-window.RoomsTemplates = {
+export const RoomsTemplates = {
     renderFilterPanelHtml,
     renderRoomCardHtml,
     renderPaginationHtml,
 };
+
+window.RoomsTemplates = RoomsTemplates;
+export default RoomsTemplates;

@@ -4,7 +4,7 @@
 
 const fmtVND = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
-function renderBookingSummaryStep({ room, checkInVal, checkOutVal, nights, subtotal, taxes, total, formValues }) {
+export function renderBookingSummaryStep({ room, checkInVal, checkOutVal, nights, subtotal, taxes, total, formValues }) {
     return `
     <div class="modal-header">
       <h2>Review Booking</h2>
@@ -92,7 +92,7 @@ function renderBookingSummaryStep({ room, checkInVal, checkOutVal, nights, subto
   `;
 }
 
-function renderBookingPaymentStep({ room, checkinLabel, checkoutLabel, nights, formValues, total }) {
+export function renderBookingPaymentStep({ room, checkinLabel, checkoutLabel, nights, formValues, total }) {
     return `
     <div class="modal-header">
       <div class="modal-header-left">
@@ -156,7 +156,10 @@ function renderBookingPaymentStep({ room, checkinLabel, checkoutLabel, nights, f
   `;
 }
 
-window.BookingModalTemplates = {
+export const BookingModalTemplates = {
     renderBookingSummaryStep,
     renderBookingPaymentStep,
 };
+
+window.BookingModalTemplates = BookingModalTemplates;
+export default BookingModalTemplates;

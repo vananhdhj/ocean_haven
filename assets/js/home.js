@@ -1,8 +1,9 @@
 // ** Home page ** //
+import { initSearchBar } from './search-bar.js';
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Initialize Search Bar
-  initSearchBar("#hero-search-bar-container", (searchData) => {
-    // Search callback
+  initSearchBar("#hero-search-bar-container", () => {
     window.location.href = "rooms.php";
   });
 
@@ -17,7 +18,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       roomsGrid.innerHTML = featuredRooms.map(room => {
         const viewVariant = room.view === "Sea View" ? "sea" : room.view === "Garden View" ? "garden" : "city";
 
-        // Generate Stars
         let starsHtml = "";
         for (let i = 1; i <= 5; i++) {
           const isFilled = i <= Math.round(room.rating);

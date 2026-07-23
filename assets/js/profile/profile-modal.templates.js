@@ -1,7 +1,7 @@
 // ** Profile modal HTML ** //
 // Pure HTML-string builders for the profile modal. No DOM access, no event binding.
 
-function renderModalHeader() {
+export function renderModalHeader() {
     return `
     <div class="modal-header">
       <h2>My Account</h2>
@@ -12,7 +12,7 @@ function renderModalHeader() {
   `;
 }
 
-function renderModalTabs(activeTab, bookingsCount, isAdmin) {
+export function renderModalTabs(activeTab, bookingsCount, isAdmin) {
     return `
     <div class="modal-tabs">
       <button type="button" class="tab-btn ${activeTab === 'profile' ? 'active' : ''}" id="tab-profile-btn">My Profile</button>
@@ -24,7 +24,7 @@ function renderModalTabs(activeTab, bookingsCount, isAdmin) {
   `;
 }
 
-function renderProfileTab({ profile, isAdmin, activeTab, avatarHtml }) {
+export function renderProfileTab({ profile, isAdmin, activeTab, avatarHtml }) {
     return `
     <div id="profile-tab-content" class="${activeTab === 'profile' ? '' : 'hidden'}">
       <div class="profile-avatar-row">
@@ -87,7 +87,7 @@ function renderProfileTab({ profile, isAdmin, activeTab, avatarHtml }) {
   `;
 }
 
-function renderBookingCard(b) {
+export function renderBookingCard(b) {
     let statusClass = 'status-confirmed';
     if (b.status === 'Completed') statusClass = 'status-completed';
     if (b.status === 'Cancelled') statusClass = 'status-cancelled';
@@ -115,7 +115,7 @@ function renderBookingCard(b) {
   `;
 }
 
-function renderBookingsTab({ bookings, activeTab }) {
+export function renderBookingsTab({ bookings, activeTab }) {
     const listHtml = bookings.length === 0
         ? `<p class="text-sm text-muted-foreground" style="text-align:center;padding:2rem 0;">No bookings yet.</p>`
         : bookings.map(renderBookingCard).join('');
@@ -133,7 +133,7 @@ function renderBookingsTab({ bookings, activeTab }) {
 }
 
 /** Builds the full modal innerHTML. */
-function renderProfileModalHtml({ profile, bookings, activeTab, avatarHtml }) {
+export function renderProfileModalHtml({ profile, bookings, activeTab, avatarHtml }) {
     const isAdmin = profile.role === 'admin';
     return `
     ${renderModalHeader()}
@@ -145,6 +145,14 @@ function renderProfileModalHtml({ profile, bookings, activeTab, avatarHtml }) {
   `;
 }
 
-window.ProfileModalTemplates = {
+export const ProfileModalTemplates = {
+    renderModalHeader,
+    renderModalTabs,
+    renderProfileTab,
+    renderBookingCard,
+    renderBookingsTab,
     renderProfileModalHtml,
 };
+
+window.ProfileModalTemplates = ProfileModalTemplates;
+export default ProfileModalTemplates;

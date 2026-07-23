@@ -117,7 +117,7 @@ $vnp_TxnRef = $booking_code . '_' . time(); // Mã đơn hàng duy nhất gửi 
 $insert_payment = "INSERT INTO PAYMENTS 
                     (id, booking_id, payment_method, transaction_id, vnpay_order_id, amount, status, paid_at) 
                    VALUES 
-                    ('$payment_id', '$booking_id', 'VNPAY', NULL, '$vnp_TxnRef', $total_price, 'Pending', NULL)";
+                    ('$payment_id', '$booking_id', '$payment_method', NULL, '$vnp_TxnRef', $total_price, 'Pending', NULL)";
 mysqli_query($conn, $insert_payment);
 
 // 9. Insert History Log (Chỉ log Created)

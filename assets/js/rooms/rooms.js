@@ -1,10 +1,10 @@
 // ** Rooms page controller ** //
-// Main controller for the rooms catalog page: filter state, fetch, render, event binding.
-// Depends on window.RoomsTemplates (rooms.templates.js) being loaded first.
+import { initSearchBar } from '../search-bar.js';
+import { RoomsTemplates } from './rooms.templates.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     // Initialize Search Bar
-    initSearchBar("#rooms-search-bar-container", async (searchData) => {
+    initSearchBar("#rooms-search-bar-container", async () => {
         await loadRoomsAndRender();
     });
 
@@ -92,12 +92,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderFilters("#desktop-filters-aside", false);
     }
 
-    // Dynamic Filter Panel — now delegates HTML building to the templates module
+    // Dynamic Filter Panel — delegates HTML building to RoomsTemplates
     function renderFilters(containerSelector, isMobile) {
         const target = document.querySelector(containerSelector);
         if (!target) return;
 
-        target.innerHTML = window.RoomsTemplates.renderFilterPanelHtml(filters, isMobile);
+        target.innerHTML = RoomsTemplates.renderFilterPanelHtml(filters, isMobile);
 
         // Bind events inside filter panel
         const idSuffix = isMobile ? 'm' : 'd';
@@ -208,22 +208,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const filtered = rooms.filter(r => {
-            // Room types filter
             if (filters.types.length > 0 && !filters.types.includes(r.type)) return false;
-
-            // Floors filter
             if (filters.floors.length > 0 && !filters.floors.includes(r.floor)) return false;
-
-            // Views filter
             if (filters.views.length > 0 && !filters.views.includes(r.view)) return false;
-
-            // Price slider filter
             if (r.price > filters.priceMax) return false;
-
-            // Guests capacity filter
             if (filters.guests > 0 && r.maxGuests < filters.guests) return false;
 
-            // Keyword text search filter
             if (keyword.trim() !== "") {
                 const kw = keyword.toLowerCase();
                 const nameMatch = r.name.toLowerCase().includes(kw);
@@ -236,10 +226,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             return true;
         });
 
-        // Update count text
         roomsCountBadge.textContent = `(${filtered.length})`;
 
-        // Calculate active filter counts for mobile badge
         const activeCount =
             filters.types.length +
             filters.floors.length +
@@ -254,7 +242,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             mobileFiltersCountBadge.classList.add("hidden");
         }
 
-        // Render rooms catalog grid
         if (filtered.length === 0) {
             roomsGrid.classList.add("hidden");
             emptyState.classList.remove("hidden");
@@ -268,11 +255,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const startIndex = (currentPage - 1) * itemsPerPage;
             const displayList = filtered.slice(startIndex, startIndex + itemsPerPage);
 
-            roomsGrid.innerHTML = displayList.map(room => window.RoomsTemplates.renderRoomCardHtml(room)).join("");
+            roomsGrid.innerHTML = displayList.map(room => RoomsTemplates.renderRoomCardHtml(room)).join("");
 
             if (window.lucide) window.lucide.createIcons();
 
-            // Manage Pagination
             let paginationContainer = document.getElementById("rooms-pagination-container");
             if (!paginationContainer) {
                 paginationContainer = document.createElement("div");
@@ -282,9 +268,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (totalPages > 1) {
                 paginationContainer.style.display = "block";
-                paginationContainer.innerHTML = window.RoomsTemplates.renderPaginationHtml(currentPage, totalPages);
+                paginationContainer.innerHTML = RoomsTemplates.renderPaginationHtml(currentPage, totalPages);
 
-                // Attach events
                 const prevBtn = paginationContainer.querySelector('.prev-page');
                 const nextBtn = paginationContainer.querySelector('.next-page');
                 const pageBtns = paginationContainer.querySelectorAll('.page-num');
@@ -321,7 +306,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
-        // Show room apply counts on mobile modal footer
         if (mobileApplyFiltersBtn) {
             mobileApplyFiltersBtn.textContent = `Show ${filtered.length} Room${filtered.length !== 1 ? 's' : ''}`;
         }
@@ -342,7 +326,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Load rooms and render initially
     renderFilters("#desktop-filters-aside", false);
     await loadRoomsAndRender();
 });

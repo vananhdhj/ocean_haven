@@ -1,5 +1,7 @@
 // ** Avatar upload logic ** //
-function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, userEmail, onUpdated }) {
+import { updateNavbarAvatar } from '../navbar.js';
+
+export function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, userEmail, onUpdated }) {
     if (!avatarArea || !avatarInput) return;
 
     // Hover: reveal camera overlay
@@ -38,10 +40,7 @@ function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, userEmail, o
                     onUpdated(dataUrl);
                 }
 
-                // Keep navbar in sync if that hook exists globally
-                if (typeof window.updateNavbarAvatar === 'function') {
-                    window.updateNavbarAvatar(dataUrl);
-                }
+                updateNavbarAvatar(dataUrl);
             };
             tempImg.src = ev.target.result;
         };
@@ -53,7 +52,7 @@ function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, userEmail, o
  * Crops an image to a centered square and resizes it to `size`x`size`.
  * Returns a JPEG data URL.
  */
-function cropAndResizeToSquare(img, size = 200) {
+export function cropAndResizeToSquare(img, size = 200) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext('2d');
@@ -68,17 +67,17 @@ function cropAndResizeToSquare(img, size = 200) {
 }
 
 /** Persists an avatar dataUrl in localStorage, keyed by user email. */
-function saveAvatarToStorage(userEmail, dataUrl) {
+export function saveAvatarToStorage(userEmail, dataUrl) {
     localStorage.setItem('ocean_haven_avatar_' + userEmail, dataUrl);
 }
 
 /** Reads a previously saved avatar dataUrl for a given email, or null. */
-function getAvatarFromStorage(userEmail) {
+export function getAvatarFromStorage(userEmail) {
     return userEmail ? localStorage.getItem('ocean_haven_avatar_' + userEmail) : null;
 }
 
 /** Swaps the avatar element's content (span/icon) for an <img> showing dataUrl. */
-function applyAvatarToElement(avatarArea, dataUrl, avatarOverlay) {
+export function applyAvatarToElement(avatarArea, dataUrl, avatarOverlay) {
     let avatarImg = avatarArea.querySelector('img');
     const initSpan = avatarArea.querySelector('span:not(#avatar-upload-overlay span)');
     const initIcon = avatarArea.querySelector('i:not(#avatar-upload-overlay i)');
@@ -94,10 +93,13 @@ function applyAvatarToElement(avatarArea, dataUrl, avatarOverlay) {
     avatarImg.src = dataUrl;
 }
 
-window.AvatarUpload = {
+export const AvatarUpload = {
     init: initAvatarUpload,
     cropAndResizeToSquare,
     saveAvatarToStorage,
     getAvatarFromStorage,
     applyAvatarToElement,
 };
+
+window.AvatarUpload = AvatarUpload;
+export default AvatarUpload;

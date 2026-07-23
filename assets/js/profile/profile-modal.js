@@ -1,7 +1,11 @@
 // ** Profile modal controller ** //
+import { HotelDb } from '../global.js';
+import { AvatarUpload } from './avatar-upload.js';
+import { ProfileModalTemplates } from './profile-modal.templates.js';
+
 let activeProfileTab = 'profile';
 
-async function openProfileModal() {
+export async function openProfileModal() {
   let dialog = document.getElementById('profile-modal');
   if (!dialog) {
     dialog = document.createElement('dialog');
@@ -23,23 +27,23 @@ async function openProfileModal() {
 }
 
 async function renderProfileModalContent(dialog) {
-  const profile = await window.HotelDb.getProfile();
-  const bookings = await window.HotelDb.getBookings();
+  const profile = await HotelDb.getProfile();
+  const bookings = await HotelDb.getBookings();
 
   if (!profile) {
     dialog.close();
-    window.HotelDb.redirectToLogin(window.location.href);
+    HotelDb.redirectToLogin(window.location.href);
     return;
   }
 
-  const savedAvatar = window.AvatarUpload.getAvatarFromStorage(profile.email);
+  const savedAvatar = AvatarUpload.getAvatarFromStorage(profile.email);
   const currentAvatarUrl = profile.avatar_url || savedAvatar;
   const initial = (profile.name || 'U').charAt(0).toUpperCase();
   const avatarHtml = currentAvatarUrl
     ? `<img src="${currentAvatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
     : `<span>${initial}</span>`;
 
-  dialog.innerHTML = window.ProfileModalTemplates.renderProfileModalHtml({
+  dialog.innerHTML = ProfileModalTemplates.renderProfileModalHtml({
     profile,
     bookings,
     activeTab: activeProfileTab,
@@ -85,7 +89,7 @@ function bindProfileModalEvents(dialog, profile) {
     saveBtn.disabled = true;
 
     const formData = new FormData(profileForm);
-    const result = await window.HotelDb.updateProfile({
+    const result = await HotelDb.updateProfile({
       name: formData.get('name'),
       phone: formData.get('phone'),
     });
@@ -111,7 +115,7 @@ function bindProfileModalEvents(dialog, profile) {
     btn.addEventListener('click', async () => {
       const bookingId = btn.getAttribute('data-booking-id');
       if (confirm(`Are you sure you want to cancel booking ${bookingId}?`)) {
-        const success = await window.HotelDb.cancelBooking(bookingId);
+        const success = await HotelDb.cancelBooking(bookingId);
         if (success) {
           await renderProfileModalContent(dialog);
         }
@@ -120,7 +124,7 @@ function bindProfileModalEvents(dialog, profile) {
   });
 
   // Avatar upload
-  window.AvatarUpload.init({
+  AvatarUpload.init({
     avatarArea: dialog.querySelector('#avatar-upload-area'),
     avatarInput: dialog.querySelector('#avatar-file-input'),
     avatarOverlay: dialog.querySelector('#avatar-upload-overlay'),
@@ -129,3 +133,4 @@ function bindProfileModalEvents(dialog, profile) {
 }
 
 window.openProfileModal = openProfileModal;
+export default openProfileModal;

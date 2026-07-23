@@ -99,9 +99,6 @@ include 'template/header/index.php';
   </dialog>
 
 <?php
-$pageScripts = [
-  "./assets/js/rooms/rooms.templates.js",
-  "./assets/js/rooms/rooms.js",
-];
+$pageScript = "./assets/js/rooms/rooms.js";
 include 'template/footer.php';
 ?>

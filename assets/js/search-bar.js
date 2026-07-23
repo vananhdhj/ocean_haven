@@ -1,9 +1,11 @@
 // ** Search bar component ** //
-function initSearchBar(containerSelector, onSearch) {
+import { HotelDb } from './global.js';
+
+export function initSearchBar(containerSelector, onSearch) {
   const container = document.querySelector(containerSelector);
   if (!container) return;
 
-  const searchState = window.HotelDb.getSearchState();
+  const searchState = HotelDb.getSearchState();
 
   // Setup HTML Structure for Search Bar
   container.innerHTML = `
@@ -31,7 +33,7 @@ function initSearchBar(containerSelector, onSearch) {
   const saveLocalSearchState = () => {
     searchState.checkIn = checkInInput.value;
     searchState.checkOut = checkOutInput.value;
-    window.HotelDb.saveSearchState(searchState);
+    HotelDb.saveSearchState(searchState);
     if (onSearch) onSearch(searchState);
   };
 
@@ -53,3 +55,4 @@ function initSearchBar(containerSelector, onSearch) {
 }
 
 window.initSearchBar = initSearchBar;
+export default initSearchBar;
