@@ -23,9 +23,10 @@ if ($session_role === 'admin' && !empty($_GET['user_id'])) {
 $id_esc = mysqli_real_escape_string($conn, $target_id);
 
 $query = "SELECT b.id, b.booking_code, b.check_in, b.check_out, b.guest_count,
-                 b.total_price, b.status, b.create_at, r.name AS room_name
+                 b.total_price, b.status, b.create_at, r.name AS room_name, p.status AS payment_status
           FROM BOOKINGS b
           JOIN ROOMS r ON b.room_id = r.id
+          LEFT JOIN PAYMENTS p ON b.id = p.booking_id
           WHERE b.user_id = '$id_esc'
           ORDER BY b.create_at DESC";
 
@@ -35,15 +36,16 @@ $bookings = [];
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
         $bookings[] = [
-            'id'           => $row['id'],
-            'booking_code' => $row['booking_code'],
-            'room'         => $row['room_name'],
-            'check_in'     => $row['check_in'],
-            'check_out'    => $row['check_out'],
-            'guests'       => (int)$row['guest_count'],
-            'status'       => $row['status'],
-            'bookedOn'     => $row['create_at'],
-            'total'        => (float)$row['total_price'],
+            'id'             => $row['id'],
+            'booking_code'   => $row['booking_code'],
+            'room'           => $row['room_name'],
+            'check_in'       => $row['check_in'],
+            'check_out'      => $row['check_out'],
+            'guests'         => (int)$row['guest_count'],
+            'status'         => $row['status'],
+            'payment_status' => $row['payment_status'] ?? 'None',
+            'bookedOn'       => $row['create_at'],
+            'total'          => (float)$row['total_price'],
         ];
     }
 }

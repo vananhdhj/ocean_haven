@@ -92,6 +92,10 @@ export function renderBookingCard(b) {
     if (b.status === 'Completed') statusClass = 'status-completed';
     if (b.status === 'Cancelled') statusClass = 'status-cancelled';
 
+    let payStatusClass = 'status-confirmed';
+    if (b.payment_status === 'Completed') payStatusClass = 'status-completed';
+    if (b.payment_status === 'Failed' || b.payment_status === 'Refunded') payStatusClass = 'status-cancelled';
+
     return `
     <div class="booking-item-card">
       <div class="booking-item-header">
@@ -99,7 +103,10 @@ export function renderBookingCard(b) {
           <h4 class="font-bold text-foreground" style="font-size:0.9375rem;">${b.room}</h4>
           <p class="text-xs text-muted-foreground mt-0.5">${b.dates} · ${b.guests} guest${b.guests !== 1 ? 's' : ''}</p>
         </div>
-        <span class="booking-status ${statusClass}">${b.status}</span>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+          <span class="booking-status ${statusClass}" title="Booking Status">Booking: ${b.status}</span>
+          ${b.payment_status ? `<span class="booking-status ${payStatusClass}" style="font-size:0.65rem;" title="Payment Status">Payment: ${b.payment_status}</span>` : ''}
+        </div>
       </div>
       <div class="booking-item-details">
         <div class="space-y-0.5">

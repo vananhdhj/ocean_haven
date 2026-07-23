@@ -21,11 +21,13 @@ $search_results = [];
 if ($phone_search !== '') {
     $phone_esc = mysqli_real_escape_string($conn, $phone_search);
     $search_res = mysqli_query($conn,
-        "SELECT b.booking_code, b.guest_name, b.guest_phone, b.check_in, b.check_out, b.total_price, b.status, b.create_at,
-                r.name AS room_name, u.email AS user_email, u.phone AS user_phone
+        "SELECT b.id AS booking_id, b.booking_code, b.guest_name, b.guest_phone, b.check_in, b.check_out, b.total_price, b.status, b.create_at,
+                r.name AS room_name, u.email AS user_email, u.phone AS user_phone,
+                p.status AS payment_status
          FROM BOOKINGS b
          LEFT JOIN ROOMS r ON b.room_id = r.id
          LEFT JOIN USERS u ON b.user_id = u.id
+         LEFT JOIN PAYMENTS p ON b.id = p.booking_id
          WHERE b.guest_phone LIKE '%$phone_esc%' OR u.phone LIKE '%$phone_esc%'
          ORDER BY b.check_in DESC"
     );
@@ -36,11 +38,13 @@ if ($phone_search !== '') {
 
 // ── Check-ins by Date ──────────────────────────────────────────────────
 $checkins_res = mysqli_query($conn,
-    "SELECT b.booking_code, b.guest_name, b.guest_phone, b.check_in, b.check_out, b.total_price, b.status,
-            r.name AS room_name, u.email AS user_email, u.phone AS user_phone
+    "SELECT b.id AS booking_id, b.booking_code, b.guest_name, b.guest_phone, b.check_in, b.check_out, b.total_price, b.status,
+            r.name AS room_name, u.email AS user_email, u.phone AS user_phone,
+            p.status AS payment_status
      FROM BOOKINGS b
      LEFT JOIN ROOMS r ON b.room_id = r.id
      LEFT JOIN USERS u ON b.user_id = u.id
+     LEFT JOIN PAYMENTS p ON b.id = p.booking_id
      ORDER BY b.check_in DESC" // mới nhất -> cũ nhất
 );
 $checkins_by_date = [];
@@ -148,12 +152,14 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
                 <th>Check-in</th>
                 <th>Check-out</th>
                 <th>Price</th>
-                <th>Status</th>
+                <th>Booking Status</th>
+                <th>Payment</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               <?php if (empty($search_results)): ?>
-                <tr><td colspan="8" style="text-align:center;color:var(--muted-foreground);padding:2rem;">No booking history found for this phone number.</td></tr>
+                <tr><td colspan="10" style="text-align:center;color:var(--muted-foreground);padding:2rem;">No booking history found for this phone number.</td></tr>
               <?php else: ?>
                 <?php foreach ($search_results as $b): ?>
                   <?php
@@ -161,6 +167,11 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
                     if ($b['status'] === 'Confirmed') $pill = 'pill-confirmed';
                     if ($b['status'] === 'Cancelled') $pill = 'pill-cancelled';
                     if ($b['status'] === 'Completed') $pill = 'pill-completed';
+                    
+                    $payPill = 'pill-pending';
+                    $payStatus = $b['payment_status'] ?? 'None';
+                    if ($payStatus === 'Completed') $payPill = 'pill-completed';
+                    if ($payStatus === 'Failed' || $payStatus === 'Refunded') $payPill = 'pill-cancelled';
                   ?>
                   <tr>
                     <td><span class="font-mono font-bold" style="font-size:0.8125rem;"><?= htmlspecialchars($b['booking_code']) ?></span></td>
@@ -173,7 +184,17 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
                     <td><?= htmlspecialchars($b['check_in']) ?></td>
                     <td><?= htmlspecialchars($b['check_out']) ?></td>
                     <td style="font-weight:700;"><?= number_format((float)$b['total_price'], 0, ',', '.') ?> VNĐ</td>
-                    <td><span class="status-pill <?= $pill ?>"><?= htmlspecialchars($b['status']) ?></span></td>
+                    <td><span class="status-pill <?= $pill ?>" id="status-<?= $b['booking_id'] ?>"><?= htmlspecialchars($b['status']) ?></span></td>
+                    <td><span class="status-pill <?= $payPill ?>"><?= htmlspecialchars($payStatus) ?></span></td>
+                    <td>
+                      <?php if ($b['status'] === 'Confirmed'): ?>
+                        <button class="btn-primary checkout-btn" data-id="<?= $b['booking_id'] ?>" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: var(--radius-sm); border: none; cursor: pointer;">
+                          Check-out
+                        </button>
+                      <?php else: ?>
+                        <span style="color:var(--muted-foreground); font-size:0.875rem;">—</span>
+                      <?php endif; ?>
+                    </td>
                   </tr>
                 <?php endforeach; ?>
               <?php endif; ?>
@@ -199,12 +220,14 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
               <th>Room</th>
               <th>Check-out Date</th>
               <th>Price</th>
-              <th>Status</th>
+              <th>Booking Status</th>
+              <th>Payment</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <?php if (empty($checkins_by_date)): ?>
-              <tr><td colspan="8" style="text-align:center;color:var(--muted-foreground);padding:2rem;">No check-ins scheduled.</td></tr>
+              <tr><td colspan="10" style="text-align:center;color:var(--muted-foreground);padding:2rem;">No check-ins scheduled.</td></tr>
             <?php else: ?>
               <?php foreach ($checkins_by_date as $c): ?>
                 <?php
@@ -212,6 +235,11 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
                   if ($c['status'] === 'Confirmed') $pill = 'pill-confirmed';
                   if ($c['status'] === 'Cancelled') $pill = 'pill-cancelled';
                   if ($c['status'] === 'Completed') $pill = 'pill-completed';
+                  
+                  $payPill = 'pill-pending';
+                  $payStatus = $c['payment_status'] ?? 'None';
+                  if ($payStatus === 'Completed') $payPill = 'pill-completed';
+                  if ($payStatus === 'Failed' || $payStatus === 'Refunded') $payPill = 'pill-cancelled';
                 ?>
                 <tr class="checkin-row">
                   <td style="font-weight: 600; color: var(--primary-light);"><?= htmlspecialchars($c['check_in']) ?></td>
@@ -224,7 +252,17 @@ while ($row = mysqli_fetch_assoc($checkins_res)) {
                   <td><?= htmlspecialchars($c['room_name'] ?? '—') ?></td>
                   <td><?= htmlspecialchars($c['check_out']) ?></td>
                   <td style="font-weight:700;"><?= number_format((float)$c['total_price'], 0, ',', '.') ?> VNĐ</td>
-                  <td><span class="status-pill <?= $pill ?>"><?= htmlspecialchars($c['status']) ?></span></td>
+                  <td><span class="status-pill <?= $pill ?>" id="status-<?= $c['booking_id'] ?>"><?= htmlspecialchars($c['status']) ?></span></td>
+                  <td><span class="status-pill <?= $payPill ?>"><?= htmlspecialchars($payStatus) ?></span></td>
+                  <td>
+                    <?php if ($c['status'] === 'Confirmed'): ?>
+                      <button class="btn-primary checkout-btn" data-id="<?= $c['booking_id'] ?>" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: var(--radius-sm); border: none; cursor: pointer;">
+                        Check-out
+                      </button>
+                    <?php else: ?>
+                      <span style="color:var(--muted-foreground); font-size:0.875rem;">—</span>
+                    <?php endif; ?>
+                  </td>
                 </tr>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -314,6 +352,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   updateCheckinRows();
+
+  // Handle Checkout actions
+  document.querySelectorAll('.checkout-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to Check-out this booking?')) return;
+      
+      const bookingId = btn.getAttribute('data-id');
+      const originalText = btn.textContent;
+      btn.textContent = 'Wait...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/final_assigment/api/update_booking_status.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking_id: bookingId, status: 'Completed' })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          // Update UI without full reload
+          const statusPills = document.querySelectorAll('#status-' + bookingId);
+          statusPills.forEach(pill => {
+            pill.textContent = 'Completed';
+            pill.className = 'status-pill pill-completed';
+          });
+          // Remove button
+          btn.parentElement.innerHTML = '<span style="color:var(--muted-foreground); font-size:0.875rem;">—</span>';
+        } else {
+          alert(result.message || 'Error updating status');
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    });
+  });
 });
 </script>
 

@@ -1,6 +1,6 @@
 // ** Profile modal controller ** //
 import { HotelDb } from '../global.js';
-import { AvatarUpload } from './avatar-upload.js';
+import { AvatarUpload } from './upload_avatar.js';
 import { ProfileModalTemplates } from './profile-modal.templates.js';
 
 let activeProfileTab = 'profile';
@@ -36,8 +36,7 @@ async function renderProfileModalContent(dialog) {
     return;
   }
 
-  const savedAvatar = AvatarUpload.getAvatarFromStorage(profile.email);
-  const currentAvatarUrl = profile.avatar_url || savedAvatar;
+  const currentAvatarUrl = profile.avatar_url;
   const initial = (profile.name || 'U').charAt(0).toUpperCase();
   const avatarHtml = currentAvatarUrl
     ? `<img src="${currentAvatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
@@ -123,12 +122,11 @@ function bindProfileModalEvents(dialog, profile) {
     });
   });
 
-  // Avatar upload
+  // Avatar upload via upload_avatar.js
   AvatarUpload.init({
     avatarArea: dialog.querySelector('#avatar-upload-area'),
     avatarInput: dialog.querySelector('#avatar-file-input'),
     avatarOverlay: dialog.querySelector('#avatar-upload-overlay'),
-    userEmail: profile.email,
   });
 }
 

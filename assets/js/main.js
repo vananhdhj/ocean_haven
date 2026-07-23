@@ -8,10 +8,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (HotelDb) {
     const profile = await HotelDb.getProfile();
-    if (profile && profile.email) {
-      const saved = localStorage.getItem('ocean_haven_avatar_' + profile.email);
-      if (saved) {
-        updateNavbarAvatar(saved);
+    if (profile) {
+      // Clean up any legacy localStorage avatar entries
+      if (profile.email) {
+        localStorage.removeItem('ocean_haven_avatar_' + profile.email);
+      }
+
+      if (profile.avatar_url) {
+        updateNavbarAvatar(profile.avatar_url);
       } else {
         const initial = (profile.name || 'U').charAt(0).toUpperCase();
         updateNavbarAvatar(null, initial);

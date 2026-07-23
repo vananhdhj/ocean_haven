@@ -17,6 +17,7 @@ CREATE TABLE USERS (
   id VARCHAR(36) PRIMARY KEY,
   name VARCHAR(255),
   email VARCHAR(255) UNIQUE NOT NULL,
+  avatar VARCHAR(255),
   role ENUM('user', 'admin') DEFAULT 'user',
   password_hash VARCHAR(255) NOT NULL,
   phone VARCHAR(20) UNIQUE NOT NULL,
