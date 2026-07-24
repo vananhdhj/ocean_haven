@@ -135,7 +135,7 @@ export function initAuthModals() {
 
       const formData = new FormData(ajaxLoginForm);
       try {
-        const response = await fetch("/final_assigment/auth/login.php", {
+        const response = await fetch("/ocean_haven/auth/login.php", {
           method: "POST",
           body: formData
         });
@@ -167,7 +167,7 @@ export function initAuthModals() {
 
       const formData = new FormData(ajaxRegisterForm);
       try {
-        const response = await fetch("/final_assigment/auth/register.php", {
+        const response = await fetch("/ocean_haven/auth/register.php", {
           method: "POST",
           body: formData
         });

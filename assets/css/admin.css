@@ -71,6 +71,18 @@
   color: #fff;
 }
 
+.topbar-username {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.admin-topbar-right a.topbar-logout {
+  color: #f87171;
+}
+
+.admin-topbar-right a.topbar-logout:hover {
+  color: #ef4444;
+}
+
 /* -- Main content area -------------------------------------------------------- */
 .admin-main {
   flex: 1;
@@ -355,4 +367,102 @@
     padding: 0.625rem 0.875rem;
     font-size: 0.8rem;
   }
+}
+
+/* -- Shared Utility Classes for Partials -------------------------------------------------------- */
+.mb-2-5 { margin-bottom: 2.5rem; }
+
+/* Dashboard Typography */
+.dashboard-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.dashboard-heading-sm {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.dashboard-subtitle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-bottom: 1.25rem;
+}
+
+/* Forms & Search */
+.search-form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.search-input {
+  width: 350px;
+  background-color: #fff;
+  border: 1.5px solid var(--border);
+}
+.search-btn {
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-family: var(--font-body);
+  border: none;
+  cursor: pointer;
+}
+.search-clear-link {
+  align-self: center;
+  font-size: 0.875rem;
+  color: var(--primary-light);
+  text-decoration: underline;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+/* Tables */
+.table-responsive {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+.table-empty {
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: 2rem;
+}
+
+/* Booking Rows */
+.row-checkin-date {
+  font-weight: 600;
+  color: var(--primary-light);
+}
+.row-booking-code {
+  font-size: 0.8125rem;
+}
+.row-guest-name {
+  font-weight: 600;
+}
+.row-guest-email {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.row-total-price {
+  font-weight: 700;
+}
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.checkout-btn, .cancel-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+}
+.cancel-btn {
+  background-color: #ef4444;
+  color: white;
+}
+.no-action {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
 }

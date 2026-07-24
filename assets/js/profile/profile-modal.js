@@ -106,7 +106,7 @@ function bindProfileModalEvents(dialog, profile) {
   // Sign Out → real logout
   dialog.querySelector('#sign-out-btn').addEventListener('click', () => {
     dialog.close();
-    window.location.href = '/final_assigment/auth/logout.php';
+    window.location.href = '/ocean_haven/auth/logout.php';
   });
 
   // Cancel Booking buttons

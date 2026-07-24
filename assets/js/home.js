@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Render Featured Rooms
   try {
-    const res = await fetch("api/get_rooms.php");
+    const res = await fetch("/ocean_haven/api/rooms/get_rooms.php");
     const rooms = await res.json();
     const featuredRooms = rooms.filter(r => r.featured).slice(0, 6);
     const roomsGrid = document.getElementById("featured-rooms-grid");

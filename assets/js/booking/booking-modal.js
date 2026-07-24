@@ -172,7 +172,7 @@ export async function openBookingModal(roomId) {
                         payment_method: "VNPAY"
                     };
 
-                    const response = await fetch("./api/create_booking.php", {
+                    const response = await fetch("./api/bookings/create_booking.php", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)

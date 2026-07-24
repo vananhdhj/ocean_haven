@@ -151,29 +151,28 @@ CREATE TABLE HISTORY_BOOKING (
   INDEX idx_booking_created (booking_id, created_at)
 );
 
+-- =====================================================================
+-- TRIGGER: CHỐNG TRÙNG LỊCH (RACE CONDITION) KHI ĐẶT PHÒNG
+-- Ngăn chặn các booking trùng nhau bị lọt vào DB do chạy đồng thời
+-- =====================================================================
+DELIMITER //
+CREATE TRIGGER before_booking_insert
+BEFORE INSERT ON BOOKINGS
+FOR EACH ROW
+BEGIN
+    DECLARE overlap_count INT;
+    IF NEW.status != 'Cancelled' THEN
+        SELECT COUNT(*)
+        INTO overlap_count
+        FROM BOOKINGS
+        WHERE room_id = NEW.room_id
+          AND status != 'Cancelled'
+          AND check_in < NEW.check_out
+          AND check_out > NEW.check_in;
+        IF overlap_count > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Room is already booked for these dates.';
+        END IF;
+    END IF;
+END //
 
-
--- =====================================================================
--- GHI CHÚ: TÌM PHÒNG TRỐNG THEO NGÀY (không lưu cứng)
--- =====================================================================
--- Hai khoảng ngày [A_in, A_out) và [B_in, B_out) giao nhau khi:
---     A_in < B_out  AND  A_out > B_in
---
--- SELECT r.*
--- FROM ROOMS r
--- WHERE r.is_active = TRUE
---   AND r.max_guests >= :guest_count
---   AND r.id NOT IN (
---     SELECT b.room_id FROM BOOKINGS b
---     WHERE b.status != 'Cancelled'
---       AND b.check_in < :check_out
---       AND b.check_out > :check_in
---   );
---
--- Cron / script dọn dẹp booking Pending quá hạn (chạy định kỳ, ví dụ mỗi 5 phút):
--- UPDATE BOOKINGS
--- SET status = 'Cancelled'
--- WHERE status = 'Pending'
---   AND hold_expires_at IS NOT NULL
---   AND hold_expires_at < NOW();
--- =====================================================================
+DELIMITER ;

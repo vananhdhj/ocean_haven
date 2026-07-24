@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    const res = await fetch('api/get_rooms.php');
+    const res = await fetch('/ocean_haven/api/rooms/get_rooms.php');
     const rooms = await res.json();
     let targetId = roomId;
     if (roomId !== null && roomId !== undefined && !isNaN(roomId)) {

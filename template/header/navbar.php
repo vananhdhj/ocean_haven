@@ -17,7 +17,7 @@
       <a href="rooms.php" class="nav-btn <?php echo ($current_page === 'rooms.php') ? 'active' : ''; ?>">Rooms</a>
       <a href="#footer"   class="nav-btn">Contact</a>
       <?php if ($user && $user['role'] === 'admin'): ?>
-        <a href="/final_assigment/admin/index.php" class="nav-btn" style="color:var(--accent-foreground);">
+        <a href="/ocean_haven/admin/index.php" class="nav-btn" style="color:var(--accent-foreground);">
           <i data-lucide="shield" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:3px;"></i>Admin
         </a>
       <?php endif; ?>
@@ -58,7 +58,7 @@
       <i data-lucide="user" style="width:15px;height:15px;display:inline;vertical-align:middle;margin-right:6px;"></i>
       My Account
     </button>
-    <a href="/final_assigment/auth/logout.php" class="mobile-nav-btn" style="color:#dc2626;">
+    <a href="/ocean_haven/auth/logout.php" class="mobile-nav-btn" style="color:#dc2626;">
       <i data-lucide="log-out" style="width:15px;height:15px;display:inline;vertical-align:middle;margin-right:6px;"></i>
       Sign Out
     </a>

@@ -24,15 +24,14 @@ Dự án được xây dựng dựa trên kiến trúc **PHP thuần (Vanilla PH
 ```text
 final_assignment/
 ├── admin/                  # Khu vực quản trị (Chỉ dành cho tài khoản Admin)
-├── api/                    # Chứa các endpoint API xử lý logic Backend
-│   ├── upload_avatar.php   # API tiếp nhận file ảnh avatar, lưu vào public/images/ và cập nhật DB
-│   ├── get_profile.php     # API lấy thông tin profile user (bao gồm avatar_url từ CSDL)
-│   ├── update_profile.php  # API cập nhật tên và số điện thoại user
-│   ├── create_booking.php  # API khởi tạo đơn đặt phòng và liên kết VNPAY
-│   ├── vnpay_ipn.php       # IPN Webhook nhận kết quả thanh toán VNPAY từ server VNPAY
-│   ├── get_bookings.php    # API lấy danh sách đơn hàng đã đặt của user
-│   ├── get_rooms.php       # API lấy danh sách phòng kèm tiện nghi, ảnh và bộ lọc
-│   └── cancel_booking.php  # API xử lý yêu cầu hủy đơn đặt phòng
+│   ├── index.php           # File giao diện chính, include các partials
+│   ├── dashboard-data.php  # Xử lý truy vấn CSDL (Model) cho Admin
+│   └── partials/           # Chứa các component giao diện nhỏ
+├── api/                    # Chứa các endpoint API chia theo domain
+│   ├── users/              # Gồm: upload_avatar.php, get_profile.php, update_profile.php
+│   ├── rooms/              # Gồm: get_rooms.php
+│   ├── bookings/           # Gồm: create_booking.php, booking-validation.php, booking-data.php, cancel_booking.php...
+│   └── payments/           # Gồm: vnpay_ipn.php, vnpay-signature.php
 ├── assets/                 # Các tài nguyên tĩnh (CSS, JS)
 │   ├── css/                # Đã chia nhỏ thành components/ và pages/
 │   └── js/                 # Viết theo chuẩn ES6 Modules (import / export)
@@ -67,18 +66,24 @@ Các file này đại diện cho các trang mà người dùng truy cập trực
 - **`detail.php`**: Trang chi tiết phòng. Hiển thị thư viện ảnh (gallery), danh sách tiện ích và widget đặt phòng (Sticky Booking Widget).
 
 ### API Endpoints (`/api/`)
-Đóng vai trò là cầu nối Backend cung cấp dữ liệu dạng JSON cho Frontend JavaScript:
-- **`upload_avatar.php`**: Nhận file ảnh tải lên từ client (`$_FILES['avatar']`), kiểm tra định dạng/dung lượng, lưu file thực tế vào `public/images/` và lưu đường dẫn URL vào cột `avatar` bảng `USERS`.
-- **`get_profile.php` / `update_profile.php`**: Lấy và cập nhật thông tin cá nhân của User hiện tại (bao gồm `avatar_url` từ CSDL).
-- **`create_booking.php`**: Xử lý tạo đơn hàng mới, lưu vào CSDL (`Pending`), tạo link thanh toán VNPAY và trả về Frontend.
-- **`vnpay_ipn.php`**: Xử lý callback ngầm (Server-to-Server) từ cổng thanh toán VNPAY. Cập nhật trạng thái (`Confirmed` hoặc `Cancelled`) cho DB dựa vào chữ ký điện tử.
-- **`get_bookings.php` / `cancel_booking.php`**: Lấy danh sách phòng đã đặt của User và xử lý yêu cầu hủy phòng.
+Đóng vai trò cầu nối Backend (JSON) cho Frontend, được chia nhỏ theo domain:
+- **`users/`**: Chứa `upload_avatar.php` (lưu file vật lý và cập nhật URL vào DB), `get_profile.php` và `update_profile.php`.
+- **`rooms/`**: Chứa `get_rooms.php` (Lấy danh sách phòng, tiện nghi và logic lọc phòng trống).
+- **`bookings/`**:
+  - `create_booking.php` (Orchestrator): Kết nối quy trình validation, insert CSDL và tạo link thanh toán.
+  - `booking-validation.php`: Chịu trách nhiệm kiểm tra dữ liệu đầu vào.
+  - `booking-data.php`: Mở Database Transaction, chèn dữ liệu Đơn phòng, Thanh toán, Lịch sử và bắt an toàn lỗi Trigger từ cơ sở dữ liệu.
+  - `get_bookings.php` / `cancel_booking.php` / `update_booking_status.php`: Quản lý thao tác danh sách đơn.
+- **`payments/`**:
+  - `vnpay-signature.php`: File core chứa hàm tái sử dụng `buildVnpayUrl()` (băm HMAC-SHA512).
+  - `vnpay_ipn.php`: Webhook IPN xử lý kết quả ngầm (Server-to-Server) từ VNPAY.
 
 ### Khu vực Quản trị (`/admin/`)
-- **`index.php`**: Trang tổng quan cho lễ tân/quản trị viên. 
-  - Thống kê tự động (Số lượng đơn, doanh thu, phòng khả dụng).
-  - Khung tìm kiếm đơn đặt phòng theo số điện thoại (Hỗ trợ Check-in).
-  - Bảng danh sách Check-in sắp xếp từ mới nhất tới cũ nhất kèm phân trang.
+- Cấu trúc Admin Dashboard được Refactor theo mô hình MVC thu gọn:
+  - **`index.php`**: Tệp view chính.
+  - **`dashboard-data.php`**: Xử lý toàn bộ logic truy vấn (Queries) để lấy số liệu thống kê.
+  - **`partials/`**: Tách nhỏ giao diện thành `_stats-cards.php`, `_search-panel.php`, `_checkins-table.php` và `_bookings-row.php` giúp code sạch và dễ bảo trì.
+  - Cho phép thao tác Check-out, Hủy đơn bằng Ajax (thông qua `assets/js/admin-dashboard.js`).
 
 ### Giao diện dùng chung (`/template/`)
 - **`header/index.php`**: Khai báo thẻ `<head>`, SEO meta tags, load CSS toàn cục (global, navbar, footer, modals) và include `navbar.php`, `login-modal.php`, `register-modal.php`.
@@ -124,7 +129,7 @@ API: api/upload_avatar.php
    ├── 1. Kiểm tra session đăng nhập
    ├── 2. Kiểm tra định dạng (JPG, PNG, GIF, WEBP) & dung lượng (<= 5MB)
    ├── 3. Lưu/Copy file thực tế vào thư mục public/images/avatar_{user_id}_{timestamp}.ext
-   └── 4. Cập nhật URL (/final_assigment/public/images/...) vào cột `avatar` bảng `USERS` trong MySQL
+   └── 4. Cập nhật URL (/ocean_haven/public/images/...) vào cột `avatar` bảng `USERS` trong MySQL
                        ↓
 Trả về JSON { success: true, avatar_url: "..." }
                        ↓
@@ -187,17 +192,11 @@ Bài toán này được giải quyết ở 2 chốt chặn:
    ```
    Điều kiện `b.check_in < $check_out AND b.check_out > $check_in` là công thức chuẩn để kiểm tra 2 khoảng thời gian có cắt nhau hay không.
 
-2. **Chốt chặn 2: Ngăn chặn Đặt trùng (Double-booking Prevention)**
-   Tại file `api/create_booking.php` (Từ **dòng 61 đến 72**):
-   Kiểm tra số lượng đơn trùng trước khi ghi nhận đơn hàng:
-   ```sql
-   SELECT COUNT(*) AS booked_count FROM BOOKINGS 
-   WHERE room_id = '$room_id' 
-     AND status != 'Cancelled' 
-     AND check_in < '$check_out' 
-     AND check_out > '$check_in'
-   ```
-   Nếu `booked_count > 0`, API lập tức chặn và trả về thông báo lỗi.
+2. **Chốt chặn 2: Chống Trùng lặp & Race Condition (Database Level Prevention)**
+   Khi hàng ngàn request cùng đặt 1 phòng trong một mili-giây, việc chỉ dùng code PHP để check là không đủ (Race Condition).
+   - MySQL đã được cài đặt **Trigger `before_booking_insert`**. 
+   - Ngay khoảnh khắc chuẩn bị `INSERT` xuống bảng `BOOKINGS`, Trigger ở cấp độ Database sẽ đếm overlap. Nếu phát hiện trùng, MySQL sẽ chủ động đá request ra bằng mã lỗi `SIGNAL SQLSTATE '45000'`.
+   - Tại `api/bookings/booking-data.php`, mã PHP bọc thao tác `INSERT` trong một khối `mysqli_begin_transaction()`. Nếu bắt được mã lỗi `45000`, PHP sẽ thực thi `ROLLBACK` một cách gọn gàng và trả về cảnh báo an toàn cho User mà không làm sập server hay hỏng database.
 
 ### 7.2. Cơ chế giữ chỗ (Booking Hold)
 Khi khách hàng bấm "Thanh toán", họ sẽ được chuyển hướng sang cổng VNPAY. Trong thời gian chờ khách hoàn tất nhập OTP:

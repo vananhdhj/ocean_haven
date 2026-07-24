@@ -1,49 +1,37 @@
 <?php
-// Shared session bootstrap — include at the top of every PHP page/API that needs auth.
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// 1. KHỞI CHẠY PHIÊN LÀM VIỆC (SESSION)
+if (session_status() === PHP_SESSION_NONE) { // Kiểm tra nếu hệ thống chưa bật Session
+    session_start(); // Kích hoạt Session để lưu tạm thông tin đăng nhập của người dùng trên Server
 }
 
-/**
- * Redirect to login if the user is not authenticated.
- * Stores the current URL so we can redirect back after login.
- */
+// 2. HÀM BẮT BUỘC ĐĂNG NHẬP MỚI ĐƯỢC XEM TRANG
 function requireLogin(): void {
-    if (empty($_SESSION['user_id'])) {
-        $returnTo = urlencode($_SERVER['REQUEST_URI'] ?? '');
-        header('Location: /final_assigment/auth/login.php?next=' . $returnTo);
-        exit;
+    if (empty($_SESSION['user_id'])) { // Nếu chưa lưu ID người dùng trong session (chưa đăng nhập)
+        header('Location: /ocean_haven/home.php'); // Chuyển hướng khách về trang chủ (nơi chứa popup đăng nhập)
+        exit; // Dừng toàn bộ mã lệnh phía sau
     }
 }
 
-/**
- * Require the user to be logged in AND have role = 'admin'.
- * Returns HTTP 403 for non-admin authenticated users.
- */
+// 3. HÀM BẮT BUỘC TÀI KHOẢN ADMIN MỚI ĐƯỢC VÀO TRANG
 function requireAdmin(): void {
-    requireLogin();
-    if (($_SESSION['user_role'] ?? '') !== 'admin') {
-        http_response_code(403);
+    requireLogin(); // Đầu tiên là phải đăng nhập tài khoản trước
+    if (($_SESSION['user_role'] ?? '') !== 'admin') { // Nếu vai trò lưu trong session không phải là admin
+        http_response_code(403); // Gửi mã phản hồi lỗi 403 (Không có quyền truy cập)
         echo '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:2rem">
               <h2>403 — Forbidden</h2>
               <p>You do not have permission to access this page.</p>
-              <a href="/final_assigment/home.php">← Back to home</a>
-              </body></html>';
-        exit;
+              <a href="/ocean_haven/home.php">← Back to home</a>
+              </body></html>'; // Hiển thị giao diện báo lỗi và link quay về trang chủ
+        exit; // Dừng toàn bộ lệnh phía sau
     }
 }
 
-/**
- * Returns the current logged-in user's session data, or null if not logged in.
- *
- * @return array{id:string,name:string,email:string,role:string,phone:string}|null
- */
+// 4. HÀM LẤY NHANH THÔNG TIN TÀI KHOẢN ĐANG ĐĂNG NHẬP
 function currentUser(): ?array {
-    if (empty($_SESSION['user_id'])) {
-        return null;
+    if (empty($_SESSION['user_id'])) { // Nếu chưa đăng nhập
+        return null; // Trả về giá trị trống
     }
-    return [
+    return [ // Trả về một mảng chứa thông tin cơ bản của người dùng đang đăng nhập
         'id'    => $_SESSION['user_id'],
         'name'  => $_SESSION['user_name']  ?? '',
         'email' => $_SESSION['user_email'] ?? '',
@@ -52,16 +40,12 @@ function currentUser(): ?array {
     ];
 }
 
-/**
- * Returns true if the current session belongs to an admin user.
- */
+// 5. HÀM KIỂM TRA NHANH XEM CÓ PHẢI LÀ ADMIN KHÔNG (Trả về true/false)
 function isAdmin(): bool {
-    return ($_SESSION['user_role'] ?? '') === 'admin';
+    return ($_SESSION['user_role'] ?? '') === 'admin'; // So sánh và trả về kết quả đúng/sai trực tiếp
 }
 
-/**
- * Returns true if any user is currently logged in.
- */
+// 6. HÀM KIỂM TRA NHANH XEM ĐÃ ĐĂNG NHẬP CHƯA (Trả về true/false)
 function isLoggedIn(): bool {
-    return !empty($_SESSION['user_id']);
+    return !empty($_SESSION['user_id']); // Nếu session 'user_id' không trống nghĩa là đã đăng nhập thành công
 }

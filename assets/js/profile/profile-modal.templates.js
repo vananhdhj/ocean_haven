@@ -17,7 +17,7 @@ export function renderModalTabs(activeTab, bookingsCount, isAdmin) {
     <div class="modal-tabs">
       <button type="button" class="tab-btn ${activeTab === 'profile' ? 'active' : ''}" id="tab-profile-btn">My Profile</button>
       <button type="button" class="tab-btn ${activeTab === 'bookings' ? 'active' : ''}" id="tab-bookings-btn">My Bookings (${bookingsCount})</button>
-      ${isAdmin ? `<a href="/final_assigment/admin/index.php" class="tab-btn" style="background:var(--accent-light);color:var(--accent-foreground);">
+      ${isAdmin ? `<a href="/ocean_haven/admin/index.php" class="tab-btn" style="background:var(--accent-light);color:var(--accent-foreground);">
                      <i data-lucide="shield" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;"></i>Admin
                    </a>` : ''}
     </div>

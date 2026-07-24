@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const checkinParam = searchState.checkIn || "";
             const checkoutParam = searchState.checkOut || "";
 
-            const res = await fetch(`api/get_rooms.php?checkin=${checkinParam}&checkout=${checkoutParam}`);
+            const res = await fetch(`/ocean_haven/api/rooms/get_rooms.php?checkin=${checkinParam}&checkout=${checkoutParam}`);
             rooms = await res.json();
 
             applyFiltersAndRender();

@@ -7,7 +7,7 @@ let _profileFetched = false;
 let roomsCache = [];
 
 // Pre-fetch rooms (public, no auth required)
-fetch('./api/get_rooms.php')
+fetch('/ocean_haven/api/rooms/get_rooms.php')
   .then(res => res.json())
   .then(data => { roomsCache = data; })
   .catch(err => console.error('Prefetch rooms failed:', err));
@@ -47,7 +47,7 @@ export const HotelDb = {
   async getProfile() {
     if (_profileFetched) return _profileCache;
     try {
-      const res = await fetch('./api/get_profile.php');
+      const res = await fetch('./api/users/get_profile.php');
       if (res.status === 401) {
         _profileCache = null;
         _profileFetched = true;
@@ -64,7 +64,7 @@ export const HotelDb = {
 
   async updateProfile(profileData) {
     try {
-      const res = await fetch('./api/update_profile.php', {
+      const res = await fetch('./api/users/update_profile.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profileData),
@@ -83,7 +83,7 @@ export const HotelDb = {
 
   async getBookings() {
     try {
-      const response = await fetch('./api/get_bookings.php');
+      const response = await fetch('./api/bookings/get_bookings.php');
       if (response.status === 401) return [];
       if (!response.ok) throw new Error('Failed to fetch bookings');
 
@@ -113,7 +113,7 @@ export const HotelDb = {
 
   async cancelBooking(bookingCode) {
     try {
-      const response = await fetch('./api/cancel_booking.php', {
+      const response = await fetch('./api/bookings/cancel_booking.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ booking_id: bookingCode }),
@@ -146,7 +146,7 @@ export const HotelDb = {
       loginModal.showModal();
     } else {
       const next = encodeURIComponent(returnUrl || window.location.pathname + window.location.search);
-      window.location.href = `/final_assigment/auth/login.php?next=${next}`;
+      window.location.href = `/ocean_haven/auth/login.php?next=${next}`;
     }
   },
 };
