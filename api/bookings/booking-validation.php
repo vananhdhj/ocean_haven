@@ -36,20 +36,7 @@ function validateBookingInput($conn, $input) {
         return ['success' => false, 'message' => 'Selected room is invalid or currently inactive.'];
     }
 
-    // 6. KIỂM TRA TRÙNG LỊCH Ở TẦNG ỨNG DỤNG (CHECK TRƯỚC ĐỂ TRÁNH GỬI TRUY VẤN LỖI XUỐNG DB)
-    $overlap_query = "SELECT COUNT(*) AS booked_count FROM BOOKINGS 
-                      WHERE room_id = '$room_id' 
-                        AND status != 'Cancelled' 
-                        AND check_in < '$check_out' 
-                        AND check_out > '$check_in'";
-    $overlap_res = mysqli_query($conn, $overlap_query);
-    $overlap = mysqli_fetch_assoc($overlap_res);
-
-    if ($overlap && (int)$overlap['booked_count'] > 0) {
-        return ['success' => false, 'message' => 'Selected room is already booked for these dates.'];
-    }
-
-    // 7. TÍNH TOÁN SỐ ĐÊM LƯU TRÚ
+    // 6. TÍNH TOÁN SỐ ĐÊM LƯU TRÚ
     $check_in_date = new DateTime($check_in);
     $check_out_date = new DateTime($check_out);
     $interval = $check_in_date->diff($check_out_date);
@@ -59,13 +46,13 @@ function validateBookingInput($conn, $input) {
         return ['success' => false, 'message' => 'Booking must be at least 1 night.'];
     }
 
-    // 8. TÍNH TOÁN GIÁ TIỀN (BAO GỒM 10% THUẾ)
+    // 7. TÍNH TOÁN GIÁ TIỀN (BAO GỒM 10% THUẾ)
     $room_price = (float)$room['price'];
     $subtotal = $room_price * $nights; // Giá phòng gốc
     $tax = $subtotal * 0.10; // Tính 10% thuế VAT
     $total_price = $subtotal + $tax; // Tổng số tiền cần thanh toán
 
-    // 9. TRẢ VỀ DỮ LIỆU ĐÃ HỢP LỆ VÀ SẴN SÀNG LƯU TRỮ
+    // 8. TRẢ VỀ DỮ LIỆU ĐÃ HỢP LỆ VÀ SẴN SÀNG LƯU TRỮ
     return [
         'success' => true,
         'data' => [

@@ -2,9 +2,7 @@
 // 1. NHÚNG FILE CẤU HÌNH VNPAY ĐỂ LẤY KHÓA BẢO MẬT & URL CỔNG THANH TOÁN
 require_once __DIR__ . '/../../config/vnpay-config.php';
 
-/**
- * 2. HÀM TỰ ĐỘNG XÂY DỰNG URL THANH TOÁN SANG VNPAY (CÓ CHỮ KÝ BẢO MẬT HMAC-SHA512)
- */
+// 2. HÀM TỰ ĐỘNG XÂY DỰNG URL THANH TOÁN SANG VNPAY (CÓ CHỮ KÝ BẢO MẬT HMAC-SHA512)
 function buildVnpayUrl($total_price, $booking_code, $vnp_TxnRef) {
     // Gọi các biến cấu hình toàn cục từ file vnpay-config.php vào sử dụng
     global $vnp_TmnCode, $vnp_HashSecret, $vnp_Url, $vnp_ReturnUrl;

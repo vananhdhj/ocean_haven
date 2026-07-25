@@ -13,13 +13,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch('/ocean_haven/api/rooms/get_rooms.php');
     const rooms = await res.json();
-    let targetId = roomId;
-    if (roomId !== null && roomId !== undefined && !isNaN(roomId)) {
-      const num = parseInt(roomId);
-      const padded = num.toString().padStart(3, '0');
-      targetId = `room-${padded}`;
-    }
-    const room = rooms.find(r => r.id == targetId || r.id == roomId);
+    const normalized = !isNaN(roomId) ? `room-${parseInt(roomId).toString().padStart(3, '0')}` : roomId;
+    const room = rooms.find(r => r.id === normalized || r.id === roomId);
     if (!room) {
       return;
     }

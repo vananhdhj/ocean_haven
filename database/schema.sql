@@ -3,14 +3,12 @@
 -- Ví dụ: Khi khách sạn được xây lại và các phòng bị thay đổi cấu trúc thì Admin có thể tuỳ chọn thay đổi cấu hình lại rất dễ dàng.
 
 -- ENUM dùng để định nghĩa một danh sách các giá trị cố định, hữu hạn và không thay đổi
--- Với lại tên bảng với mấy thành phần bên trong, e cũng đặt tên cho nó dễ để viết lệnh truy xuất r á
 
 -- =====================================================================
 --   1. Tích hợp thanh toán VNPAY (PAYMENTS.vnpay_order_id)
 --   2. Log lịch sử booking (HISTORY_BOOKING)
 --   3. Chống đặt trùng ngày cho cùng 1 phòng (index + CHECK constraint)
 --   4. Tự động giải phóng phòng bị "giữ chỗ" quá lâu (BOOKINGS.hold_expires_at)
---   5. Đổi tên ROOMS.is_available -> is_active cho đúng nghĩa
 -- =====================================================================
 
 CREATE TABLE USERS (
@@ -150,29 +148,3 @@ CREATE TABLE HISTORY_BOOKING (
   FOREIGN KEY (booking_id) REFERENCES BOOKINGS(id) ON DELETE CASCADE,
   INDEX idx_booking_created (booking_id, created_at)
 );
-
--- =====================================================================
--- TRIGGER: CHỐNG TRÙNG LỊCH (RACE CONDITION) KHI ĐẶT PHÒNG
--- Ngăn chặn các booking trùng nhau bị lọt vào DB do chạy đồng thời
--- =====================================================================
-DELIMITER //
-CREATE TRIGGER before_booking_insert
-BEFORE INSERT ON BOOKINGS
-FOR EACH ROW
-BEGIN
-    DECLARE overlap_count INT;
-    IF NEW.status != 'Cancelled' THEN
-        SELECT COUNT(*)
-        INTO overlap_count
-        FROM BOOKINGS
-        WHERE room_id = NEW.room_id
-          AND status != 'Cancelled'
-          AND check_in < NEW.check_out
-          AND check_out > NEW.check_in;
-        IF overlap_count > 0 THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Room is already booked for these dates.';
-        END IF;
-    END IF;
-END //
-
-DELIMITER ;

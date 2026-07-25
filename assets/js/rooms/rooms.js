@@ -3,7 +3,10 @@ import { initSearchBar } from '../search-bar.js';
 import { RoomsTemplates } from './rooms.templates.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // Initialize Search Bar
+    // Xóa ngày đã lưu khi reload trang — luôn hiện toàn bộ phòng khi vào trang
+    sessionStorage.removeItem('oh_search');
+
+    // Initialize Search Bar (onChange callback when user picks a date)
     initSearchBar("#rooms-search-bar-container", async () => {
         await loadRoomsAndRender();
     });
@@ -43,6 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Clear all triggers
     clearAllBtn.addEventListener("click", () => {
         clearFilters();
+        renderFilters("#desktop-filters-aside", false);
     });
 
     // Mobile dialog bindings
@@ -88,8 +92,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
         keyword = "";
         keywordInput.value = "";
-        applyFiltersAndRender();
-        renderFilters("#desktop-filters-aside", false);
+
+        // Reset date filter — xóa ngày đã lưu và clear ô input
+        window.HotelDb.saveSearchState({ checkIn: '', checkOut: '' });
+        const checkInInput = document.getElementById('check-in-input');
+        const checkOutInput = document.getElementById('check-out-input');
+        if (checkInInput) checkInInput.value = '';
+        if (checkOutInput) checkOutInput.value = '';
+
+        loadRoomsAndRender(); // Fetch lại API không có ngày → hiện toàn bộ phòng
     }
 
     // Dynamic Filter Panel — delegates HTML building to RoomsTemplates
@@ -245,8 +256,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (filtered.length === 0) {
             roomsGrid.classList.add("hidden");
             emptyState.classList.remove("hidden");
-            let seeMoreContainer = document.getElementById("see-more-container");
-            if (seeMoreContainer) seeMoreContainer.style.display = "none";
         } else {
             emptyState.classList.add("hidden");
             roomsGrid.classList.remove("hidden");

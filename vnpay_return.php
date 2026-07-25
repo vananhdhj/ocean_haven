@@ -39,7 +39,8 @@ $orderId = $_GET['vnp_TxnRef'] ?? ''; // vnp_TxnRef response
 if ($orderId) {
     $orderId_esc = mysqli_real_escape_string($conn, $orderId);
 
-    $payRes = mysqli_query($conn,
+    $payRes = mysqli_query(
+        $conn,
         "SELECT p.*, b.booking_code, b.check_in, b.check_out, b.guest_name,
                 b.guest_email, b.guest_phone, b.total_price, b.status AS booking_status,
                 r.name AS room_name, r.price AS room_price
@@ -83,90 +84,93 @@ $pageTitle = $isSuccess ? "Booking Confirmed — Ocean Haven Hotel" : "Payment F
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title><?php echo $pageTitle; ?></title>
-        <link rel="stylesheet" href="assets/css/global.css">
-        <link rel="stylesheet" href="assets/css/components/modals.css">
-    </head>
-    <body>
-        <div class="container">
-            <div class="table-responsive margin-t-b flex-col">
-                <div class="header">
-                    <h3 class="text-3xl margin-t-b">VNPAY RESPONSE</h3>
-                </div>
-                
-                <div class="response-info">
-                    <div class="alert <?php echo $isSuccess ? 'alert-success' : 'alert-danger'; ?>" role="alert">
-                        <h4>
-                            <?php
-                            if ($sigValid) {
-                                if ($isSuccess) {
-                                    echo "Giao dịch thành công!";
-                                } else {
-                                    echo "Giao dịch thất bại / Có lỗi xảy ra.";
-                                }
-                            } else {
-                                echo "Chữ ký không hợp lệ (Dữ liệu bị can thiệp)!";
-                            }
-                            ?>
-                        </h4>
-                        <hr><br>
-                    </div>
-    
-                    <!-- Khối hiển thị thông tin hóa đơn chi tiết khách hàng -->
-                    <?php if ($booking): ?>
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Thông tin đặt phòng (<?php echo htmlspecialchars($booking['booking_code'] ?? ''); ?>)</b></div>
-                            <div class="panel-body">
-                                <p><b>Khách hàng:</b> <?php echo htmlspecialchars($booking['guest_name'] ?? ''); ?></p>
-                                <p><b>Phòng:</b> <?php echo htmlspecialchars($booking['room_name'] ?? ''); ?></p>
-                                <p><b>Thời gian:</b> <?php echo htmlspecialchars($booking['check_in'] ?? ''); ?> đến <?php echo htmlspecialchars($booking['check_out'] ?? ''); ?></p>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-    
-                    <div class="form-group">
-                        <label>Mã đơn hàng:</label>
-                        <label><?php echo htmlspecialchars($orderId); ?></label>
-                    </div>    
-                    <div class="form-group">
-                        <label>Số tiền:</label>
-                        <label><?php echo $amountVnd; ?> VNĐ</label>
-                    </div>  
-                    <div class="form-group">
-                        <label>Nội dung thanh toán:</label>
-                        <label><?php echo htmlspecialchars($_GET['vnp_OrderInfo'] ?? ''); ?></label>
-                    </div> 
-                    <div class="form-group">
-                        <label>Mã phản hồi (vnp_ResponseCode):</label>
-                        <label><?php echo htmlspecialchars($_GET['vnp_ResponseCode'] ?? ''); ?></label>
-                    </div> 
-                    <div class="form-group">
-                        <label>Mã GD Tại VNPAY:</label>
-                        <label><?php echo htmlspecialchars($_GET['vnp_TransactionNo'] ?? ''); ?></label>
-                    </div> 
-                    <div class="form-group">
-                        <label>Mã Ngân hàng:</label>
-                        <label><?php echo htmlspecialchars($_GET['vnp_BankCode'] ?? ''); ?></label>
-                    </div> 
-                    <div class="form-group">
-                        <label>Thời gian thanh toán:</label>
-                        <label><?php echo htmlspecialchars($_GET['vnp_PayDate'] ?? ''); ?></label>
-                    </div> 
-                </div>
-                <br>
-                <a href="home.php">
-                    <button class="btn-block btn-primary">return to home page</button>
-                </a>
-                <br>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php echo $pageTitle; ?></title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/components/modals.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="table-responsive margin-t-b flex-col">
+            <div class="header">
+                <h3 class="text-3xl margin-t-b">VNPAY RESPONSE</h3>
             </div>
 
-            <footer class="footer">
-                   <p>&copy; Ocean Haven Hotel <?php echo date('Y')?></p>
-            </footer>
-        </div>  
-    </body>
+            <div class="response-info">
+                <div class="alert <?php echo $isSuccess ? 'alert-success' : 'alert-danger'; ?>" role="alert">
+                    <h4>
+                        <?php
+                        if ($sigValid) {
+                            if ($isSuccess) {
+                                echo "Giao dịch thành công!";
+                            } else {
+                                echo "Giao dịch thất bại / Có lỗi xảy ra.";
+                            }
+                        } else {
+                            echo "Chữ ký không hợp lệ (Dữ liệu bị can thiệp)!";
+                        }
+                        ?>
+                    </h4>
+                    <hr><br>
+                </div>
+
+                <!-- Khối hiển thị thông tin hóa đơn chi tiết khách hàng -->
+                <?php if ($booking): ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><b>Thông tin đặt phòng (<?php echo htmlspecialchars($booking['booking_code'] ?? ''); ?>)</b></div>
+                        <div class="panel-body">
+                            <p><b>Khách hàng:</b> <?php echo htmlspecialchars($booking['guest_name'] ?? ''); ?></p>
+                            <p><b>Phòng:</b> <?php echo htmlspecialchars($booking['room_name'] ?? ''); ?></p>
+                            <p><b>Thời gian:</b> <?php echo htmlspecialchars($booking['check_in'] ?? ''); ?> đến <?php echo htmlspecialchars($booking['check_out'] ?? ''); ?></p>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <div class="form-group">
+                    <label>Mã đơn hàng:</label>
+                    <label><?php echo htmlspecialchars($orderId); ?></label>
+                </div>
+                <div class="form-group">
+                    <label>Số tiền:</label>
+                    <label><?php echo $amountVnd; ?> VNĐ</label>
+                </div>
+                <div class="form-group">
+                    <label>Nội dung thanh toán:</label>
+                    <label><?php echo htmlspecialchars($_GET['vnp_OrderInfo'] ?? ''); ?></label>
+                </div>
+                <div class="form-group">
+                    <label>Mã phản hồi (vnp_ResponseCode):</label>
+                    <label><?php echo htmlspecialchars($_GET['vnp_ResponseCode'] ?? ''); ?></label>
+                </div>
+                <div class="form-group">
+                    <label>Mã GD Tại VNPAY:</label>
+                    <label><?php echo htmlspecialchars($_GET['vnp_TransactionNo'] ?? ''); ?></label>
+                </div>
+                <div class="form-group">
+                    <label>Mã Ngân hàng:</label>
+                    <label><?php echo htmlspecialchars($_GET['vnp_BankCode'] ?? ''); ?></label>
+                </div>
+                <div class="form-group">
+                    <label>Thời gian thanh toán:</label>
+                    <label><?php echo htmlspecialchars($_GET['vnp_PayDate'] ?? ''); ?></label>
+                </div>
+            </div>
+            <br>
+            <a href="home.php">
+                <button class="btn-block btn-primary">Return to home page</button>
+            </a>
+            <br>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; Ocean Haven Hotel <?php echo date('Y') ?></p>
+        </footer>
+    </div>
+</body>
+
 </html>

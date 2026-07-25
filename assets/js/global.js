@@ -131,9 +131,7 @@ export const HotelDb = {
   },
 
   getSearchState() {
-    const today = new Date().toISOString().split('T')[0];
-    const tomorrow = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
-    return getStorage('oh_search', { checkIn: today, checkOut: tomorrow });
+    return getStorage('oh_search', { checkIn: '', checkOut: '' });
   },
 
   saveSearchState(searchState) {

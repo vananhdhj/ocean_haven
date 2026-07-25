@@ -1,7 +1,7 @@
 // ** upload_avatar.js — Client-side Avatar Upload Logic ** //
 import { updateNavbarAvatar } from '../navbar.js';
 
-export function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, onUpdated }) {
+function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, onUpdated }) {
     if (!avatarArea || !avatarInput) return;
 
     // Hover: reveal camera overlay

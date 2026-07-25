@@ -6,20 +6,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   initNavbar();
   initAuthModals();
 
-  if (HotelDb) {
-    const profile = await HotelDb.getProfile();
-    if (profile) {
-      // Clean up any legacy localStorage avatar entries
-      if (profile.email) {
-        localStorage.removeItem('ocean_haven_avatar_' + profile.email);
-      }
+  const profile = await HotelDb.getProfile();
+  if (profile) {
+    // Clean up any legacy localStorage avatar entries
+    if (profile.email) {
+      localStorage.removeItem('ocean_haven_avatar_' + profile.email);
+    }
 
-      if (profile.avatar_url) {
-        updateNavbarAvatar(profile.avatar_url);
-      } else {
-        const initial = (profile.name || 'U').charAt(0).toUpperCase();
-        updateNavbarAvatar(null, initial);
-      }
+    if (profile.avatar_url) {
+      updateNavbarAvatar(profile.avatar_url);
+    } else {
+      const initial = (profile.name || 'U').charAt(0).toUpperCase();
+      updateNavbarAvatar(null, initial);
     }
   }
 });

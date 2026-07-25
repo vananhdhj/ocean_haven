@@ -17,6 +17,23 @@ function createBookingRecord($conn, $userId, $validData) {
     mysqli_begin_transaction($conn);
 
     try {
+        // A0. KIỂM TRA VÀ KHÓA DỮ LIỆU (PESSIMISTIC LOCKING - FOR UPDATE) CHỐNG TRÙNG LỊCH ĐỒNG THỜI
+        $room_id_esc  = mysqli_real_escape_string($conn, $validData['room_id']);
+        $check_in_esc = mysqli_real_escape_string($conn, $validData['check_in']);
+        $check_out_esc = mysqli_real_escape_string($conn, $validData['check_out']);
+
+        $check_overlap_sql = "SELECT COUNT(*) AS booked_count FROM BOOKINGS 
+                              WHERE room_id = '$room_id_esc' 
+                                AND status != 'Cancelled' 
+                                AND check_in < '$check_out_esc' 
+                                AND check_out > '$check_in_esc' FOR UPDATE";
+        $overlap_res = mysqli_query($conn, $check_overlap_sql);
+        $overlap = mysqli_fetch_assoc($overlap_res);
+
+        if ($overlap && (int)$overlap['booked_count'] > 0) {
+            throw new Exception("Selected room is already booked for these dates.");
+        }
+
         // A. CHÈN THÔNG TIN ĐƠN ĐẶT PHÒNG
         $insert_booking = "INSERT INTO BOOKINGS
                             (id, booking_code, user_id, room_id, check_in, check_out, guest_count,
@@ -26,11 +43,6 @@ function createBookingRecord($conn, $userId, $validData) {
                              '{$validData['guest_name']}', '{$validData['guest_email']}', '{$validData['guest_phone']}', '{$validData['special_requests']}', {$validData['total_price']}, '$status', '$hold_expires_at')";
         
         if (!mysqli_query($conn, $insert_booking)) {
-            // KIỂM TRA LỖI TRÙNG LỊCH:
-            // Bắt lỗi ném ra từ Database Trigger `before_booking_insert` (mã lỗi 1644 / SQLSTATE 45000)
-            if (mysqli_errno($conn) == 1644 || mysqli_sqlstate($conn) === '45000') {
-                throw new Exception("Selected room is already booked for these dates.");
-            }
             throw new Exception('Database error while saving booking: ' . mysqli_error($conn));
         }
 
