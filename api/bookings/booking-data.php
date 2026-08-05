@@ -17,24 +17,33 @@ function createBookingRecord($conn, $userId, $validData) {
     mysqli_begin_transaction($conn);
 
     try {
-        // A0. KIỂM TRA VÀ KHÓA DỮ LIỆU (PESSIMISTIC LOCKING - FOR UPDATE) CHỐNG TRÙNG LỊCH ĐỒNG THỜI
-        $room_id_esc  = mysqli_real_escape_string($conn, $validData['room_id']);
-        $check_in_esc = mysqli_real_escape_string($conn, $validData['check_in']);
+        // HUỶ BOOKING PENDING HẾT HẠN TRƯỚC KHI KIỂM TRA (đảm bảo cleanup đã xảy ra)
+        mysqli_query($conn, "UPDATE BOOKINGS SET status = 'Cancelled' WHERE status = 'Pending' AND hold_expires_at < NOW()");
+
+        // KHÓA DỮ LIỆU (PESSIMISTIC LOCKING - FOR UPDATE) CHỐNG TRÙNG LỊCH ĐỒNG THỜI
+        $room_id_esc   = mysqli_real_escape_string($conn, $validData['room_id']);
+        $check_in_esc  = mysqli_real_escape_string($conn, $validData['check_in']);
         $check_out_esc = mysqli_real_escape_string($conn, $validData['check_out']);
 
         $check_overlap_sql = "SELECT COUNT(*) AS booked_count FROM BOOKINGS 
                               WHERE room_id = '$room_id_esc' 
-                                AND status != 'Cancelled' 
+                                AND status NOT IN ('Cancelled', 'Completed') 
                                 AND check_in < '$check_out_esc' 
                                 AND check_out > '$check_in_esc' FOR UPDATE";
         $overlap_res = mysqli_query($conn, $check_overlap_sql);
+
+        // Nếu query thất bại → không bỏ qua, chặn đặt phòng để tránh ghi chồng
+        if ($overlap_res === false) {
+            throw new Exception('Failed to verify room availability: ' . mysqli_error($conn));
+        }
+
         $overlap = mysqli_fetch_assoc($overlap_res);
 
         if ($overlap && (int)$overlap['booked_count'] > 0) {
             throw new Exception("Selected room is already booked for these dates.");
         }
 
-        // A. CHÈN THÔNG TIN ĐƠN ĐẶT PHÒNG
+        // 1. CHÈN THÔNG TIN ĐƠN ĐẶT PHÒNG
         $insert_booking = "INSERT INTO BOOKINGS
                             (id, booking_code, user_id, room_id, check_in, check_out, guest_count,
                              guest_name, guest_email, guest_phone, special_requests, total_price, status, hold_expires_at)

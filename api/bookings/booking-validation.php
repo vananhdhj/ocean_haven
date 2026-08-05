@@ -36,6 +36,24 @@ function validateBookingInput($conn, $input) {
         return ['success' => false, 'message' => 'Selected room is invalid or currently inactive.'];
     }
 
+    // TỰ ĐỘNG HUỶ BOOKING PENDING ĐÃ HẾT HẠN TRƯỚC KHI SO SÁNH
+    mysqli_query($conn, "UPDATE BOOKINGS SET status = 'Cancelled' WHERE status = 'Pending' AND hold_expires_at < NOW()");
+
+    // KIỂM TRA PHÒNG CÒN TRỐNG THEO NGÀY CHỌN (SO SÁNH TRỰC TIẾP TỪ DATABASE)
+    $avail_sql = "SELECT COUNT(*) AS cnt FROM BOOKINGS
+                  WHERE room_id = '$room_id'
+                    AND status NOT IN ('Cancelled', 'Completed')
+                    AND check_in  < '$check_out'
+                    AND check_out > '$check_in'";
+    $avail_res = mysqli_query($conn, $avail_sql);
+    if ($avail_res === false) {
+        return ['success' => false, 'message' => 'Unable to verify room availability. Please try again.'];
+    }
+    $avail_row = mysqli_fetch_assoc($avail_res);
+    if ($avail_row && (int)$avail_row['cnt'] > 0) {
+        return ['success' => false, 'message' => 'This room is already booked for the selected dates. Please choose different dates.'];
+    }
+
     // 6. TÍNH TOÁN SỐ ĐÊM LƯU TRÚ
     $check_in_date = new DateTime($check_in);
     $check_out_date = new DateTime($check_out);

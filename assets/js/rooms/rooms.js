@@ -337,4 +337,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderFilters("#desktop-filters-aside", false);
     await loadRoomsAndRender();
+
+    // Khi user bấm Back từ VNPay/detail page, trình duyệt restore page từ BFCache
+    // → DOMContentLoaded KHÔNG chạy lại → rooms list bị stale
+    // pageshow luôn fire kể cả khi restore từ BFCache, e.persisted = true gây ra lỗi :))) !!
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) {
+            loadRoomsAndRender();
+        }
+    });
 });

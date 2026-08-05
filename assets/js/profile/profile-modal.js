@@ -11,19 +11,16 @@ export async function openProfileModal() {
     dialog = document.createElement('dialog');
     dialog.id = 'profile-modal';
     document.body.appendChild(dialog);
+
+    // Click on backdrop (e.target === dialog) → close. Click inside content → ignore.
+    // Listener chỉ được add một lần khi tạo dialog để tránh accumulate.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
   }
 
   await renderProfileModalContent(dialog);
   dialog.showModal();
-
-  dialog.addEventListener('click', (e) => {
-    const rect = dialog.getBoundingClientRect();
-    const isInDialog = (
-      rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-      rect.left <= e.clientX && e.clientX <= rect.left + rect.width
-    );
-    if (!isInDialog) dialog.close();
-  });
 }
 
 async function renderProfileModalContent(dialog) {

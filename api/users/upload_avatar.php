@@ -44,7 +44,7 @@ if (!in_array($fileExtension, $allowedExtensions)) { // Nếu đuôi file không
 }
 
 // 7. THIẾT LẬP THƯ MỤC LƯU TRỮ TRÊN SERVER
-$targetDir = __DIR__ . '/../public/images/'; // Thư mục lưu ảnh avatar thực tế
+$targetDir = __DIR__ . '/../../public/images/'; // Thư mục lưu ảnh avatar thực tế
 if (!is_dir($targetDir)) { // Nếu thư mục chưa tồn tại (Vd: lần đầu chạy dự án)
     mkdir($targetDir, 0777, true); // Tự động tạo thư mục với toàn quyền ghi đọc
 }

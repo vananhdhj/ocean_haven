@@ -6,8 +6,8 @@ function getDashboardStats($conn) {
     // Đếm tổng số lượng đơn đặt phòng hiện có
     $stats['total_bookings'] = (int)(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM BOOKINGS"))['c'] ?? 0);
     
-    // Đếm tổng số đơn đã được xác nhận (Đã thanh toán VNPAY thành công)
-    $stats['confirmed']      = (int)(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM BOOKINGS WHERE status='Confirmed'"))['c'] ?? 0);
+    // Đếm tổng số đơn đã được xác nhận (Bao gồm Confirmed - khách trả tiền rồi và Completed đã check-out xong)
+    $stats['confirmed']      = (int)(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM BOOKINGS WHERE status IN ('Confirmed', 'Completed')"))['c'] ?? 0);
     
     // Đếm tổng số đơn đang chờ thanh toán (Pending)
     $stats['pending']        = (int)(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM BOOKINGS WHERE status='Pending'"))['c'] ?? 0);

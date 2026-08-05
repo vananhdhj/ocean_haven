@@ -40,7 +40,11 @@ if ($am_res) {
   }
 }
 
-// 5. THUẬT TOÁN LỌC PHÒNG TRỐNG THEO NGÀY ĐẶT (Được gửi từ bộ lọc tìm kiếm trên thanh URL GET)
+// 5. TỰ ĐỘNG HỦY CÁC BOOKING PENDING ĐÃ HẾT HẠN GIỮ CHỖ (15 PHÚT)
+// Chạy trước khi query để đảm bảo dữ liệu phòng trống là chính xác
+mysqli_query($conn, "UPDATE BOOKINGS SET status = 'Cancelled' WHERE status = 'Pending' AND hold_expires_at < NOW()");
+
+// 6. THUẬT TOÁN LỌC PHÒNG TRỐNG THEO NGÀY ĐẶT (Được gửi từ bộ lọc tìm kiếm trên thanh URL GET)
 $check_in = isset($_GET['checkin']) ? mysqli_real_escape_string($conn, $_GET['checkin']) : null;
 $check_out = isset($_GET['checkout']) ? mysqli_real_escape_string($conn, $_GET['checkout']) : null;
 
@@ -70,9 +74,10 @@ $query = "SELECT
 if ($check_in && $check_out) {
   $query .= " AND r.id NOT IN (
                 SELECT b.room_id FROM BOOKINGS b
-                WHERE b.status != 'Cancelled' -- Không tính các đơn đã bị huỷ
-                  AND b.check_in < '$check_out' -- Ngày check-in của đơn cũ nhỏ hơn ngày check-out của đơn mới
-                  AND b.check_out > '$check_in' -- Ngày check-out của đơn cũ lớn hơn ngày check-in của đơn mới (Công thức giao nhau)
+                WHERE b.status NOT IN ('Cancelled', 'Completed')
+                  AND (b.status != 'Pending' OR b.hold_expires_at > NOW())
+                  AND b.check_in < '$check_out'
+                  AND b.check_out > '$check_in'
               )";
 }
 

@@ -28,7 +28,7 @@ function initAvatarUpload({ avatarArea, avatarInput, avatarOverlay, onUpdated })
         formData.append('avatar', file);
 
         try {
-            const response = await fetch('./api/users/upload_avatar.php', {
+            const response = await fetch('/ocean_haven/api/users/upload_avatar.php', {
                 method: 'POST',
                 body: formData,
             });
