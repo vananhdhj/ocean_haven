@@ -1,5 +1,5 @@
-import { getRooms } from "@/lib/queries/rooms";
-import { RoomsCatalog } from "@/components/rooms/rooms-catalog";
+import { getRooms } from "@/modules/rooms/server";
+import { RoomsCatalog } from "@/modules/rooms";
 
 export const metadata = {
   title: "All Available Rooms | Ocean Haven Hotel",

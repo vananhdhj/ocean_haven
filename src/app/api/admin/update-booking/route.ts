@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { updateBookingStatusAction } from "@/modules/admin";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,44 +9,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const supabase = await createClient();
-    
-    // Double check admin role
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const result = await updateBookingStatusAction(bookingId, status);
+
+    if (!result.success) {
+      const statusCode = result.error === "Unauthorized" ? 401 : result.error === "Forbidden" ? 403 : 500;
+      return NextResponse.json({ error: result.error }, { status: statusCode });
     }
-
-    const { data: profile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    // Update booking status
-    const { error: updateError } = await supabase
-      .from("bookings")
-      .update({ status })
-      .eq("id", bookingId);
-
-    if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
-    }
-
-    // Insert history record
-    await supabase.from("history_booking").insert({
-      id: `history-${Date.now()}`,
-      booking_id: bookingId,
-      action: "STATUS_CHANGE",
-      note: `Admin changed status to ${status}`,
-    });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

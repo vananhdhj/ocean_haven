@@ -1,19 +1,25 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getAdminStats, getAdminBookings } from "@/lib/queries/bookings";
+import { createClient } from "@/shared/lib/supabase/server";
+import { getAdminStats, getAdminBookings } from "@/modules/admin/server";
+import { AdminBookingAction } from "@/modules/admin";
 import { Users, Building2, Calendar, DollarSign, Search } from "lucide-react";
-import { AdminBookingAction } from "@/components/admin/booking-action";
-import { formatMoney, formatDate } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+import { formatMoney, formatDate } from "@/shared/lib/utils";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@/shared/components/ui/pagination";
+
+const statusVariantMap: Record<string, "pending" | "confirmed" | "completed" | "cancelled"> = {
+  Pending: "pending",
+  Confirmed: "confirmed",
+  Completed: "completed",
+  Cancelled: "cancelled",
+};
 
 export const metadata = {
   title: "Admin Dashboard — Ocean Haven Hotel",
@@ -221,7 +227,7 @@ export default async function AdminDashboard({
                       {formatMoney(booking.total_price)}
                     </td>
                     <td className="p-3.5">
-                      <Badge variant={booking.status.toLowerCase() as any}>
+                      <Badge variant={statusVariantMap[booking.status] || "default"}>
                         {booking.status}
                       </Badge>
                     </td>

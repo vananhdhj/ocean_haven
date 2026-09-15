@@ -1,0 +1,60 @@
+# dependencies
+node_modules
+
+# next.js build
+.next
+.swc
+out
+
+# testing
+coverage
+*.test.ts
+*.test.tsx
+__tests__
+jest.config.ts
+jest.setup.ts
+
+# version control
+.git
+.gitignore
+
+# documentation
+*.md
+
+# env files
+.env*
+
+# build artifacts
+*.tsbuildinfo
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# docker (avoid recursive context)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Gemini / AI agent
+.gemini/
+AGENTS.md
+CLAUDE.md
+
+# CI/CD
+.github/
+
+# Supabase local config
+supabase/.temp/
