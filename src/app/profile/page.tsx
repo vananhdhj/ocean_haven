@@ -1,11 +1,18 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getUserBookings } from "@/lib/queries/bookings";
+import { createClient } from "@/shared/lib/supabase/server";
+import { getUserBookings } from "@/modules/bookings/server";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, User, CreditCard, Clock, LogOut } from "lucide-react";
-import { formatMoney, formatDate } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { Calendar, CreditCard, Clock } from "lucide-react";
+import { formatMoney, formatDate } from "@/shared/lib/utils";
+import { Badge } from "@/shared/components/ui/badge";
+
+const statusVariantMap: Record<string, "pending" | "confirmed" | "completed" | "cancelled"> = {
+  Pending: "pending",
+  Confirmed: "confirmed",
+  Completed: "completed",
+  Cancelled: "cancelled",
+};
 
 export const metadata = {
   title: "My Account — Ocean Haven Hotel",
@@ -86,7 +93,7 @@ export default async function ProfilePage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={booking.status.toLowerCase() as any}>
+                      <Badge variant={statusVariantMap[booking.status] || "default"}>
                         {booking.status}
                       </Badge>
                       <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-xs font-medium border border-slate-200">
@@ -101,46 +108,39 @@ export default async function ProfilePage() {
                         <Calendar className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">
-                          Dates
-                        </p>
+                        <p className="text-xs text-slate-400">Dates</p>
                         <p className="font-semibold text-slate-900">
-                          {formatDate(booking.check_in)}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          to {formatDate(booking.check_out)}
+                          {formatDate(booking.check_in)} –{" "}
+                          {formatDate(booking.check_out)}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#3d64b0] flex items-center justify-center shrink-0">
-                        <User className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">
-                          Guests
-                        </p>
-                        <p className="font-semibold text-slate-900">
-                          {booking.guests}{" "}
-                          {booking.guests === 1 ? "Guest" : "Guests"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#3d64b0] flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#3d64b0] flex items-center justify-center shrink-0">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">
-                          Total Price
-                        </p>
+                        <p className="text-xs text-slate-400">Total Price</p>
                         <p
-                          className="text-lg font-bold text-[#3d64b0]"
-                          style={{ fontFamily: "'Merriweather', 'DINPro', serif" }}
+                          className="font-bold text-slate-900"
+                          style={{
+                            fontFamily: "'Merriweather', 'DINPro', serif",
+                          }}
                         >
                           {formatMoney(booking.total)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400">Booked On</p>
+                        <p className="font-medium text-slate-700">
+                          {formatDate(booking.bookedOn)}
                         </p>
                       </div>
                     </div>
@@ -158,7 +158,7 @@ export default async function ProfilePage() {
                 No bookings yet
               </h3>
               <p className="text-sm text-slate-500 mb-5">
-                You haven't made any reservations yet. Ready to experience Ocean
+                You haven&apos;t made any reservations yet. Ready to experience Ocean
                 Haven?
               </p>
               <Link

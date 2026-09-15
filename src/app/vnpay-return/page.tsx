@@ -1,8 +1,7 @@
-import { verifyVnpaySignature } from "@/lib/vnpay";
-import { createClient } from "@/lib/supabase/server";
+import { processVNPayReturn } from "@/modules/payments/server";
 import { CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
-import { formatMoney } from "@/lib/utils";
+import { formatMoney } from "@/shared/lib/utils";
 
 export const metadata = {
   title: "Payment Result — Ocean Haven Hotel",
@@ -23,41 +22,8 @@ export default async function VnpayReturnPage({
     }
   }
 
-  const valid = verifyVnpaySignature(params);
-  const responseCode = params["vnp_ResponseCode"];
-  const bookingCode = params["vnp_TxnRef"];
-  const vnp_Amount = Number(params["vnp_Amount"] || 0) / 100;
-  const isSuccess = valid && responseCode === "00";
-
-  if (isSuccess && bookingCode) {
-    const supabase = await createClient();
-
-    // 1. Update Booking status to 'Confirmed'
-    await supabase
-      .from("bookings")
-      .update({ status: "Confirmed" })
-      .eq("booking_code", bookingCode);
-
-    // 2. Find booking ID to update/create Payment
-    const { data: booking } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("booking_code", bookingCode)
-      .single();
-
-    if (booking) {
-      await supabase.from("payments").upsert(
-        {
-          booking_id: booking.id,
-          amount: vnp_Amount,
-          method: "vnpay",
-          transaction_id: params["vnp_TransactionNo"] || "",
-          status: "Completed",
-        },
-        { onConflict: "booking_id" }
-      );
-    }
-  }
+  const { isValid, isSuccess, bookingCode, amount, responseCode } =
+    await processVNPayReturn(params);
 
   return (
     <main className="min-h-[70vh] flex items-center justify-center p-4 flex-1">
@@ -100,7 +66,7 @@ export default async function VnpayReturnPage({
               className="font-bold text-slate-900"
               style={{ fontFamily: "'Merriweather', 'DINPro', serif" }}
             >
-              {formatMoney(vnp_Amount)}
+              {formatMoney(amount)}
             </span>
           </div>
           <div className="flex justify-between items-center">
@@ -109,7 +75,7 @@ export default async function VnpayReturnPage({
           </div>
         </div>
 
-        {!valid && (
+        {!isValid && (
           <p className="text-xs text-red-600 bg-red-50 p-2.5 rounded-lg mb-6 border border-red-200">
             Invalid payment signature. This transaction may have been tampered with.
           </p>

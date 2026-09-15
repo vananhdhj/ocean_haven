@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronsRight } from "lucide-react";
-import { getFeaturedRooms } from "@/lib/queries/rooms";
-import { RoomCard } from "@/components/room-card";
+import { getFeaturedRooms } from "@/modules/rooms/server";
+import { RoomCard } from "@/modules/rooms";
 
 export const revalidate = 3600;
 

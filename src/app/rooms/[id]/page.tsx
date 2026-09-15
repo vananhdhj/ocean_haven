@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { getRoomById } from "@/lib/queries/rooms";
-import { createClient } from "@/lib/supabase/server";
-import { RoomDetail } from "@/components/rooms/room-detail";
+import { getRoomById } from "@/modules/rooms/server";
+import { RoomDetail } from "@/modules/rooms";
+import { createClient } from "@/shared/lib/supabase/server";
 
 export async function generateMetadata({
   params,

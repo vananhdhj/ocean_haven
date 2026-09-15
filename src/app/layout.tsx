@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { createClient } from "@/lib/supabase/server";
+import { Navbar } from "@/shared/components/layout/navbar";
+import { Footer } from "@/shared/components/layout/footer";
+import { getCurrentUser } from "@/modules/auth/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,27 +25,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fetch user data for Navbar
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  let userData = null;
-  if (user) {
-    // Get profile data for name, avatar, role
-    const { data: profile } = await supabase
-      .from("users")
-      .select("name, avatar, role")
-      .eq("id", user.id)
-      .single();
-      
-    userData = {
-      id: user.id,
-      email: user.email!,
-      name: profile?.name,
-      avatar: profile?.avatar,
-      role: profile?.role || "user",
-    };
-  }
+  const userData = await getCurrentUser();
 
   return (
     <html
