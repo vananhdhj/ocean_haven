@@ -206,11 +206,12 @@ CREATE POLICY "Insert history" ON public.history_booking FOR INSERT WITH CHECK (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, email, name, role)
+  INSERT INTO public.users (id, email, name, phone, role)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'phone',
     COALESCE(NEW.raw_user_meta_data->>'role', 'user')
   );
   RETURN NEW;
