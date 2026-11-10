@@ -64,3 +64,31 @@ export async function createBooking(
     return { success: false, message: message ?? "Failed to create booking. Please try again." };
   }
 }
+
+export async function cancelMyBooking(
+  bookingId: string
+): Promise<{ success: boolean; message?: string }> {
+  if (!bookingId) {
+    return { success: false, message: "Missing booking." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "You must be logged in to cancel a booking." };
+  }
+
+  // Ownership, cancellation rules and the payment update happen in one
+  // transaction in dbo.sp_CancelMyBooking; the user id comes from the session.
+  try {
+    await execProc("dbo.sp_CancelMyBooking", { BookingId: bookingId, UserId: user.id });
+  } catch (err) {
+    const message = businessErrorMessage(err);
+    if (!message) console.error("Cancel booking error:", err);
+    return { success: false, message: message ?? "Failed to cancel booking. Please try again." };
+  }
+
+  revalidatePath("/profile");
+  return { success: true };
+}

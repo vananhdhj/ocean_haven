@@ -67,7 +67,7 @@ npm run db:start
 # 3. Create tables, indexes, functions, triggers, procedures and seed data
 npm run db:setup          # drops and recreates all tables
 
-# 4. Run the database tests (22 checks of procedures, transactions and triggers)
+# 4. Run the database tests (27 checks of procedures, transactions and triggers)
 npm run db:test
 
 # 5. Embedding model for AI search
@@ -100,6 +100,7 @@ SSMS or Azure Data Studio.
 | :--- | :--- | :--- |
 | `sp_CreateBooking` | Booking form (`createBooking` action) | Validates dates/guests → **locks the room row** → checks availability → computes price from DB → inserts booking **and** payment |
 | `sp_UpdateBookingStatus` | Admin dashboard | Enforces allowed transitions → updates booking → keeps payment consistent (`Cancelled` on cancel, cash collected on complete) |
+| `sp_CancelMyBooking` | Guest's profile page | Locks the booking → checks it is the caller's, still `Pending`/`Confirmed`, before check-in → cancels booking **and** pending payment |
 | `sp_GetRooms`, `sp_GetUserBookings`, `sp_GetAdminBookings`, `sp_GetAdminStats` | Pages | Read models (rooms as nested JSON in one round trip, stats in one pass) |
 | `sp_GetRoomsMissingEmbedding`, `sp_UpsertRoomEmbedding`, `sp_SemanticSearchRooms` | AI search | See section 4 |
 

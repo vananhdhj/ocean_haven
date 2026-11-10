@@ -179,6 +179,54 @@ SET @Ok = IIF(EXISTS (SELECT 1 FROM dbo.payments
                       WHERE booking_id = @B AND status = 'Completed' AND paid_at IS NOT NULL), 1, 0);
 EXEC #Assert @Ok, N'completing a stay marks the cash payment as collected';
 
+PRINT N'--- sp_CancelMyBooking ---';
+
+DECLARE @D BIGINT, @E BIGINT;
+DELETE FROM @Result;
+INSERT INTO @Result
+EXEC dbo.sp_CreateBooking @UserId = @User, @UserEmail = NULL, @RoomId = 'room-002',
+     @CheckIn = '2031-03-10', @CheckOut = '2031-03-12', @GuestCount = 1,
+     @GuestName = N'Changes Mind', @GuestEmail = N'c@c.vn', @GuestPhone = '0900000008';
+SELECT @D = id FROM @Result;
+
+SET @Err = 0;
+BEGIN TRY EXEC dbo.sp_CancelMyBooking @BookingId = @D, @UserId = '22222222-2222-2222-2222-222222222222'; END TRY
+BEGIN CATCH SET @Err = ERROR_NUMBER(); END CATCH;
+SET @Ok = IIF(@Err = 50030
+              AND (SELECT status FROM dbo.bookings WHERE id = @D) = 'Pending'
+              AND (SELECT status FROM dbo.payments WHERE booking_id = @D) = 'Pending', 1, 0);
+EXEC #Assert @Ok, N'another user cannot cancel the booking (50030) and nothing changes';
+
+EXEC dbo.sp_CancelMyBooking @BookingId = @D, @UserId = @User;
+SET @Ok = IIF((SELECT status FROM dbo.bookings WHERE id = @D) = 'Cancelled'
+              AND (SELECT status FROM dbo.payments WHERE booking_id = @D) = 'Cancelled', 1, 0);
+EXEC #Assert @Ok, N'guest cancels own booking: booking and payment cancelled together';
+SET @Ok = IIF(EXISTS (SELECT 1 FROM dbo.history_booking
+                      WHERE booking_id = @D AND action = 'STATUS_CHANGE'
+                        AND old_status = 'Pending' AND new_status = 'Cancelled'), 1, 0);
+EXEC #Assert @Ok, N'trg_bookings_audit logged the guest cancellation';
+
+SET @Err = 0;
+BEGIN TRY EXEC dbo.sp_CancelMyBooking @BookingId = @D, @UserId = @User; END TRY
+BEGIN CATCH SET @Err = ERROR_NUMBER(); END CATCH;
+SET @Ok = IIF(@Err = 50031, 1, 0);
+EXEC #Assert @Ok, N'an already cancelled booking cannot be cancelled again (50031)';
+
+-- A booking whose check-in date has arrived (dates moved into the past for the test)
+DELETE FROM @Result;
+INSERT INTO @Result
+EXEC dbo.sp_CreateBooking @UserId = @User, @UserEmail = NULL, @RoomId = 'room-002',
+     @CheckIn = '2031-03-20', @CheckOut = '2031-03-21', @GuestCount = 1,
+     @GuestName = N'Too Late', @GuestEmail = N't@t.vn', @GuestPhone = '0900000009';
+SELECT @E = id FROM @Result;
+UPDATE dbo.bookings SET check_in = '2020-01-01', check_out = '2020-01-02' WHERE id = @E;
+
+SET @Err = 0;
+BEGIN TRY EXEC dbo.sp_CancelMyBooking @BookingId = @E, @UserId = @User; END TRY
+BEGIN CATCH SET @Err = ERROR_NUMBER(); END CATCH;
+SET @Ok = IIF(@Err = 50032 AND (SELECT status FROM dbo.bookings WHERE id = @E) = 'Pending', 1, 0);
+EXEC #Assert @Ok, N'from the check-in date on the guest cannot cancel (50032)';
+
 PRINT N'--- read procedures ---';
 
 DECLARE @Json NVARCHAR(MAX);

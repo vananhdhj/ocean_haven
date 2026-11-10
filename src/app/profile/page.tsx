@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/shared/lib/supabase/server";
 import { getUserBookings } from "@/modules/bookings/server";
+import { CancelBookingButton } from "@/modules/bookings";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Calendar, CreditCard, Clock } from "lucide-react";
@@ -35,6 +36,10 @@ export default async function ProfilePage() {
     .single();
 
   const bookings = await getUserBookings(user.id);
+  // Same rule as dbo.sp_CancelMyBooking (UTC date): cancellable until the day before check-in
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  const canCancel = (b: (typeof bookings)[number]) =>
+    (b.status === "Pending" || b.status === "Confirmed") && b.check_in > todayUtc;
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 flex-1 w-full">
@@ -145,6 +150,12 @@ export default async function ProfilePage() {
                       </div>
                     </div>
                   </div>
+
+                  {canCancel(booking) && (
+                    <div className="pt-3 border-t border-slate-100">
+                      <CancelBookingButton bookingId={booking.id} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

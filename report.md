@@ -85,6 +85,7 @@ by a user. A review found two ways to become admin:
 | :--- | :--- | :--- |
 | `sp_CreateBooking` | Booking form | Validate input → **lock the room row** → check availability → compute price from the DB → insert booking **and** its payment row |
 | `sp_UpdateBookingStatus` | Admin dashboard | Enforce allowed transitions → update booking → keep the payment consistent (`Cancelled` on cancel, cash collected on complete) |
+| `sp_CancelMyBooking` | Guest's profile page (*Cancel booking*) | **Lock the booking** → check it belongs to the caller, is still `Pending`/`Confirmed` and check-in hasn't started → cancel the booking **and** its pending payment |
 | `sp_GetRooms`, `sp_GetUserBookings`, `sp_GetAdminBookings`, `sp_GetAdminStats` | Pages | Read models |
 | `sp_GetRoomsMissingEmbedding`, `sp_UpsertRoomEmbedding`, `sp_SemanticSearchRooms` | AI search | See section 5 |
 
@@ -120,6 +121,13 @@ END CATCH;
   in the same transaction (completing a stay marks the cash as collected with `paid_at`, cancelling
   cancels the pending payment), so the booking status and payment status cannot disagree. The status
   row is locked with `UPDLOCK` so two admins clicking at once cannot both pass the transition check.
+- **A guest can only cancel their own booking, and only before check-in.** The user id comes from
+  the login session on the server, never from the browser. Someone else's booking is reported as
+  *"Booking not found"* (`50030`), the same as a booking that doesn't exist, so trying ids reveals
+  nothing. Bookings that are already decided (`50031`), or whose check-in date has arrived
+  (`50032`), can only be changed by the hotel. The booking and its cash payment are cancelled in the
+  same transaction, so a cancelled booking never keeps a payment that still looks due, and the audit
+  trigger records the cancellation like any other status change.
 - **Business errors use `THROW 500xx`** with a message meant for the user (e.g. 50010 "Room is
   not available for selected dates."). `businessErrorMessage()` shows those messages in the UI. Any
   other error is logged and shown as a generic message, so database internals never reach users.
@@ -302,7 +310,7 @@ now accepts **payment at the hotel only (cash on delivery)**.
 Guest books ──▶ sp_CreateBooking: booking Pending + payment (cod, Pending), one transaction
 Admin confirms ──▶ sp_UpdateBookingStatus: Pending → Confirmed (payment still Pending)
 Guest pays at the hotel; admin completes ──▶ Confirmed → Completed, payment Completed + paid_at
-Admin cancels ──▶ booking Cancelled, payment Cancelled, room free again
+Admin cancels, or the guest cancels before check-in (sp_CancelMyBooking) ──▶ booking Cancelled, payment Cancelled, room free again
 ```
 
 **What this simplified:**
@@ -323,8 +331,8 @@ Admin cancels ──▶ booking Cancelled, payment Cancelled, room free again
 | Check | Result |
 | :--- | :--- |
 | `npm run db:setup` (schema, indexes, functions, triggers, procedures, seed) | ✅ all 7 scripts run |
-| `npm run db:test`: T-SQL assertions on every procedure and trigger, including failure and rollback paths | ✅ 22 / 22 pass |
-| `npm test`: Jest unit + integration tests, including login → book → admin confirm → complete | ✅ 76 / 76 pass |
+| `npm run db:test`: T-SQL assertions on every procedure and trigger, including failure and rollback paths | ✅ 27 / 27 pass |
+| `npm test`: Jest unit + integration tests, including login → book → admin confirm → complete, and guest cancellation | ✅ 82 / 82 pass |
 | `tsc --noEmit`, `npm run lint`, `npm run build` | ✅ clean |
 | `tests/index_demo.sql`: index measurement | ✅ figures in section 4 |
 | Live AI search against the running app | ✅ results in section 5 |
@@ -337,6 +345,7 @@ Database tests that check transactions and triggers include:
 - every booking gets its pay-at-hotel payment row in the same transaction;
 - disallowed status changes (`Confirmed → Pending`, `Cancelled → Confirmed`) are rejected (`50022`);
 - cancelling cancels the pending payment, and completing a stay records the cash as collected;
+- a guest can cancel their own booking (booking and payment together, audited), but not someone else's (`50030`), not twice (`50031`), and not from the check-in date on (`50032`); a refused cancellation changes nothing;
 - a direct `INSERT` or `UPDATE` that would double-book is rolled back by the trigger;
 - the audit row survives a deleted booking;
 - editing a room's description or amenities deletes its stale vector.
@@ -389,7 +398,7 @@ were rolled back or reverted.
 ```bash
 npm run db:start                  # SQL Server 2025 in Docker (Apple Silicon: Rosetta in Docker/Colima)
 npm run db:setup                  # create database, tables, indexes, triggers, procedures, seed
-npm run db:test                   # 22 database tests
+npm run db:test                   # 27 database tests
 ollama pull bge-m3                # embedding model for AI search
 npm run dev                       # http://localhost:3000/rooms, type a description and press ✨
 npm run db:run -- tests/index_demo.sql   # optional: index measurement

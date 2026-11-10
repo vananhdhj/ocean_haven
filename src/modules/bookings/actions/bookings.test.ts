@@ -1,4 +1,4 @@
-import { createBooking } from "./bookings";
+import { createBooking, cancelMyBooking } from "./bookings";
 
 // --- Mock setup ---
 const mockGetUser = jest.fn();
@@ -151,6 +151,52 @@ describe("Bookings Server Actions", () => {
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("Failed to create booking. Please try again.");
+    });
+  });
+
+  // ─── CANCEL MY BOOKING ─────────────────────────────────
+  describe("cancelMyBooking", () => {
+    it("should require login and never call the procedure", async () => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: null } });
+
+      const result = await cancelMyBooking("42");
+
+      expect(result).toEqual({ success: false, message: "You must be logged in to cancel a booking." });
+      expect(mockExecProc).not.toHaveBeenCalled();
+    });
+
+    it("should pass the session user, not a client-supplied one, to the procedure", async () => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: loggedInUser } });
+      mockExecProc.mockResolvedValueOnce([[{ booking_code: "OH000042" }]]);
+
+      const result = await cancelMyBooking("42");
+
+      expect(mockExecProc).toHaveBeenCalledWith("dbo.sp_CancelMyBooking", {
+        BookingId: "42",
+        UserId: loggedInUser.id,
+      });
+      expect(result).toEqual({ success: true });
+    });
+
+    it.each([
+      [50030, "Booking not found."],
+      [50031, "This booking can no longer be cancelled."],
+      [50032, "Bookings can only be cancelled before the check-in date. Please contact the hotel."],
+    ])("should show the procedure's message for error %i", async (number, message) => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: loggedInUser } });
+      mockExecProc.mockRejectedValueOnce(sqlBusinessError(number, message));
+
+      expect(await cancelMyBooking("42")).toEqual({ success: false, message });
+    });
+
+    it("should hide technical database errors behind a generic message", async () => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: loggedInUser } });
+      mockExecProc.mockRejectedValueOnce(new Error("connection lost"));
+
+      expect(await cancelMyBooking("42")).toEqual({
+        success: false,
+        message: "Failed to cancel booking. Please try again.",
+      });
     });
   });
 });
