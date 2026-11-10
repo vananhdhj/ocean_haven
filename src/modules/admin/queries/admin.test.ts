@@ -1,7 +1,8 @@
-import { getAdminStats } from "./admin";
+import { getAdminStats, getAdminBookings } from "./admin";
 
 // --- Mock setup ---
 const mockFrom = jest.fn();
+const mockExecProc = jest.fn();
 
 jest.mock("@/shared/lib/supabase/server", () => ({
   createClient: jest.fn(() =>
@@ -11,108 +12,114 @@ jest.mock("@/shared/lib/supabase/server", () => ({
   ),
 }));
 
-// --- Chainable mock builder for count queries ---
-function createCountChain(count: number | null) {
-  const chain: Record<string, jest.Mock> = {};
-  for (const m of ["select", "eq", "in"]) {
-    chain[m] = jest.fn().mockReturnValue(chain);
-  }
-  (chain as Record<string, unknown>)["then"] = (resolve: (v: unknown) => void) =>
-    resolve({ count, data: null, error: null });
-  return chain;
-}
+jest.mock("@/shared/lib/db/sqlserver", () => ({
+  execProc: (...args: unknown[]) => mockExecProc(...args),
+}));
 
-function createDataChain(data: unknown[]) {
+// Supabase user count query: from("users").select(..., { count }).eq("role", "user")
+function mockUserCount(count: number | null) {
   const chain: Record<string, jest.Mock> = {};
-  for (const m of ["select", "eq"]) {
-    chain[m] = jest.fn().mockReturnValue(chain);
-  }
-  (chain as Record<string, unknown>)["then"] = (resolve: (v: unknown) => void) =>
-    resolve({ data, error: null });
-  return chain;
+  chain.select = jest.fn().mockReturnValue(chain);
+  chain.eq = jest.fn().mockResolvedValue({ count, data: null, error: null });
+  mockFrom.mockReturnValueOnce(chain);
 }
 
 describe("Admin Queries", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   // ─── getAdminStats ─────────────────────────────────────
   describe("getAdminStats", () => {
-    it("should aggregate and return all admin statistics", async () => {
-      // Setup mocks for the 7 parallel queries in Promise.all:
-      // 1. total_bookings
-      mockFrom.mockReturnValueOnce(createCountChain(25));
-      // 2. confirmed
-      mockFrom.mockReturnValueOnce(createCountChain(15));
-      // 3. pending
-      mockFrom.mockReturnValueOnce(createCountChain(5));
-      // 4. cancelled
-      mockFrom.mockReturnValueOnce(createCountChain(3));
-      // 5. total_users
-      mockFrom.mockReturnValueOnce(createCountChain(100));
-      // 6. total_rooms
-      mockFrom.mockReturnValueOnce(createCountChain(20));
-      // 7. revenue data
-      mockFrom.mockReturnValueOnce(
-        createDataChain([
-          { amount: 2000000 },
-          { amount: 3000000 },
-          { amount: 1500000 },
-        ])
-      );
+    it("should combine SQL Server booking stats with the Supabase user count", async () => {
+      mockExecProc.mockResolvedValueOnce([
+        [
+          {
+            total_bookings: 25,
+            confirmed: 15,
+            pending: 5,
+            cancelled: 3,
+            total_revenue: 6500000,
+            total_rooms: 20,
+          },
+        ],
+      ]);
+      mockUserCount(100);
 
       const stats = await getAdminStats();
 
-      expect(stats.total_bookings).toBe(25);
-      expect(stats.confirmed).toBe(15);
-      expect(stats.pending).toBe(5);
-      expect(stats.cancelled).toBe(3);
-      expect(stats.total_users).toBe(100);
-      expect(stats.total_rooms).toBe(20);
-      expect(stats.total_revenue).toBe(6500000); // 2M + 3M + 1.5M
+      expect(mockExecProc).toHaveBeenCalledWith("dbo.sp_GetAdminStats");
+      expect(mockFrom).toHaveBeenCalledWith("users");
+      expect(stats).toEqual({
+        total_bookings: 25,
+        confirmed: 15,
+        pending: 5,
+        cancelled: 3,
+        total_users: 100,
+        total_revenue: 6500000,
+        total_rooms: 20,
+      });
     });
 
-    it("should handle null counts gracefully (default to 0)", async () => {
-      mockFrom.mockReturnValueOnce(createCountChain(null)); // total_bookings
-      mockFrom.mockReturnValueOnce(createCountChain(null)); // confirmed
-      mockFrom.mockReturnValueOnce(createCountChain(null)); // pending
-      mockFrom.mockReturnValueOnce(createCountChain(null)); // cancelled
-      mockFrom.mockReturnValueOnce(createCountChain(null)); // total_users
-      mockFrom.mockReturnValueOnce(createCountChain(null)); // total_rooms
-      mockFrom.mockReturnValueOnce(createDataChain([]));      // no revenue
+    it("should default a null user count to 0", async () => {
+      mockExecProc.mockResolvedValueOnce([
+        [{ total_bookings: 0, confirmed: 0, pending: 0, cancelled: 0, total_revenue: 0, total_rooms: 22 }],
+      ]);
+      mockUserCount(null);
 
       const stats = await getAdminStats();
 
-      expect(stats.total_bookings).toBe(0);
-      expect(stats.confirmed).toBe(0);
-      expect(stats.pending).toBe(0);
-      expect(stats.cancelled).toBe(0);
       expect(stats.total_users).toBe(0);
-      expect(stats.total_rooms).toBe(0);
       expect(stats.total_revenue).toBe(0);
     });
+  });
 
-    it("should handle null revenue data gracefully", async () => {
-      mockFrom.mockReturnValueOnce(createCountChain(10));
-      mockFrom.mockReturnValueOnce(createCountChain(5));
-      mockFrom.mockReturnValueOnce(createCountChain(3));
-      mockFrom.mockReturnValueOnce(createCountChain(2));
-      mockFrom.mockReturnValueOnce(createCountChain(50));
-      mockFrom.mockReturnValueOnce(createCountChain(15));
-      // Revenue query returns null data
-      const revenueChain: Record<string, jest.Mock> = {};
-      for (const m of ["select", "eq"]) {
-        revenueChain[m] = jest.fn().mockReturnValue(revenueChain);
-      }
-      (revenueChain as Record<string, unknown>)["then"] = (resolve: (v: unknown) => void) =>
-        resolve({ data: null, error: { message: "error" } });
-      mockFrom.mockReturnValueOnce(revenueChain);
+  // ─── getAdminBookings ──────────────────────────────────
+  describe("getAdminBookings", () => {
+    const row = {
+      id: "7",
+      booking_code: "OH000007",
+      guest_name: "Nguyen Van A",
+      guest_phone: "0901234567",
+      check_in: "2026-12-20",
+      check_out: "2026-12-25",
+      total_price: 15000000,
+      status: "Confirmed",
+      created_at: "2026-11-10T08:00:00Z",
+      room_name: "Seaside Family Suite",
+      user_email: "guest@oceanhaven.vn",
+      payment_status: "Completed",
+    };
 
-      const stats = await getAdminStats();
+    it("should map procedure rows to AdminBooking", async () => {
+      mockExecProc.mockResolvedValueOnce([[row]]);
 
-      expect(stats.total_revenue).toBe(0);
-      expect(stats.total_bookings).toBe(10);
+      const [booking] = await getAdminBookings();
+
+      expect(mockExecProc).toHaveBeenCalledWith("dbo.sp_GetAdminBookings", { PhoneSearch: null });
+      expect(booking.booking_id).toBe("7");
+      expect(booking.room_name).toBe("Seaside Family Suite");
+      expect(booking.payment_status).toBe("Completed");
+      expect(booking).not.toHaveProperty("id");
+    });
+
+    it("should pass a trimmed phone prefix to the procedure", async () => {
+      mockExecProc.mockResolvedValueOnce([[]]);
+
+      await getAdminBookings("  0901 ");
+
+      expect(mockExecProc).toHaveBeenCalledWith("dbo.sp_GetAdminBookings", { PhoneSearch: "0901" });
+    });
+
+    it("should return empty array on database error", async () => {
+      mockExecProc.mockRejectedValueOnce(new Error("timeout"));
+
+      expect(await getAdminBookings()).toEqual([]);
     });
   });
 });

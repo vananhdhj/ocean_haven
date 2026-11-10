@@ -14,9 +14,37 @@ services:
       - "3000:3000"
     env_file:
       - .env.local
+    environment:
+      # Inside the compose network SQL Server is reachable by service name,
+      # and Ollama runs on the host machine.
+      MSSQL_HOST: sqlserver
+      OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - sqlserver
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  # SQL Server 2025 Developer Edition (free for development and study).
+  # Start only the database with: npm run db:start
+  sqlserver:
+    container_name: ocean-haven-sqlserver
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    platform: linux/amd64 # no ARM image; Apple Silicon runs it through Rosetta
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+volumes:
+  mssql-data:

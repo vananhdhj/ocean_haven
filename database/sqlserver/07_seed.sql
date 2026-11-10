@@ -1,23 +1,29 @@
--- Ocean Haven Hotel — Seed Data for Supabase (PostgreSQL)
+/* ============================================================
+   Ocean Haven Hotel — Seed data (22 rooms, images, amenities)
+   ============================================================ */
+USE OceanHaven;
+GO
 
-INSERT INTO public.room_types (id, name) VALUES
+SET NOCOUNT ON;
+
+INSERT INTO dbo.room_types (id, name) VALUES
 ('rt-standard', 'Standard'),
 ('rt-deluxe',   'Deluxe'),
 ('rt-family',   'Family Suite');
 
-INSERT INTO public.view_types (id, name) VALUES
+INSERT INTO dbo.view_types (id, name) VALUES
 ('vt-sea',    'Sea View'),
 ('vt-garden', 'Garden View'),
 ('vt-city',   'City View');
 
-INSERT INTO public.bed_types (id, name) VALUES
+INSERT INTO dbo.bed_types (id, name) VALUES
 ('bt-queen',  'Queen'),
 ('bt-king',   'King'),
 ('bt-twin',   'Twin'),
 ('bt-double', 'Double'),
 ('bt-bunk',   'Bunk');
 
-INSERT INTO public.amenities (id, name, icon_name) VALUES
+INSERT INTO dbo.amenities (id, name, icon_name) VALUES
 ('am-wifi',           'Free WiFi',            'wifi'),
 ('am-ac',             'Air Conditioning',     'sparkles'),
 ('am-flattv',         'Flat-screen TV',       'tv'),
@@ -55,111 +61,111 @@ INSERT INTO public.amenities (id, name, icon_name) VALUES
 ('am-champagne',      'Champagne on Arrival', 'sparkles'),
 ('am-soakingtub',     'Soaking Tub',          'bath');
 
-INSERT INTO public.rooms
-(id, room_types_id, view_type_id, floor, name, rating, review_count, size,
+INSERT INTO dbo.rooms
+(id, room_type_id, view_type_id, floor, name, rating, review_count, size,
  max_guests, bed_type_id, bed_count, description, price, is_active)
 VALUES
 ('room-001', 'rt-standard', 'vt-sea',    1, 'Ocean Breeze Standard', 4.5, 128, 28, 2, 'bt-queen',  1,
  'Enjoy the soft sound of waves from this spacious ground-floor standard room. Features a cozy queen bed, modern bathroom with rainfall shower, and a private window seat facing the sea.',
- 2250000, true),
+ 2250000, 1),
 ('room-002', 'rt-standard', 'vt-garden', 1, 'Garden Sanctuary', 4.7, 94, 30, 2, 'bt-king', 1,
  'Surrounded by lush tropical greenery, this room offers quiet seclusion with direct access to our garden walking paths. Perfect for couples seeking a peaceful getaway.',
- 2125000, true),
+ 2125000, 1),
 ('room-003', 'rt-deluxe', 'vt-sea',    1, 'Ground Sea Deluxe', 4.6, 110, 35, 2, 'bt-king', 1,
  'Step out from your private patio directly onto the sandy paths leading to the beach. Includes premium oceanfront views, an expanded seating area, and upgraded bath amenities.',
- 2875000, true),
+ 2875000, 1),
 ('room-004', 'rt-standard', 'vt-city',   1, 'Urban Comfort Standard', 4.3, 62, 26, 2, 'bt-double', 1,
  'A smart, modern space overlooking the vibrant coastal town. Includes high-speed Wi-Fi, a dedicated workspace, and soundproof windows for a restful night.',
- 1750000, true),
+ 1750000, 1),
 ('room-005', 'rt-family', 'vt-garden', 1, 'Family Garden Suite', 4.8, 145, 52, 4, 'bt-queen', 2,
  'Nestled beside our tropical garden, this family suite offers generous space for up to four guests. Children will love watching exotic birds from the private patio each morning.',
- 4225000, true),
+ 4225000, 1),
 ('room-006', 'rt-standard', 'vt-garden', 1, 'Palm Grove Standard', 4.4, 78, 28, 2, 'bt-queen', 1,
  'Cozy and comfortable, this garden-facing standard room offers a peaceful retreat with a private seating area among the palms. The perfect room for guests who value quiet above all else.',
- 2050000, true),
+ 2050000, 1),
 ('room-007', 'rt-family', 'vt-sea',    1, 'Seaside Family Suite', 4.6, 93, 48, 4, 'bt-king', 2,
  'Spacious family layout with ocean views. Perfect for multigenerational families, giving adults and children their own space while staying close.',
- 3975000, true),
+ 3975000, 1),
 ('room-008', 'rt-standard', 'vt-city',   1, 'City View Standard', 4.2, 55, 24, 2, 'bt-double', 1,
  'A practical and comfortable standard room with city views. Ideal for the solo traveler or business couple seeking good value in a prime location.',
- 1800000, true),
+ 1800000, 1),
 ('room-009', 'rt-deluxe', 'vt-sea',    2, 'Horizon Deluxe', 4.8, 187, 36, 2, 'bt-king', 1,
  'Elevated living with panoramic sea views from the second floor. The Horizon Deluxe features a spa-style bathroom with freestanding tub, premium linens, and curated local artwork. A sanctuary for those who appreciate thoughtful luxury.',
- 3225000, true),
+ 3225000, 1),
 ('room-010', 'rt-deluxe', 'vt-sea',    2, 'Terrace Deluxe', 4.8, 162, 40, 3, 'bt-king', 1,
  'Your private terrace awaits. Sip morning coffee as the sun rises over the ocean, then spend evenings watching the horizon glow in amber and violet. The terrace has a daybed and outdoor shower.',
- 3475000, true),
+ 3475000, 1),
 ('room-011', 'rt-deluxe', 'vt-garden', 2, 'Garden Deluxe', 4.6, 103, 34, 2, 'bt-king', 1,
  'A romantic garden-view deluxe room offering elevated tranquility. The second-floor position catches the gentle sea breeze while overlooking our manicured tropical grounds.',
- 2975000, true),
+ 2975000, 1),
 ('room-012', 'rt-deluxe', 'vt-city',   2, 'Twin Deluxe', 4.5, 88, 32, 2, 'bt-twin', 2,
  'Upgraded twin beds meet deluxe finishes. Perfect for friends traveling together who want to share the experience without compromising on individual comfort.',
- 2800000, true),
+ 2800000, 1),
 ('room-013', 'rt-deluxe', 'vt-sea',    2, 'Sea Breeze Deluxe', 4.9, 211, 38, 2, 'bt-king', 1,
  'The most sought-after room on the second floor. Every corner of this deluxe room frames the sea, from the bed to the marble bathroom vanity. Guests consistently rate it the most beautiful in the hotel.',
- 3375000, true),
+ 3375000, 1),
 ('room-014', 'rt-family', 'vt-garden', 2, 'Deluxe Garden Suite', 4.6, 74, 50, 4, 'bt-king', 2,
  'Two deluxe rooms united by a private hallway, each with garden views. Ideal for families who want the intimacy of a suite with the flexibility of separate rooms.',
- 4225000, true),
+ 4225000, 1),
 ('room-015', 'rt-deluxe', 'vt-sea',    2, 'Panorama Deluxe', 4.7, 139, 40, 2, 'bt-king', 1,
  'Floor-to-ceiling panoramic windows wrap around this corner deluxe room, giving an unobstructed 180-degree view of the open sea. The Jacuzzi tub faces the view, a decision you will appreciate.',
- 3625000, true),
+ 3625000, 1),
 ('room-016', 'rt-family', 'vt-sea',    3, 'Ocean Haven Suite', 5.0, 87, 72, 6, 'bt-king', 3,
  'Our signature suite occupies the entire northeast corner of the third floor. A king master bedroom, two twin rooms, a panoramic sea terrace, and a full kitchen make this the ultimate family sanctuary above the ocean.',
- 6225000, true),
+ 6225000, 1),
 ('room-017', 'rt-deluxe', 'vt-sea',    3, 'Penthouse Deluxe', 4.9, 156, 48, 2, 'bt-king', 1,
  'The highest deluxe in the hotel. On the third floor, the Penthouse Deluxe offers an elevated sea view unlike any other, with ceiling-height windows and a private lounging terrace.',
- 4725000, true),
+ 4725000, 1),
 ('room-018', 'rt-family', 'vt-garden', 3, 'Sky Garden Suite', 4.8, 112, 65, 5, 'bt-king', 2,
  'Treetop living on the third floor. The Sky Garden Suite overlooks an expanse of tropical canopy with a rooftop-style terrace where children can play safely while parents unwind below the palms.',
- 5475000, true),
+ 5475000, 1),
 ('room-019', 'rt-family', 'vt-sea',    3, 'Rooftop Grand Suite', 4.8, 98, 68, 6, 'bt-king', 3,
  'Three top-floor rooms united. The Rooftop Grand Suite offers unrivaled flexibility, perfect for large family groups who want to stay together yet enjoy private space.',
- 5725000, true),
+ 5725000, 1),
 ('room-020', 'rt-deluxe', 'vt-sea',    3, 'Sunset Deluxe', 4.8, 143, 42, 2, 'bt-king', 1,
  'Named for the spectacular sunsets visible from its west-facing balcony. Watch the sky ignite in color while soaking in the private bathtub, the most romantic room in the hotel.',
- 4375000, true),
+ 4375000, 1),
 ('room-021', 'rt-standard', 'vt-garden', 3, 'Treetop Standard', 4.4, 61, 28, 2, 'bt-queen', 1,
  'Perched on the third floor, this standard room surprises with sweeping garden-to-sea glimpses. Unpretentious and honest, it rewards guests who know that the best views don''t always require the biggest budget.',
- 2375000, true),
+ 2375000, 1),
 ('room-022', 'rt-family', 'vt-sea',    3, 'Sunrise Suite', 4.9, 177, 68, 5, 'bt-king', 2,
  'Every morning begins with the ocean waking you gently. The Sunrise Suite faces east, capturing the first light across the sea. A spacious living area, generous king bedroom, and separate twin room make family mornings feel leisurely.',
- 5875000, true);
+ 5875000, 1);
 
-INSERT INTO public.room_images (room_id, image_url, is_primary) VALUES
-('room-001', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', true),
-('room-001', 'https://images.unsplash.com/photo-1696854649609-1fd6e5abf87f?w=1200&h=800&fit=crop&auto=format', false),
-('room-001', 'https://images.unsplash.com/photo-1775566081059-6e35805e4edd?w=1200&h=800&fit=crop&auto=format', false),
-('room-002', 'https://images.unsplash.com/photo-1695706807850-8c66b24b3413?w=1200&h=800&fit=crop&auto=format', true),
-('room-002', 'https://images.unsplash.com/photo-1637730827702-de34e9ae4ede?w=1200&h=800&fit=crop&auto=format', false),
-('room-003', 'https://images.unsplash.com/photo-1637730827702-de34e9ae4ede?w=1200&h=800&fit=crop&auto=format', true),
-('room-004', 'https://images.unsplash.com/photo-1702830499141-a0634d87d6af?w=1200&h=800&fit=crop&auto=format', true),
-('room-004', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', false),
-('room-004', 'https://images.unsplash.com/photo-1693098243367-93320637839e?w=1200&h=800&fit=crop&auto=format', false),
-('room-005', 'https://images.unsplash.com/photo-1689717887631-088197cdc2ca?w=1200&h=800&fit=crop&auto=format', true),
-('room-006', 'https://images.unsplash.com/photo-1609602126247-4ab7188b4aa1?w=1200&h=800&fit=crop&auto=format', true),
-('room-007', 'https://images.unsplash.com/photo-1776761603930-e4509e386fbf?w=1200&h=800&fit=crop&auto=format', true),
-('room-008', 'https://images.unsplash.com/photo-1664189767954-e4e605ae46da?w=1200&h=800&fit=crop&auto=format', true),
-('room-009', 'https://images.unsplash.com/photo-1779942578833-5f00dc79d6d1?w=1200&h=800&fit=crop&auto=format', true),
-('room-009', 'https://images.unsplash.com/photo-1696854649609-1fd6e5abf87f?w=1200&h=800&fit=crop&auto=format', false),
-('room-010', 'https://images.unsplash.com/photo-1693098243367-93320637839e?w=1200&h=800&fit=crop&auto=format', true),
-('room-011', 'https://images.unsplash.com/photo-1702830499141-a0634d87d6af?w=1200&h=800&fit=crop&auto=format', true),
-('room-012', 'https://images.unsplash.com/photo-1776761603930-e4509e386fbf?w=1200&h=800&fit=crop&auto=format', true),
-('room-013', 'https://images.unsplash.com/photo-1775566081059-6e35805e4edd?w=1200&h=800&fit=crop&auto=format', true),
-('room-014', 'https://images.unsplash.com/photo-1609602126247-4ab7188b4aa1?w=1200&h=800&fit=crop&auto=format', true),
-('room-015', 'https://images.unsplash.com/photo-1664189767954-e4e605ae46da?w=1200&h=800&fit=crop&auto=format', true),
-('room-016', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', true),
-('room-016', 'https://images.unsplash.com/photo-1779942578833-5f00dc79d6d1?w=1200&h=800&fit=crop&auto=format', false),
-('room-016', 'https://images.unsplash.com/photo-1693098243367-93320637839e?w=1200&h=800&fit=crop&auto=format', false),
-('room-017', 'https://images.unsplash.com/photo-1702830499141-a0634d87d6af?w=1200&h=800&fit=crop&auto=format', true),
-('room-018', 'https://images.unsplash.com/photo-1689717887631-088197cdc2ca?w=1200&h=800&fit=crop&auto=format', true),
-('room-019', 'https://images.unsplash.com/photo-1775566081059-6e35805e4edd?w=1200&h=800&fit=crop&auto=format', true),
-('room-020', 'https://images.unsplash.com/photo-1696854649609-1fd6e5abf87f?w=1200&h=800&fit=crop&auto=format', true),
-('room-021', 'https://images.unsplash.com/photo-1695706807850-8c66b24b3413?w=1200&h=800&fit=crop&auto=format', true),
-('room-022', 'https://images.unsplash.com/photo-1776761603930-e4509e386fbf?w=1200&h=800&fit=crop&auto=format', true),
-('room-022', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', false);
+INSERT INTO dbo.room_images (room_id, image_url, is_primary) VALUES
+('room-001', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', 1),
+('room-001', 'https://images.unsplash.com/photo-1696854649609-1fd6e5abf87f?w=1200&h=800&fit=crop&auto=format', 0),
+('room-001', 'https://images.unsplash.com/photo-1775566081059-6e35805e4edd?w=1200&h=800&fit=crop&auto=format', 0),
+('room-002', 'https://images.unsplash.com/photo-1695706807850-8c66b24b3413?w=1200&h=800&fit=crop&auto=format', 1),
+('room-002', 'https://images.unsplash.com/photo-1637730827702-de34e9ae4ede?w=1200&h=800&fit=crop&auto=format', 0),
+('room-003', 'https://images.unsplash.com/photo-1637730827702-de34e9ae4ede?w=1200&h=800&fit=crop&auto=format', 1),
+('room-004', 'https://images.unsplash.com/photo-1702830499141-a0634d87d6af?w=1200&h=800&fit=crop&auto=format', 1),
+('room-004', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', 0),
+('room-004', 'https://images.unsplash.com/photo-1693098243367-93320637839e?w=1200&h=800&fit=crop&auto=format', 0),
+('room-005', 'https://images.unsplash.com/photo-1689717887631-088197cdc2ca?w=1200&h=800&fit=crop&auto=format', 1),
+('room-006', 'https://images.unsplash.com/photo-1609602126247-4ab7188b4aa1?w=1200&h=800&fit=crop&auto=format', 1),
+('room-007', 'https://images.unsplash.com/photo-1776761603930-e4509e386fbf?w=1200&h=800&fit=crop&auto=format', 1),
+('room-008', 'https://images.unsplash.com/photo-1664189767954-e4e605ae46da?w=1200&h=800&fit=crop&auto=format', 1),
+('room-009', 'https://images.unsplash.com/photo-1779942578833-5f00dc79d6d1?w=1200&h=800&fit=crop&auto=format', 1),
+('room-009', 'https://images.unsplash.com/photo-1696854649609-1fd6e5abf87f?w=1200&h=800&fit=crop&auto=format', 0),
+('room-010', 'https://images.unsplash.com/photo-1693098243367-93320637839e?w=1200&h=800&fit=crop&auto=format', 1),
+('room-011', 'https://images.unsplash.com/photo-1702830499141-a0634d87d6af?w=1200&h=800&fit=crop&auto=format', 1),
+('room-012', 'https://images.unsplash.com/photo-1776761603930-e4509e386fbf?w=1200&h=800&fit=crop&auto=format', 1),
+('room-013', 'https://images.unsplash.com/photo-1775566081059-6e35805e4edd?w=1200&h=800&fit=crop&auto=format', 1),
+('room-014', 'https://images.unsplash.com/photo-1609602126247-4ab7188b4aa1?w=1200&h=800&fit=crop&auto=format', 1),
+('room-015', 'https://images.unsplash.com/photo-1664189767954-e4e605ae46da?w=1200&h=800&fit=crop&auto=format', 1),
+('room-016', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', 1),
+('room-016', 'https://images.unsplash.com/photo-1779942578833-5f00dc79d6d1?w=1200&h=800&fit=crop&auto=format', 0),
+('room-016', 'https://images.unsplash.com/photo-1693098243367-93320637839e?w=1200&h=800&fit=crop&auto=format', 0),
+('room-017', 'https://images.unsplash.com/photo-1702830499141-a0634d87d6af?w=1200&h=800&fit=crop&auto=format', 1),
+('room-018', 'https://images.unsplash.com/photo-1689717887631-088197cdc2ca?w=1200&h=800&fit=crop&auto=format', 1),
+('room-019', 'https://images.unsplash.com/photo-1775566081059-6e35805e4edd?w=1200&h=800&fit=crop&auto=format', 1),
+('room-020', 'https://images.unsplash.com/photo-1696854649609-1fd6e5abf87f?w=1200&h=800&fit=crop&auto=format', 1),
+('room-021', 'https://images.unsplash.com/photo-1695706807850-8c66b24b3413?w=1200&h=800&fit=crop&auto=format', 1),
+('room-022', 'https://images.unsplash.com/photo-1776761603930-e4509e386fbf?w=1200&h=800&fit=crop&auto=format', 1),
+('room-022', 'https://images.unsplash.com/photo-1776876648949-63ccabf63b10?w=1200&h=800&fit=crop&auto=format', 0);
 
-INSERT INTO public.room_amenities (room_id, amenity_id) VALUES
+INSERT INTO dbo.room_amenities (room_id, amenity_id) VALUES
 ('room-001','am-wifi'),('room-001','am-ac'),('room-001','am-flattv'),('room-001','am-minibar'),('room-001','am-roomservice'),('room-001','am-ensuite'),
 ('room-002','am-wifi'),('room-002','am-ac'),('room-002','am-flattv'),('room-002','am-coffee'),('room-002','am-ensuite'),
 ('room-003','am-wifi'),('room-003','am-ac'),('room-003','am-flattv'),('room-003','am-workdesk'),('room-003','am-ensuite'),
@@ -182,3 +188,4 @@ INSERT INTO public.room_amenities (room_id, amenity_id) VALUES
 ('room-020','am-wifi'),('room-020','am-ac'),('room-020','am-4ktv'),('room-020','am-privatebalcony'),('room-020','am-champagne'),('room-020','am-soakingtub'),
 ('room-021','am-wifi'),('room-021','am-ac'),('room-021','am-smarttv'),('room-021','am-ensuite'),
 ('room-022','am-wifi'),('room-022','am-ac'),('room-022','am-smarttv'),('room-022','am-kitchenette'),('room-022','am-eastbalcony'),('room-022','am-multibath'),('room-022','am-roomservice');
+GO

@@ -158,7 +158,7 @@ describe("Auth Server Actions", () => {
         email: "newuser@example.com",
         password: "password123",
         options: {
-          data: { name: "Nguyen Van B", phone: "0901234567", role: "user" },
+          data: { name: "Nguyen Van B", phone: "0901234567" },
         },
       });
     });

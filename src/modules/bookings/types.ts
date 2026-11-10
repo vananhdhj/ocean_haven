@@ -1,5 +1,6 @@
 export type BookingStatus = "Pending" | "Confirmed" | "Completed" | "Cancelled";
-export type PaymentStatus = "Pending" | "Completed" | "Failed" | "Refunded";
+/** Guests pay at the hotel: Pending until the stay is completed (cash collected). */
+export type PaymentStatus = "Pending" | "Completed" | "Cancelled";
 
 export interface Booking {
   id: string;
@@ -28,10 +29,9 @@ export interface BookingDetail {
   special_requests: string;
   total_price: number;
   status: BookingStatus;
-  hold_expires_at: string | null;
   created_at: string;
   rooms: { name: string; price: number } | null;
-  payments: { status: PaymentStatus; transaction_id: string | null } | null;
+  payments: { status: PaymentStatus } | null;
 }
 
 export interface BookingActionResult {
@@ -40,5 +40,4 @@ export interface BookingActionResult {
   bookingId?: string;
   bookingCode?: string;
   totalPrice?: number;
-  paymentMethod?: string;
 }
