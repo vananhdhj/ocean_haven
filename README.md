@@ -28,6 +28,7 @@ Dự án tích hợp đầy đủ quy trình từ khám phá phòng nghỉ, ki�
 - **Quản lý Tài khoản Cá nhân**:
   - Đăng ký, đăng nhập nhanh chóng thông qua modal popup mượt mà.
   - Quản lý hồ sơ cá nhân và theo dõi toàn bộ lịch sử các đơn đặt phòng kèm trạng thái xử lý (*Pending, Confirmed, Completed, Cancelled*).
+  - Tự hủy đơn đặt phòng của mình (*Pending* hoặc *Confirmed*) trước ngày nhận phòng; đơn và khoản thanh toán được hủy cùng lúc trong một transaction (`sp_CancelMyBooking`).
 
 ### 🛡️ Dành cho Quản Trị Viên (Admin)
 - **Bảng điều khiển (Dashboard) Thống kê**:
@@ -172,7 +173,7 @@ không cho người dùng tự đổi vai trò của mình.
 ```bash
 npm run db:start   # khởi động SQL Server 2025 trong Docker
 npm run db:setup   # tạo database, bảng, index, function, trigger, stored procedure và dữ liệu mẫu (22 phòng)
-npm run db:test    # chạy 22 bài kiểm tra cho stored procedure và trigger
+npm run db:test    # chạy 27 bài kiểm tra cho stored procedure và trigger
 ```
 Lần đầu chạy `db:start`, Docker cần vài phút để tải image; đợi SQL Server khởi động xong (khoảng 30 giây) rồi mới chạy `db:setup`.
 

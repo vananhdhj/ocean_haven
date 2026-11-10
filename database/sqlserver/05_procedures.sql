@@ -4,6 +4,7 @@
    WRITE procedures (business logic, each one a single transaction):
      sp_CreateBooking          validate -> lock room -> check availability -> insert booking + payment
      sp_UpdateBookingStatus    admin status change with allowed transitions -> keeps payment in sync
+     sp_CancelMyBooking        guest cancels own booking before check-in -> booking + payment cancelled
 
    READ procedures (called by the Next.js app):
      sp_GetRooms, sp_GetUserBookings, sp_GetAdminBookings, sp_GetAdminStats
@@ -163,6 +164,65 @@ BEGIN
             WHERE booking_id = @BookingId AND status = 'Pending';
 
         COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH;
+END;
+GO
+
+/* ------------------------------------------------------------
+   sp_CancelMyBooking
+   Called by: cancelMyBooking server action (guest's profile page)
+
+   A guest cancels their OWN booking, before the check-in date:
+     - another user's booking is reported as "not found" (50030), so the
+       procedure never reveals which booking ids exist
+     - only Pending or Confirmed bookings can be cancelled (50031)
+     - from the check-in date on, only the hotel can change it (50032)
+   Booking and its pay-at-hotel payment are cancelled in ONE transaction,
+   so a cancelled booking can never keep a payment that is still due.
+   The history row is written by trg_bookings_audit.
+   ------------------------------------------------------------ */
+CREATE OR ALTER PROCEDURE dbo.sp_CancelMyBooking
+    @BookingId BIGINT,
+    @UserId    UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @Status VARCHAR(20), @CheckIn DATE, @BookingCode VARCHAR(20);
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Lock the booking so an admin status change cannot run at the same time
+        SELECT @Status = status, @CheckIn = check_in, @BookingCode = booking_code
+        FROM dbo.bookings WITH (UPDLOCK, ROWLOCK)
+        WHERE id = @BookingId AND user_id = @UserId;
+
+        IF @Status IS NULL
+            THROW 50030, N'Booking not found.', 1;
+
+        IF @Status NOT IN ('Pending', 'Confirmed')
+            THROW 50031, N'This booking can no longer be cancelled.', 1;
+
+        IF @CheckIn <= CAST(SYSUTCDATETIME() AS DATE)
+            THROW 50032, N'Bookings can only be cancelled before the check-in date. Please contact the hotel.', 1;
+
+        UPDATE dbo.bookings
+        SET status = 'Cancelled', updated_at = SYSUTCDATETIME()
+        WHERE id = @BookingId;
+
+        UPDATE dbo.payments
+        SET status = 'Cancelled'
+        WHERE booking_id = @BookingId AND status = 'Pending';
+
+        COMMIT TRANSACTION;
+
+        SELECT @BookingCode AS booking_code;
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
