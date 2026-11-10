@@ -58,3 +58,6 @@ CLAUDE.md
 
 # Supabase local config
 supabase/.temp/
+
+# local test credentials
+tests/testAccount.md

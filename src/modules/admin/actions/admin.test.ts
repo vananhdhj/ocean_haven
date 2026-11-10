@@ -3,6 +3,7 @@ import { updateBookingStatusAction } from "./admin";
 // --- Mock setup ---
 const mockGetUser = jest.fn();
 const mockFrom = jest.fn();
+const mockExecProc = jest.fn();
 
 jest.mock("@/shared/lib/supabase/server", () => ({
   createClient: jest.fn(() =>
@@ -15,13 +16,30 @@ jest.mock("@/shared/lib/supabase/server", () => ({
   ),
 }));
 
+jest.mock("@/shared/lib/db/sqlserver", () => ({
+  execProc: (...args: unknown[]) => mockExecProc(...args),
+}));
+
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
+function mockRole(role: string) {
+  mockFrom.mockReturnValueOnce({
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockResolvedValueOnce({ data: { role } }),
+  });
+}
+
 describe("Admin Actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   // ─── updateBookingStatusAction ─────────────────────────
@@ -33,7 +51,7 @@ describe("Admin Actions", () => {
     });
 
     it("should fail if status is missing", async () => {
-      const result = await updateBookingStatusAction("booking-001", "");
+      const result = await updateBookingStatusAction("17", "");
       expect(result.success).toBe(false);
       expect(result.error).toBe("Missing required fields");
     });
@@ -41,77 +59,57 @@ describe("Admin Actions", () => {
     it("should fail if user is not authenticated", async () => {
       mockGetUser.mockResolvedValueOnce({ data: { user: null } });
 
-      const result = await updateBookingStatusAction("booking-001", "Confirmed");
+      const result = await updateBookingStatusAction("17", "Confirmed");
       expect(result.success).toBe(false);
       expect(result.error).toBe("Unauthorized");
     });
 
     it("should fail if user is not an admin", async () => {
-      mockGetUser.mockResolvedValueOnce({
-        data: { user: { id: "user-regular" } },
-      });
+      mockGetUser.mockResolvedValueOnce({ data: { user: { id: "user-regular" } } });
+      mockRole("user");
 
-      // Profile query returns non-admin role
-      mockFrom.mockReturnValueOnce({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValueOnce({ data: { role: "user" } }),
-      });
-
-      const result = await updateBookingStatusAction("booking-001", "Confirmed");
+      const result = await updateBookingStatusAction("17", "Confirmed");
       expect(result.success).toBe(false);
       expect(result.error).toBe("Forbidden");
+      expect(mockExecProc).not.toHaveBeenCalled();
     });
 
-    it("should succeed when admin updates booking status", async () => {
-      mockGetUser.mockResolvedValueOnce({
-        data: { user: { id: "admin-001" } },
-      });
+    it("should call sp_UpdateBookingStatus when an admin updates a booking", async () => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: { id: "admin-001" } } });
+      mockRole("admin");
+      mockExecProc.mockResolvedValueOnce([]);
 
-      // Profile query returns admin role
-      mockFrom.mockReturnValueOnce({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValueOnce({ data: { role: "admin" } }),
-      });
+      const result = await updateBookingStatusAction("17", "Confirmed");
 
-      // Booking update
-      mockFrom.mockReturnValueOnce({
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValueOnce({ error: null }),
-      });
-
-      // History insert
-      mockFrom.mockReturnValueOnce({
-        insert: jest.fn().mockResolvedValueOnce({ error: null }),
-      });
-
-      const result = await updateBookingStatusAction("booking-001", "Confirmed");
       expect(result.success).toBe(true);
+      expect(mockExecProc).toHaveBeenCalledWith("dbo.sp_UpdateBookingStatus", {
+        BookingId: "17",
+        NewStatus: "Confirmed",
+      });
     });
 
-    it("should return error when booking update fails", async () => {
-      mockGetUser.mockResolvedValueOnce({
-        data: { user: { id: "admin-001" } },
-      });
+    it("should return the procedure's message for a forbidden transition", async () => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: { id: "admin-001" } } });
+      mockRole("admin");
+      mockExecProc.mockRejectedValueOnce(
+        Object.assign(new Error("Cannot change booking status from Cancelled to Confirmed."), {
+          number: 50022,
+        })
+      );
 
-      mockFrom.mockReturnValueOnce({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValueOnce({ data: { role: "admin" } }),
-      });
-
-      // Booking update fails
-      mockFrom.mockReturnValueOnce({
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValueOnce({
-          error: { message: "Database constraint violation" },
-        }),
-      });
-
-      const result = await updateBookingStatusAction("booking-001", "InvalidStatus");
+      const result = await updateBookingStatusAction("17", "Confirmed");
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Database constraint violation");
+      expect(result.error).toBe("Cannot change booking status from Cancelled to Confirmed.");
+    });
+
+    it("should return a generic error for technical failures", async () => {
+      mockGetUser.mockResolvedValueOnce({ data: { user: { id: "admin-001" } } });
+      mockRole("admin");
+      mockExecProc.mockRejectedValueOnce(new Error("Connection lost"));
+
+      const result = await updateBookingStatusAction("17", "Confirmed");
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Failed to update booking status");
     });
   });
 });

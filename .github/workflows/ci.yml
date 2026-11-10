@@ -35,14 +35,10 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VNPAY_TMN: ${{ secrets.VNPAY_TMN_CODE }}
-          VNPAY_SECRET: ${{ secrets.VNPAY_HASH_SECRET }}
         run: |
           FAILED=0
           if [ -z "$SUPABASE_URL" ]; then echo "::error::Secret [NEXT_PUBLIC_SUPABASE_URL] does not exist"; FAILED=1; fi
           if [ -z "$SUPABASE_ANON_KEY" ]; then echo "::error::Secret [NEXT_PUBLIC_SUPABASE_ANON_KEY] does not exist"; FAILED=1; fi
-          if [ -z "$VNPAY_TMN" ]; then echo "::error::Secret [VNPAY_TMN_CODE] does not exist"; FAILED=1; fi
-          if [ -z "$VNPAY_SECRET" ]; then echo "::error::Secret [VNPAY_HASH_SECRET] does not exist"; FAILED=1; fi
           if [ $FAILED -ne 0 ]; then
             echo "::error::Missing required secrets in repository settings!"
             exit 1
@@ -59,8 +55,6 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VNPAY_TMN_CODE: ${{ secrets.VNPAY_TMN_CODE }}
-          VNPAY_HASH_SECRET: ${{ secrets.VNPAY_HASH_SECRET }}
 
       - name: Build Next.js application
         run: npm run build

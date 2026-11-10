@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { 
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -48,27 +49,29 @@ export function AdminBookingAction({
         <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={() => handleUpdateStatus("Confirmed")}
-          disabled={currentStatus === "Confirmed" || currentStatus === "Cancelled"}
-        >
-          Mark as Confirmed
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => handleUpdateStatus("Completed")}
-          disabled={currentStatus === "Completed" || currentStatus === "Cancelled"}
-        >
-          Mark as Completed
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => handleUpdateStatus("Cancelled")}
-          disabled={currentStatus === "Cancelled" || currentStatus === "Completed"}
-          className="text-red-600 focus:text-red-600"
-        >
-          Cancel Booking
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem 
+            onClick={() => handleUpdateStatus("Confirmed")}
+            disabled={currentStatus === "Confirmed" || currentStatus === "Cancelled"}
+          >
+            Mark as Confirmed
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => handleUpdateStatus("Completed")}
+            disabled={currentStatus === "Completed" || currentStatus === "Cancelled"}
+          >
+            Mark as Completed
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => handleUpdateStatus("Cancelled")}
+            disabled={currentStatus === "Cancelled" || currentStatus === "Completed"}
+            className="text-red-600 focus:text-red-600"
+          >
+            Cancel Booking
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

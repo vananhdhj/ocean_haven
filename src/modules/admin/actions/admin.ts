@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/shared/lib/supabase/server";
+import { execProc } from "@/shared/lib/db/sqlserver";
+import { businessErrorMessage } from "@/shared/lib/db/errors";
 import { revalidatePath } from "next/cache";
 
 export async function updateBookingStatusAction(bookingId: string, status: string) {
@@ -26,23 +28,15 @@ export async function updateBookingStatusAction(bookingId: string, status: strin
     return { success: false, error: "Forbidden" };
   }
 
-  // Update booking status
-  const { error: updateError } = await supabase
-    .from("bookings")
-    .update({ status })
-    .eq("id", bookingId);
-
-  if (updateError) {
-    return { success: false, error: updateError.message };
+  // Transition rules and payment side effects live in dbo.sp_UpdateBookingStatus;
+  // the history row is written by the trg_bookings_audit trigger.
+  try {
+    await execProc("dbo.sp_UpdateBookingStatus", { BookingId: bookingId, NewStatus: status });
+  } catch (err) {
+    const message = businessErrorMessage(err);
+    if (!message) console.error("Update booking status error:", err);
+    return { success: false, error: message ?? "Failed to update booking status" };
   }
-
-  // Insert history record
-  await supabase.from("history_booking").insert({
-    id: `history-${Date.now()}`,
-    booking_id: bookingId,
-    action: "STATUS_CHANGE",
-    note: `Admin changed status to ${status}`,
-  });
 
   revalidatePath("/admin");
   return { success: true };

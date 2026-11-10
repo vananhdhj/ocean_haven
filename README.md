@@ -8,7 +8,7 @@
 
 **Ocean Haven Hotel** là dự án web application phục vụ khách du lịch tìm kiếm, tham khảo và đặt phòng trực tuyến tại khách sạn nghỉ dưỡng ven biển Đà Nẵng (với 22 phòng cao cấp trải đều trên 3 tầng). 
 
-Dự án tích hợp đầy đủ quy trình từ khám phá phòng nghỉ, kiểm tra phòng trống theo thời gian thực, đặt phòng, xác thực người dùng cho đến thanh toán trực tuyến qua cổng **VNPay** và hệ thống bảng điều khiển quản trị dành cho chủ khách sạn.
+Dự án tích hợp đầy đủ quy trình từ khám phá phòng nghỉ, kiểm tra phòng trống theo thời gian thực, đặt phòng, xác thực người dùng cho đến thanh toán tại khách sạn và hệ thống bảng điều khiển quản trị dành cho chủ khách sạn.
 
 ---
 
@@ -23,10 +23,8 @@ Dự án tích hợp đầy đủ quy trình từ khám phá phòng nghỉ, ki�
 - **Quy trình Đặt phòng & Giữ chỗ**:
   - Form đặt phòng tự động tính số đêm và tổng tiền theo giá niêm yết.
   - Kiểm tra xung đột lịch đặt tự động — ngăn chặn tình trạng trùng phòng (*Overbooking*).
-  - Cơ chế giữ chỗ tạm thời trong 15 phút khi người dùng chuyển hướng sang cổng thanh toán.
-- **Thanh toán Trực tuyến**:
-  - Hỗ trợ thanh toán bảo mật qua **cổng VNPay** (Sandbox) với mã hóa chữ ký HMAC SHA-512.
-  - Hỗ trợ phương thức thanh toán linh hoạt tại khách sạn (COD).
+- **Thanh toán**:
+  - Khách thanh toán trực tiếp tại khách sạn khi nhận phòng (COD). Khi Admin đánh dấu đơn là *Completed*, khoản thanh toán được ghi nhận là đã thu.
 - **Quản lý Tài khoản Cá nhân**:
   - Đăng ký, đăng nhập nhanh chóng thông qua modal popup mượt mà.
   - Quản lý hồ sơ cá nhân và theo dõi toàn bộ lịch sử các đơn đặt phòng kèm trạng thái xử lý (*Pending, Confirmed, Completed, Cancelled*).
@@ -53,11 +51,10 @@ src/
 │   ├── rooms/                        # Danh mục phòng (/rooms) & Chi tiết phòng (/rooms/[id])
 │   ├── admin/                        # Dashboard quản trị dành cho Admin (/admin)
 │   ├── profile/                      # Quản lý tài khoản & lịch sử đặt phòng (/profile)
-│   ├── vnpay-return/                 # Trang tiếp nhận & hiển thị kết quả từ VNPay
 │   ├── proxy.ts                      # Route protection & session proxy middleware
 │   └── api/                          # HTTP endpoints mỏng ủy quyền cho modules
 │       ├── admin/update-booking/
-│       └── payments/create-vnpay/
+│       └── health/
 │
 ├── modules/                          # 2. Domain Modules (Các Bounded Contexts độc lập)
 │   ├── auth/                         # [Module 1] Quản lý Xác thực & Phiên làm việc
@@ -83,14 +80,7 @@ src/
 │   │   ├── server.ts                 # Server-only entrypoint
 │   │   └── index.ts                  # Client/Shared public entrypoint
 │   │
-│   ├── payments/                     # [Module 4] Cổng Thanh toán & Tích hợp VNPay
-│   │   ├── lib/vnpay.ts              # buildVnpayUrl, verifyVnpaySignature (HMAC SHA-512)
-│   │   ├── actions/payments.ts       # processVNPayReturn (DB transaction & status sync)
-│   │   ├── types.ts                  # PaymentStatus, VNPayVerificationResult
-│   │   ├── server.ts                 # Server-only entrypoint
-│   │   └── index.ts                  # Client/Shared public entrypoint
-│   │
-│   └── admin/                        # [Module 5] Quản trị Khách sạn & Vận hành
+│   └── admin/                        # [Module 4] Quản trị Khách sạn & Vận hành
 │       ├── actions/admin.ts          # updateBookingStatusAction
 │       ├── queries/admin.ts          # getAdminStats, getAdminBookings
 │       ├── components/booking-action.tsx # Dropdown thao tác duyệt/hủy đơn
@@ -119,7 +109,7 @@ src/
 | **UI & Styling** | **Tailwind CSS v4 & shadcn/ui** | Giao diện phong cách Ocean hiện đại, responsive hoàn hảo, engine `@base-ui/react`. |
 | **Icons** | **Lucide React** | Bộ icon đồng bộ, trực quan. |
 | **Database & Auth** | **Supabase (PostgreSQL + Auth SSR)** | Lưu trữ dữ liệu quan hệ, phân quyền hàng dữ liệu (RLS), xác thực cookie SSR an toàn. |
-| **Payment Gateway** | **VNPay API Sandbox** | Tích hợp thanh toán trực tuyến qua thẻ ATM/QR/Quốc tế với chữ ký điện tử an toàn. |
+| **Payment** | **Thanh toán tại khách sạn (COD)** | Không tích hợp cổng thanh toán trực tuyến; Admin ghi nhận đã thu tiền khi hoàn tất đơn. |
 | **Tooling** | **Turbopack, ESLint 9** | Tốc độ biên dịch siêu tốc và kiểm soát chất lượng mã nguồn nghiêm ngặt. |
 
 ---
@@ -147,10 +137,6 @@ Tạo file `.env.local` tại thư mục gốc của dự án và điền các t
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 
-# VNPay Sandbox Configuration
-VNPAY_TMN_CODE=IYJSDEB6
-VNPAY_HASH_SECRET=2YG2177AQQ89S26MBLX2OOQY3T4UBMJ3
-VNPAY_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
@@ -183,14 +169,7 @@ Mở trình duyệt và truy cập: **[http://localhost:3000](http://localhost:3
 
 ## 🔒 Tài Khoản Demo Khảo Sát
 
-Sau khi chạy seed dữ liệu, bạn có thể sử dụng các tài khoản sau để kiểm tra phân quyền:
-
-- **Tài khoản Khách hàng**:
-  - Email: `user@oceanhaven.vn`
-  - Password: `password123`
-- **Tài khoản Quản trị viên (Admin)**:
-  - Email: `admin@oceanhaven.vn`
-  - Password: `adminpassword123` (Truy cập được trang `/admin`)
+Thông tin tài khoản thử nghiệm (Khách hàng và Quản trị viên) được lưu trong file cục bộ `tests/testAccount.md`. File này không được commit lên Git (đã thêm vào `.gitignore` và `.dockerignore`); hãy xin file này từ người quản lý dự án.
 
 ---
 

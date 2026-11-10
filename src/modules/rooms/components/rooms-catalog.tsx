@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Form from "next/form";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Room } from "../types";
 import { RoomCard } from "./room-card";
-import { Waves, Calendar, SlidersHorizontal, X } from "lucide-react";
+import { Waves, Calendar, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -28,6 +31,9 @@ import {
 
 interface RoomsCatalogProps {
   initialRooms: Room[];
+  /** Set when the page ran an AI semantic search (?q=...); rooms are already ranked. */
+  semanticQuery?: string;
+  semanticSearchFailed?: boolean;
 }
 
 const fmtVNDRooms = (n: number) => formatMoney(n);
@@ -36,8 +42,14 @@ const ALL_TYPES = ["Standard", "Deluxe", "Family Suite", "Connecting Room"];
 const ALL_FLOORS = [1, 2, 3];
 const ALL_VIEWS = ["Sea View", "City View", "Garden View"];
 
-export function RoomsCatalog({ initialRooms }: RoomsCatalogProps) {
-  const [keyword, setKeyword] = useState("");
+export function RoomsCatalog({
+  initialRooms,
+  semanticQuery,
+  semanticSearchFailed = false,
+}: RoomsCatalogProps) {
+  const router = useRouter();
+  const isSemantic = !!semanticQuery && !semanticSearchFailed;
+  const [keyword, setKeyword] = useState(semanticQuery ?? "");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedFloors, setSelectedFloors] = useState<number[]>([]);
   const [selectedViews, setSelectedViews] = useState<string[]>([]);
@@ -60,6 +72,7 @@ export function RoomsCatalog({ initialRooms }: RoomsCatalogProps) {
     setCheckIn("");
     setCheckOut("");
     setCurrentPage(1);
+    if (semanticQuery) router.push("/rooms");
   };
 
   const handleTypeChange = (type: string) => {
@@ -86,8 +99,8 @@ export function RoomsCatalog({ initialRooms }: RoomsCatalogProps) {
 
   const filteredRooms = useMemo(() => {
     return initialRooms.filter((room) => {
-      // Keyword match
-      if (keyword.trim()) {
+      // Keyword match (skipped while showing AI results for the same text)
+      if (keyword.trim() && !(isSemantic && keyword.trim() === semanticQuery)) {
         const kw = keyword.toLowerCase();
         const matchesName = room.name.toLowerCase().includes(kw);
         const matchesType = room.type.toLowerCase().includes(kw);
@@ -122,7 +135,7 @@ export function RoomsCatalog({ initialRooms }: RoomsCatalogProps) {
 
       return true;
     });
-  }, [initialRooms, keyword, selectedTypes, selectedFloors, selectedViews, priceMax, minGuests]);
+  }, [initialRooms, isSemantic, semanticQuery, keyword, selectedTypes, selectedFloors, selectedViews, priceMax, minGuests]);
 
   const filterKey = `${keyword}_${selectedTypes.join()}_${selectedFloors.join()}_${selectedViews.join()}_${priceMax}_${minGuests}`;
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
@@ -303,16 +316,25 @@ export function RoomsCatalog({ initialRooms }: RoomsCatalogProps) {
           </h1>
 
           <div className="flex items-center gap-3 flex-wrap flex-1 justify-end font-sans">
-            {/* Search Input */}
-            <div className="relative flex-1 max-w-xs min-w-[220px]">
+            {/* Search Input: typing filters by keyword, Enter runs AI semantic search */}
+            <Form action="/rooms" className="relative flex-1 max-w-xs min-w-[220px]">
               <input
                 type="text"
-                className="w-full bg-slate-100 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-xs"
-                placeholder='Search "sea view", "family suite"…'
+                name="q"
+                className="w-full bg-slate-100 border border-slate-200 rounded-lg pl-3.5 pr-10 py-2 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-xs"
+                placeholder="Describe your stay, press Enter for AI search"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
               />
-            </div>
+              <button
+                type="submit"
+                aria-label="AI semantic search"
+                title="AI semantic search"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-violet-600 hover:bg-violet-100 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
+            </Form>
 
             {/* Dates Trigger */}
             <button
@@ -354,6 +376,29 @@ export function RoomsCatalog({ initialRooms }: RoomsCatalogProps) {
 
           {/* Room Grid Column */}
           <div className="flex-1">
+            {semanticQuery && (
+              <div className="mb-5 flex items-start gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm font-sans">
+                <Sparkles className="w-4 h-4 text-violet-600 mt-0.5 shrink-0" />
+                <p className="flex-1 text-slate-700">
+                  {semanticSearchFailed ? (
+                    <>
+                      AI search is unavailable right now. Showing keyword matches for{" "}
+                      <span className="font-semibold">&ldquo;{semanticQuery}&rdquo;</span> instead.
+                    </>
+                  ) : (
+                    <>
+                      AI search: rooms that best match{" "}
+                      <span className="font-semibold">&ldquo;{semanticQuery}&rdquo;</span>, most
+                      relevant first.
+                    </>
+                  )}
+                </p>
+                <Link href="/rooms" className="text-xs font-bold text-[#3d64b0] hover:underline">
+                  Clear
+                </Link>
+              </div>
+            )}
+
             {filteredRooms.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">

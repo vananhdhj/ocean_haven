@@ -43,7 +43,6 @@ const initialState: BookingActionResult = {
   bookingId: "",
   bookingCode: "",
   totalPrice: 0,
-  paymentMethod: "",
 };
 
 export function BookingForm({ room, user }: BookingFormProps) {
@@ -78,17 +77,13 @@ export function BookingForm({ room, user }: BookingFormProps) {
   const formattedPrice = formatMoney(totalPrice);
   const formattedRoomPrice = formatMoney(room.price);
 
-  // Redirect to VNPay or success page when booking is successful
+  // Show the new booking on the profile page when booking is successful
   if (state.success && state.bookingId) {
-    if (state.paymentMethod === "vnpay") {
-      router.push(`/api/payments/create-vnpay?bookingCode=${state.bookingCode}&amount=${state.totalPrice}`);
-    } else {
-      router.push(`/profile?success=1&booking=${state.bookingCode}`);
-    }
+    router.push(`/profile?success=1&booking=${state.bookingCode}`);
     return (
       <Card>
         <CardContent className="pt-6 text-center">
-          <p>Redirecting to payment...</p>
+          <p>Redirecting to your bookings...</p>
         </CardContent>
       </Card>
     );
@@ -202,16 +197,8 @@ export function BookingForm({ room, user }: BookingFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="paymentMethod">Payment Method</Label>
-            <Select name="paymentMethod" defaultValue="vnpay" required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select payment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="vnpay">Pay via VNPay (Online)</SelectItem>
-                <SelectItem value="cod">Pay at Hotel</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Payment Method</Label>
+            <p className="text-sm text-muted-foreground">Pay at the hotel on check-in</p>
           </div>
 
           {nights > 0 && (

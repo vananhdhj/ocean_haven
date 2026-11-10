@@ -85,7 +85,6 @@ export function RoomDetail({ room, user }: RoomDetailProps) {
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
   const [specialRequests, setSpecialRequests] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("vnpay");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -150,16 +149,11 @@ export function RoomDetail({ room, user }: RoomDetailProps) {
     formData.append("email", user.email);
     formData.append("phone", phone);
     formData.append("specialRequests", specialRequests);
-    formData.append("paymentMethod", paymentMethod);
 
     try {
       const res = await createBooking(null, formData);
       if (res.success && res.bookingId) {
-        if (res.paymentMethod === "vnpay") {
-          router.push(`/api/payments/create-vnpay?bookingCode=${res.bookingCode}&amount=${res.totalPrice}`);
-        } else {
-          router.push(`/profile?booking=${res.bookingCode}`);
-        }
+        router.push(`/profile?booking=${res.bookingCode}`);
       } else {
         setErrorMessage(res.message || "Failed to create booking.");
       }
@@ -585,14 +579,9 @@ export function RoomDetail({ room, user }: RoomDetailProps) {
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
                   Payment Method
                 </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full bg-slate-100 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-500 cursor-pointer"
-                >
-                  <option value="vnpay">Pay via VNPay (Online Banking / QR)</option>
-                  <option value="cod">Pay at Hotel on Check-in</option>
-                </select>
+                <p className="w-full bg-slate-100 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800">
+                  Pay at the hotel on check-in
+                </p>
               </div>
 
               {/* Price Summary */}

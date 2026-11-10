@@ -54,3 +54,6 @@ Thumbs.db
 .gemini/
 AGENTS.md
 CLAUDE.md
+
+# local test credentials
+tests/testAccount.md

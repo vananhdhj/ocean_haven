@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { BedDouble, Eye, Star } from "lucide-react";
+import { BedDouble, Eye, Sparkles, Star } from "lucide-react";
 import type { Room } from "../types";
 import { formatMoney } from "@/shared/lib/utils";
 
@@ -62,6 +62,14 @@ export function RoomCard({ room }: RoomCardProps) {
           <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
           <span>{room.rating.toFixed(1)}</span>
         </div>
+
+        {/* AI semantic search relevance */}
+        {room.similarity !== undefined && (
+          <div className="absolute bottom-3 left-3 bg-violet-600/90 text-white rounded-full px-2 py-0.5 inline-flex items-center gap-1 text-[11px] font-bold shadow-xs font-sans z-10">
+            <Sparkles className="w-3 h-3" />
+            <span>{Math.round(room.similarity * 100)}% match</span>
+          </div>
+        )}
       </div>
 
       {/* Card Body */}

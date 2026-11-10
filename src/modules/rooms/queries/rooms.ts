@@ -1,25 +1,25 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { connection } from "next/server";
+import { execProc } from "@/shared/lib/db/sqlserver";
 import { Room, RoomRaw, FEATURED_ROOM_IDS } from "../types";
 
 function transformRoom(raw: RoomRaw): Room {
-  const primaryImage = raw.room_images?.find((img) => img.is_primary);
-  const image = primaryImage?.image_url || raw.room_images?.[0]?.image_url || "";
-  const images = raw.room_images?.map((img) => img.image_url) || [];
-  const amenities =
-    raw.room_amenities?.map((ra) => ra.amenities?.name).filter(Boolean) || [];
+  const primaryImage = raw.images?.find((img) => img.is_primary);
+  const image = primaryImage?.image_url || raw.images?.[0]?.image_url || "";
+  const images = raw.images?.map((img) => img.image_url) || [];
+  const amenities = raw.amenities?.map((a) => a.name) || [];
 
   return {
     id: raw.id,
     name: raw.name,
-    type: raw.room_types?.name || "",
+    type: raw.room_type || "",
     floor: raw.floor,
-    view: raw.view_types?.name || "",
+    view: raw.view_type || "",
     price: Number(raw.price),
     rating: Number(raw.rating),
     reviewCount: raw.review_count,
     maxGuests: raw.max_guests,
     beds: raw.bed_count,
-    bedType: raw.bed_types?.name || "",
+    bedType: raw.bed_type || "",
     size: Number(raw.size),
     image,
     images,
@@ -29,86 +29,43 @@ function transformRoom(raw: RoomRaw): Room {
   };
 }
 
+async function fetchRooms(params: {
+  RoomId?: string;
+  CheckIn?: string;
+  CheckOut?: string;
+}): Promise<Room[]> {
+  const [rows] = await execProc<{ rooms_json: string | null }>("dbo.sp_GetRooms", params);
+  const raw: RoomRaw[] = JSON.parse(rows?.[0]?.rooms_json ?? "[]");
+  return raw.map((r) => {
+    const room = transformRoom(r);
+    room.featured = FEATURED_ROOM_IDS.includes(room.id);
+    return room;
+  });
+}
+
 export async function getRooms(checkin?: string, checkout?: string): Promise<Room[]> {
-  const supabase = await createClient();
+  // Availability is live data: render at request time, never prerender at build.
+  // (Outside try/catch: Next.js signals this with an error that must not be caught.)
+  await connection();
 
-  // Cancel expired pending bookings
   try {
-    await supabase
-      .from("bookings")
-      .update({ status: "Cancelled" })
-      .eq("status", "Pending")
-      .lt("hold_expires_at", new Date().toISOString());
+    // sp_GetRooms also filters out rooms booked for the dates, if given
+    return await fetchRooms({ CheckIn: checkin, CheckOut: checkout });
   } catch (err) {
-    console.error("Error auto-cancelling expired bookings:", err);
-  }
-
-  const query = supabase
-    .from("rooms")
-    .select(`
-      *,
-      room_types ( name ),
-      view_types ( name ),
-      bed_types ( name ),
-      room_images ( image_url, is_primary ),
-      room_amenities ( amenities ( name ) )
-    `)
-    .eq("is_active", true)
-    .order("floor", { ascending: true })
-    .order("name", { ascending: true });
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching rooms:", error.message || error.details || error);
+    console.error("Error fetching rooms:", err);
     return [];
   }
-
-  let rooms = (data as unknown as RoomRaw[]).map(transformRoom);
-
-  // Filter by availability if dates provided
-  if (checkin && checkout) {
-    const { data: bookedRoomIds } = await supabase
-      .from("bookings")
-      .select("room_id")
-      .not("status", "in", '("Cancelled","Completed")')
-      .lt("check_in", checkout)
-      .gt("check_out", checkin);
-
-    const booked = new Set(bookedRoomIds?.map((b) => b.room_id) || []);
-    rooms = rooms.filter((r) => !booked.has(r.id));
-  }
-
-  // Mark featured
-  rooms.forEach((r) => {
-    r.featured = FEATURED_ROOM_IDS.includes(r.id);
-  });
-
-  return rooms;
 }
 
 export async function getRoomById(id: string): Promise<Room | null> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("rooms")
-    .select(`
-      *,
-      room_types ( name ),
-      view_types ( name ),
-      bed_types ( name ),
-      room_images ( image_url, is_primary ),
-      room_amenities ( amenities ( name ) )
-    `)
-    .eq("id", id)
-    .eq("is_active", true)
-    .single();
-
-  if (error || !data) return null;
-
-  const room = transformRoom(data as unknown as RoomRaw);
-  room.featured = FEATURED_ROOM_IDS.includes(room.id);
-  return room;
+  await connection();
+  try {
+    const [room] = await fetchRooms({ RoomId: id });
+    return room ?? null;
+  } catch (err) {
+    console.error("Error fetching room:", err);
+    return null;
+  }
 }
 
 export async function getFeaturedRooms(): Promise<Room[]> {

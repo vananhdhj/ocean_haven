@@ -1,5 +1,6 @@
-import { getRooms } from "@/modules/rooms/server";
+import { getRooms, searchRoomsSemantic } from "@/modules/rooms/server";
 import { RoomsCatalog } from "@/modules/rooms";
+import type { Room } from "@/modules/rooms";
 
 export const metadata = {
   title: "All Available Rooms | Ocean Haven Hotel",
@@ -15,8 +16,30 @@ export default async function RoomsPage({
   const resolvedSearchParams = await searchParams;
   const checkin = resolvedSearchParams.checkin as string | undefined;
   const checkout = resolvedSearchParams.checkout as string | undefined;
+  const q = (resolvedSearchParams.q as string | undefined)?.trim();
 
-  const rooms = await getRooms(checkin, checkout);
+  let rooms: Room[];
+  let semanticSearchFailed = false;
 
-  return <RoomsCatalog initialRooms={rooms} />;
+  if (q) {
+    try {
+      rooms = await searchRoomsSemantic(q, checkin, checkout);
+    } catch (err) {
+      // e.g. Ollama not running: fall back to the normal list + keyword filter
+      console.error("Semantic search failed:", err);
+      semanticSearchFailed = true;
+      rooms = await getRooms(checkin, checkout);
+    }
+  } else {
+    rooms = await getRooms(checkin, checkout);
+  }
+
+  return (
+    <RoomsCatalog
+      key={q ?? ""}
+      initialRooms={rooms}
+      semanticQuery={q}
+      semanticSearchFailed={semanticSearchFailed}
+    />
+  );
 }

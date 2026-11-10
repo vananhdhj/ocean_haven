@@ -16,8 +16,11 @@ export interface Room {
   description: string;
   amenities: string[];
   featured: boolean;
+  /** Semantic search only: 0..1, how closely the room matches the guest's description. */
+  similarity?: number;
 }
 
+/** One room as returned by dbo.sp_GetRooms (FOR JSON omits NULL properties). */
 export interface RoomRaw {
   id: string;
   name: string;
@@ -29,12 +32,11 @@ export interface RoomRaw {
   bed_count: number;
   description: string;
   price: number;
-  is_active: boolean;
-  room_types: { name: string } | null;
-  view_types: { name: string } | null;
-  bed_types: { name: string } | null;
-  room_images: { image_url: string; is_primary: boolean }[];
-  room_amenities: { amenities: { name: string } }[];
+  room_type?: string;
+  view_type?: string;
+  bed_type?: string;
+  images?: { image_url: string; is_primary: boolean }[];
+  amenities?: { name: string }[];
 }
 
 export const FEATURED_ROOM_IDS = [

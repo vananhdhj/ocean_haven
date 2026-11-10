@@ -61,11 +61,8 @@ export async function register(
     email,
     password,
     options: {
-      data: {
-        name,
-        phone,
-        role: "user", // The trigger in schema.sql will use this
-      },
+      // Display fields only: the signup trigger always creates a 'user'
+      data: { name, phone },
     },
   });
 
